@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from .models import LLMModel, Question, Dataset, Test, TestResult
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -31,3 +32,34 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Email is already registered.")
 
         return attrs
+
+
+
+class LLMModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LLMModel
+        fields = '__all__'
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = '__all__'
+
+
+class DatasetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dataset
+        fields = '__all__'
+
+
+class TestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = '__all__'
+
+
+class TestResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestResult
+        fields = '__all__'

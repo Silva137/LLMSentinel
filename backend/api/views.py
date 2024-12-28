@@ -5,10 +5,11 @@ from openai import OpenAI
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from .serializers import UserRegistrationSerializer
+from .models import LLMModel, Question, Dataset, Test, TestResult
+from .serializers import UserRegistrationSerializer, LLMModelSerializer, QuestionSerializer, DatasetSerializer, \
+    TestSerializer, TestResultSerializer
 
 TOKEN = "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"
 endpoint = "https://models.inference.ai.azure.com"
@@ -147,3 +148,29 @@ def logout(request):
     except Exception as e:
         # If there is an error (e.g., the refresh token is invalid), return an error message
         return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class LLMModelViewSet(viewsets.ModelViewSet):
+    queryset = LLMModel.objects.all()
+    serializer_class = LLMModelSerializer
+
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+
+class DatasetViewSet(viewsets.ModelViewSet):
+    queryset = Dataset.objects.all()
+    serializer_class = DatasetSerializer
+
+
+class TestViewSet(viewsets.ModelViewSet):
+    queryset = Test.objects.all()
+    serializer_class = TestSerializer
+
+
+class TestResultViewSet(viewsets.ModelViewSet):
+    queryset = TestResult.objects.all()
+    serializer_class = TestResultSerializer

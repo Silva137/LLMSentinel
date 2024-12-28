@@ -5,16 +5,16 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # set the working directory in the container
-WORKDIR /api
+WORKDIR /backend
 
 # copies the requirements file to the container
-COPY ./requirements.txt /api/requirements.txt
+COPY ./requirements.txt /backend/requirements.txt
 
 # install dependencies
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # copies the rest of the code to the container
-COPY . /api/
+COPY . /backend/
 
 # expose the port 8000 
 EXPOSE 8000
