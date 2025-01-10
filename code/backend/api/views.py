@@ -150,7 +150,6 @@ def logout(request):
         return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class LLMModelViewSet(viewsets.ModelViewSet):
     queryset = LLMModel.objects.all()
     serializer_class = LLMModelSerializer
