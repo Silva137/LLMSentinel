@@ -1,4 +1,3 @@
-import uuid
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import models
@@ -6,7 +5,7 @@ from django.db import models
 
 class BaseModel(models.Model):
     """Abstract base model for common fields."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -72,6 +71,9 @@ class Test(BaseModel):
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(blank=True, null=True)
 
+    correct_answers = models.IntegerField(default=0)
+    accuracy_percentage = models.FloatField(default=0.0)
+
     class Meta:
         verbose_name = "Test"
         verbose_name_plural = "Tests"
@@ -81,10 +83,12 @@ class Test(BaseModel):
         return f"Test {self.id} by {self.user.username}"
 
 
-class TestResult(BaseModel):
+class QuestionResult(BaseModel):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='results')
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='results')
     llm_response = models.TextField()
+    answer = models.CharField(max_length=1)
+    explanation = models.TextField()
     correct = models.BooleanField()
     response_time = models.FloatField()
 

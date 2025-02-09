@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import LLMModel, Question, Dataset, Test, TestResult
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -12,7 +11,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'password', 'password2']
         extra_kwargs = {'password': {'write_only': True}}
 
-    #Custom logic for serializer.save()
+    # Custom logic for serializer.save()
     def create(self, validate_data):
         validate_data.pop('password2')
         user = User.objects.create_user(**validate_data)
@@ -34,32 +33,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
 
-
-class LLMModelSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LLMModel
-        fields = '__all__'
-
-
-class QuestionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Question
-        fields = '__all__'
-
-
-class DatasetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Dataset
-        fields = '__all__'
-
-
-class TestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Test
-        fields = '__all__'
-
-
-class TestResultSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TestResult
-        fields = '__all__'
+        model = User
+        fields = ["id", "username", "email"]
