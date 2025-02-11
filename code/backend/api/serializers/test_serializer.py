@@ -44,7 +44,7 @@ class TestCreationSerializer(serializers.ModelSerializer):
         llm_model_name = validated_data.get("llm_model_name")
 
         dataset = Dataset.objects.get(id=dataset_id)
-        llm_model = LLMModel.objects.filter(name=llm_model_name).first() # remove .first() and use get after fixing error of returning multiple llm models with same name
+        llm_model = LLMModel.objects.get(name=llm_model_name)
         request = self.context.get("request")
 
         return Test.objects.create(

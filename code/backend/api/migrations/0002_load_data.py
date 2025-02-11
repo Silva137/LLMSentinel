@@ -13,6 +13,7 @@ def load_initial_data(apps, schema_editor):
 
     Dataset = apps.get_model("api", "Dataset")
     Question = apps.get_model("api", "Question")
+    LLMModel = apps.get_model("api", "LLMModel")
 
     if not csv_files:
         print("No CSV files found in the fixtures directory.")
@@ -52,11 +53,26 @@ def load_initial_data(apps, schema_editor):
         except Exception as e:
             print(f"Error loading questions in dataset {dataset_name}: {e}")
 
+    # Load initial LLM models data
+    llm_models = [
+        {"provider": "Mistral AI", "name": "Mistral 7B", "model": "accounts/fireworks/models/mistral-7b",
+         "api_url": "https://api.fireworks.ai/inference/v1/chat/completions"},
+        {"provider": "Mistral AI", "name": "Mixtral 8x22B", "model": "accounts/fireworks/models/mixtral-8x22b-instruct",
+         "api_url": "https://api.fireworks.ai/inference/v1/chat/completions"},
+    ]
 
-def delete_csv_data(apps, schema_editor):
-    """Deletes all datasets and questions (reverse operation)."""
+    LLMModel.objects.bulk_create([LLMModel(**llm) for llm in llm_models])
+
+
+def delete_data(apps, schema_editor):
+    """Deletes all datasets and questions and LLM models (reverse operation)."""
     Dataset = apps.get_model("api", "Dataset")
+    Question = apps.get_model("api", "Question")
+    LLMModel = apps.get_model("api", "LLMModel")
+
+    Question.objects.all().delete()
     Dataset.objects.all().delete()
+    LLMModel.objects.all().delete()
 
 
 class Migration(migrations.Migration):
@@ -65,5 +81,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(load_initial_data, delete_csv_data)
+        migrations.RunPython(load_initial_data, delete_data)
     ]

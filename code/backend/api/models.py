@@ -15,6 +15,7 @@ class BaseModel(models.Model):
 
 class LLMModel(BaseModel):
     """"Large Language Model (LLM) representation"""
+    provider = models.CharField(max_length=50)
     name = models.CharField(max_length=50)
     model = models.CharField(max_length=50)
     api_url = models.URLField(validators=[URLValidator(schemes=['https'])])
@@ -25,7 +26,7 @@ class LLMModel(BaseModel):
         ordering = ['-created_at']   # Sort by created_at in descending order
 
     def __str__(self):
-        return f"{self.name} (v{self.model})"
+        return f"{self.name} by {self.provider})"
 
 
 class Dataset(BaseModel):
