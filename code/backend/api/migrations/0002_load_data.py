@@ -1,6 +1,8 @@
+import openai
 from django.db import migrations
 import pandas as pd
 import os
+import requests
 
 
 def load_initial_data(apps, schema_editor):
@@ -40,9 +42,9 @@ def load_initial_data(apps, schema_editor):
                     option_c=row["Option C"].strip(),
                     option_d=row["Option D"].strip(),
                     correct_option=row["Correct Answer"].strip(),
-                    difficulty=row["Difficulty"].strip(),
-                    domain=row["Domain"],
-                    explanation=row["Explanation"]
+                    difficulty=row.get("Difficulty", "").strip() or None,
+                    domain=row.get("Domain", "").strip() or None,
+                    explanation=row.get("Explanation", "").strip() or None,
                 )
                 questions.append(question)
 
@@ -53,15 +55,36 @@ def load_initial_data(apps, schema_editor):
         except Exception as e:
             print(f"Error loading questions in dataset {dataset_name}: {e}")
 
-    # Load initial LLM models data
-    llm_models = [
-        {"provider": "Mistral AI", "name": "Mistral 7B", "model": "accounts/fireworks/models/mistral-7b",
-         "api_url": "https://api.fireworks.ai/inference/v1/chat/completions"},
-        {"provider": "Mistral AI", "name": "Mixtral 8x22B", "model": "accounts/fireworks/models/mixtral-8x22b-instruct",
-         "api_url": "https://api.fireworks.ai/inference/v1/chat/completions"},
-    ]
+    client = openai.OpenAI(
+        api_key="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",
+        base_url="https://openrouter.ai/api/v1"
+    )
 
-    LLMModel.objects.bulk_create([LLMModel(**llm) for llm in llm_models])
+    try:
+        response = client.models.list()
+        models = getattr(response, "data", [])
+
+        llm_models = []
+        for model in models:
+            model_id = model.id
+            name = getattr(model, "name", "")
+            provider = model_id.split("/")[0] if "/" in model_id else "Unknown"
+            description = getattr(model, "description", "")
+
+            llm_models.append(
+                LLMModel(
+                    model_id=model_id,
+                    name=name,
+                    provider=provider,
+                    description=description
+                )
+            )
+
+        LLMModel.objects.bulk_create(llm_models, ignore_conflicts=True)
+        print(f"Successfully added {len(llm_models)} LLM models from OpenRouter.")
+
+    except openai.OpenAIError as e:
+        print(f"Error fetching LLM models from OpenRouter: {e}")
 
 
 def delete_data(apps, schema_editor):

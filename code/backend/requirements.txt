@@ -12,3 +12,4 @@ openai
 pandas
 requests
 regex
+scikit-learn

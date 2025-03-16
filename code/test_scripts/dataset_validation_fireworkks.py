@@ -60,13 +60,13 @@ async def ask_fireworks_async(prompt):
 
 async def main():
     file_paths = {
-        "applications_security": "./datasets/applications_security.csv",
-        "cloud_security": "./datasets/cloud_security.csv",
-        "cryptography": "./datasets/cryptography.csv",
-        "digital_forensics": "./datasets/digital_forensics.csv",
-        "iam": "./datasets/iam.csv",
-        "network_security": "./datasets/network_security.csv",
-        "operating_systems_security": "./datasets/operating_systems_security.csv"
+        "applications_security": "../datasets/applications_security.csv",
+        "cloud_security": "../datasets/cloud_security.csv",
+        "cryptography": "../datasets/cryptography.csv",
+        "digital_forensics": "../datasets/digital_forensics.csv",
+        "iam": "../datasets/iam.csv",
+        "network_security": "../datasets/network_security.csv",
+        "operating_systems_security": "../datasets/operating_systems_security.csv"
     }
 
     for category, file_path in file_paths.items():

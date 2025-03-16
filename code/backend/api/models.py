@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.core.validators import URLValidator
 from django.db import models
 
 
@@ -15,10 +14,10 @@ class BaseModel(models.Model):
 
 class LLMModel(BaseModel):
     """"Large Language Model (LLM) representation"""
-    provider = models.CharField(max_length=50)
-    name = models.CharField(max_length=50)
-    model = models.CharField(max_length=50)
-    api_url = models.URLField(validators=[URLValidator(schemes=['https'])])
+    model_id = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    provider = models.CharField(max_length=100)
+    description = models.TextField(max_length=1000, blank=True, null=True)
 
     class Meta:
         verbose_name = "LLM Model"
@@ -52,8 +51,8 @@ class Question(BaseModel):
     option_c = models.CharField(max_length=500)
     option_d = models.CharField(max_length=500)
     correct_option = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')])
-    difficulty = models.CharField(max_length=6, choices=[('Easy', 'Easy'), ('Medium', 'Medium'), ('Hard', 'Hard')])
-    domain = models.CharField(max_length=500)
+    difficulty = models.CharField(max_length=6, choices=[('Easy', 'Easy'), ('Medium', 'Medium'), ('Hard', 'Hard')], null=True)
+    domain = models.CharField(max_length=500, null=True)
     explanation = models.TextField(max_length=1000, blank=True, null=True)
 
     class Meta:
@@ -75,6 +74,21 @@ class Test(BaseModel):
     correct_answers = models.IntegerField(default=0)
     accuracy_percentage = models.FloatField(default=0.0)
 
+    # Macro evaluation metrics
+    precision_avg = models.FloatField(default=0.0)
+    recall_avg = models.FloatField(default=0.0)
+    f1_avg = models.FloatField(default=0.0)
+
+    # Stores precision, recall, F1-score per answer choice
+    class_metrics = models.JSONField(default=dict)
+
+    # JSON storage for answer distribution (detecting bias)
+    answer_distribution = models.JSONField(default=dict)
+
+    avg_confidence = models.FloatField(default=0.0)
+    confidence_weighted_accuracy = models.FloatField(default=0.0)
+
+
     class Meta:
         verbose_name = "Test"
         verbose_name_plural = "Tests"
@@ -92,6 +106,7 @@ class QuestionResult(BaseModel):
     explanation = models.TextField()
     correct = models.BooleanField()
     response_time = models.FloatField()
+    confidence = models.FloatField(default=0.0)
 
     class Meta:
         verbose_name = "Test Result"
