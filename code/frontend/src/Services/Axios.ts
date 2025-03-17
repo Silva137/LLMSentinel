@@ -22,18 +22,26 @@ api.interceptors.response.use(
             // If there's no refresh promise already in progress, start one
             if (!refreshPromise) {
                 refreshPromise = (async () => {
-                    const success = await AuthService.refreshToken();
-                    if (!success) {
-                        console.error("Refresh token failed");
-                        await AuthService.logout();
-                        window.location.href = "/login";
+                    try{
+                        const success = await AuthService.refreshToken();
+                        refreshPromise = null;
+                        if (!success) {
+                            console.error("Refresh token failed");
+                            await AuthService.logout();
+                            window.location.href = "/login";
+                        }
+                        return success;
+                    } catch (err) {
+                        console.error("Refresh token request failed:", err);
+                        refreshPromise = null;
+                        return false;
                     }
-                    return success;
                 })();
             }
 
             try {
-                await refreshPromise;
+                const success = await refreshPromise;
+                console.log('Refresh-Token',success);
                 refreshPromise = null;
                 return api(originalRequest);
             } catch (err) {
