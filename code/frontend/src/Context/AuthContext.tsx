@@ -55,7 +55,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
     useEffect(() => {
-        get_authenticated_user();
+        const unprotectedRoutes = ["/login", "/register", "/"];
+        const currentPath = window.location.pathname;
+
+        if (!unprotectedRoutes.includes(currentPath)) {
+            get_authenticated_user();
+        }
     }, []);
 
 
