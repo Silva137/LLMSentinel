@@ -121,5 +121,5 @@ if __name__ == "__main__":
     # asyncio.run(test_gpt())
     # print(query_llm_fireworks())
     # print(get_fireworks_models())
-    # print(query_llm_openrouter())
-    print(get_openrouter_models())
+    print(query_llm_openrouter())
+    #print(get_openrouter_models())

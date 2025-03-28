@@ -82,11 +82,9 @@ class Test(BaseModel):
     # Stores precision, recall, F1-score per answer choice
     class_metrics = models.JSONField(default=dict)
 
-    # JSON storage for answer distribution (detecting bias)
+    # JSON storage for answer distribution
     answer_distribution = models.JSONField(default=dict)
 
-    avg_confidence = models.FloatField(default=0.0)
-    confidence_weighted_accuracy = models.FloatField(default=0.0)
 
 
     class Meta:

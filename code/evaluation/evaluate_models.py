@@ -1,3 +1,4 @@
+from datetime import datetime
 import matplotlib
 import requests
 import json
@@ -12,32 +13,37 @@ matplotlib.use('Agg')
 
 API_URL = "http://localhost:8001/api/tests/"
 LOGIN_URL = "http://localhost:8001/api/auth/login/"
-COOKIES = {"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyMTM1Njg1LCJpYXQiOjE3NDIxMzU2ODUsImp0aSI6ImRlNjliODA0MDUxYTRkMDI4ZDdkZWYxNTUzY2U5NTFhIiwidXNlcl9pZCI6MX0.mhswhlgGfQM48FALelaJ4ET9kL9HvRp0VdUnFQ2BPAI"}
-
+COOKIES = {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoyOTQyNDgzNTQyLCJpYXQiOjE3NDI0ODM1NDIsImp0aSI6Ijg1ZDJiOWViYzAzZjQ4OTFhOTk2YTY3NDgwMjgwMzBiIiwidXNlcl9pZCI6MX0.oMkX5jaihoSHvY-I7wLrgOvfZCmtKyzjRoAxG7p8IiQ"
+}
 
 models = [
+    "OpenAI: GPT-3.5 Turbo",
     "OpenAI: GPT-4o-mini",
     "Google: Gemini Flash 2.0",
-    "Mistral: Mixtral 8x7B (base)",
+    "Mistral: Mistral Small 3.1 24B",
     "Meta: Llama 3.3 70B Instruct",
+    "Google: Gemma 3 27B",
+    "Qwen2.5 7B Instruct"
 ]
 
 dataset_names = [
-    #"Applications Security",
-    #"Cloud Security",
-    #"Cryptography",
-    #"Digital Forensics",
-    #"Iam",
-    #"Network Security",
-    #"Operating Systems Security",
+    "Applications Security",
+    "Cloud Security",
+    "Cryptography",
+    "Digital Forensics",
+    "Iam",
+    "Network Security",
+    "Operating Systems Security",
     #"tiago.csv",
     #"Secqa V1",
-    "Secqa V2",
+    #"Secqa V2",
     #"Cybermetric 80",
     #"Seceval",
     #"Secmmlu",
-    #"Cyquiz"
+    #"Cyquiz",
 ]
+
 
 def get_existing_test(dataset_name, model):
     """Check if a test already exists for a given dataset and model."""
@@ -92,10 +98,6 @@ def evaluate_models():
             correct_answers = data.get("correct_answers", None)
             total_questions = sum(data.get("answer_distribution", {}).values())
 
-            # New Confidence Metrics
-            avg_confidence = data.get("avg_confidence", None)
-            confidence_weighted_accuracy = data.get("confidence_weighted_accuracy", None)
-
             # Extract class-wise metrics
             class_metrics = data.get("class_metrics", {})
             class_precision = {k: v.get("precision", None) for k, v in class_metrics.items()}
@@ -104,6 +106,12 @@ def evaluate_models():
 
             # Extract answer distribution
             answer_distribution = data.get("answer_distribution", {})
+            started_at = data.get("started_at", "")
+            completed_at = data.get("completed_at", "")
+
+            start = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+            end = datetime.fromisoformat(completed_at.replace("Z", "+00:00"))
+            test_duration = (end - start).total_seconds()
 
             results.append({
                 "dataset_name": dataset_name,
@@ -114,12 +122,11 @@ def evaluate_models():
                 "recall": recall,
                 "correct_answers": correct_answers,
                 "total_questions": total_questions,
-                "avg_confidence": avg_confidence,
-                "confidence_weighted_accuracy": confidence_weighted_accuracy,
                 "class_precision": class_precision,
                 "class_recall": class_recall,
                 "class_f1": class_f1,
-                "answer_distribution": answer_distribution
+                "answer_distribution": answer_distribution,
+                "duration_seconds": test_duration
             })
 
     return results
@@ -140,7 +147,7 @@ def save_results(results):
 
 
 def generate_bar_charts(df):
-    """Generates bar plots for model accuracy, precision, recall, and answer distribution."""
+    """Generates bar plots for model accuracy, precision, recall"""
 
     output_dir = "./"
     sns.set(style="whitegrid")
@@ -167,34 +174,22 @@ def generate_bar_charts(df):
         plt.savefig(os.path.join(output_dir, f"{metric}_comparison.png"))
         plt.close()
 
-    # **Answer Distribution (Stacked Bar Chart)**
-    answer_options = ["A", "B", "C", "D"]
-
-    distribution_df = pd.DataFrame([
-        {
-            "dataset_name": row["dataset_name"],
-            "model": row["model"],
-            **json.loads(row["answer_distribution"])
-        }
-        for _, row in df.iterrows()
-    ])
-
-    distribution_df_melted = distribution_df.melt(id_vars=["dataset_name", "model"], value_vars=answer_options,
-                                                  var_name="Answer Option", value_name="Count")
-
-    plt.figure(figsize=(12, 6))
-    sns.barplot(x="dataset_name", y="Count", hue="Answer Option", data=distribution_df_melted, palette="coolwarm")
-    plt.xlabel("Dataset Name", fontsize=12)
-    plt.ylabel("Answer Distribution Count", fontsize=12)
-    plt.title("Answer Distribution Across Datasets", fontsize=14)
-    plt.legend(title="Answer Option")
-    plt.savefig(os.path.join(output_dir, "answer_distribution.png"))
-    plt.close()
-
-    print("✅ Bar plots saved successfully in the current folder.")
 
 
 def generate_performance_heatmap(df):
+    model_name_mapping = {
+        "OpenAI: GPT-3.5 Turbo": "GPT-3.5",
+        "OpenAI: GPT-4o-mini": "GPT-4o-mini",
+        "Google: Gemini Flash 2.0": "Gemini Flash 2.0",
+        "Mistral: Mistral Small 3.1 24B": "Mistral 3.1 24B",
+        "Meta: Llama 3.3 70B Instruct": "Llama 3.3 70B",
+        "Google: Gemma 3 27B": "Gemma 3 27B",
+        "Qwen2.5 7B Instruct": "Qwen2.5 7B"
+    }
+
+    # Replace model names in the DataFrame
+    df["model"] = df["model"].replace(model_name_mapping)
+
     df_pivot = df.pivot(index="dataset_name", columns="model", values="correct_answers")
 
     # Create the heatmap
@@ -204,24 +199,125 @@ def generate_performance_heatmap(df):
     # Customize plot appearance
     plt.xlabel("LLM Model", fontsize=12)
     plt.ylabel("Dataset", fontsize=12)
-    plt.title("Heatmap of Correct Answers per Model Across Datasets", fontsize=14)
+    plt.title("Heatmap of Correct Answers per Model Across Datasets", fontsize=16)
 
     plt.savefig("heatmap_correct_answers.png")
     plt.close()
     print("✅ Heatmap saved")
 
+def generate_dataset_bar_chart(df):
+    """Generates a grouped bar chart showing model performance across datasets with values on top of bars."""
 
-def generate_confidence_accuracy_bar_chart(df):
-    """Generates a bar chart for confidence-weighted accuracy."""
+    # Define a dictionary to map full model names to simpler ones
+    model_name_mapping = {
+        "OpenAI: GPT-3.5 Turbo": "GPT-3.5",
+        "OpenAI: GPT-4o-mini": "GPT-4o-mini",
+        "Google: Gemini Flash 2.0": "Gemini Flash",
+        "Mistral: Mistral Small 3.1 24B": "Mistral 3.1",
+        "Meta: Llama 3.3 70B Instruct": "Llama 3.3",
+        "Google: Gemma 3 27B": "Gemma 3",
+        "Qwen2.5 7B Instruct": "Qwen2.5"
+    }
+
+    # Replace model names in the DataFrame
+    df["model"] = df["model"].replace(model_name_mapping)
+
+    # Plot settings
     plt.figure(figsize=(12, 6))
-    sns.barplot(x="dataset_name", y="confidence_weighted_accuracy", hue="model", data=df, palette="Set3")
-    plt.xlabel("Dataset Name", fontsize=12)
-    plt.ylabel("Confidence-Weighted Accuracy (%)", fontsize=12)
-    plt.title("Confidence-Weighted Accuracy Across Models", fontsize=14)
-    plt.legend(title="LLM Model")
-    plt.savefig("confidence_weighted_accuracy.png")
+    ax = sns.barplot(x="model", y="accuracy", hue="dataset_name", data=df, palette="Set1")
+
+    # Add values on top of bars
+    for p in ax.patches:
+        height = p.get_height()
+        if height > 0:  # Avoid displaying numbers for zero values
+            ax.annotate(f"{height:.1f}%",
+                        (p.get_x() + p.get_width() / 2., height),
+                        ha='center', va='bottom', fontsize=10, color="black")
+
+    # Formatting
+    plt.xlabel("LLM Model", fontsize=12)
+    plt.ylabel("Accuracy (%)", fontsize=12)
+    plt.xticks(rotation=30, ha="right", fontsize=10)
+    plt.yticks(range(30, 110, 10))
+    plt.title("LLM Performance Across Cybersecurity Datasets", fontsize=14)
+    plt.legend(title="Dataset", bbox_to_anchor=(1.05, 1), loc="upper left")
+
+    # Save and show the plot
+    output_path = os.path.join("./", "dataset_performance_chart.png")
+    plt.savefig(output_path, bbox_inches="tight")
+    print(f"✅ Bar chart saved as {output_path}")
+
+
+def generate_answer_distribution_chart(df):
+    """Generates a stacked bar chart showing the distribution of model responses including invalid answers ('X')."""
+
+    model_name_mapping = {
+        "OpenAI: GPT-3.5 Turbo": "GPT-3.5",
+        "OpenAI: GPT-4o-mini": "GPT-4o-mini",
+        "Google: Gemini Flash 2.0": "Gemini Flash 2.0",
+        "Mistral: Mistral Small 3.1 24B": "Mistral 3.1 24B",
+        "Meta: Llama 3.3 70B Instruct": "Llama 3.3 70B",
+        "Google: Gemma 3 27B": "Gemma 3 27B",
+        "Qwen2.5 7B Instruct": "Qwen2.5 7B"
+    }
+
+    # Convert the answer distribution column from JSON strings to dictionaries
+    answer_data = []
+    for _, row in df.iterrows():
+        answer_distribution = json.loads(row["answer_distribution"])
+        answer_distribution["Model"] = model_name_mapping.get(row["model"], row["model"])  # Map model names
+        answer_data.append(answer_distribution)
+
+    answer_df = pd.DataFrame(answer_data)
+
+    # Melt the data to long format for seaborn plotting
+    answer_df = answer_df.melt(id_vars=["Model"], var_name="Answer", value_name="Count")
+
+    # Plot settings
+    plt.figure(figsize=(12, 6))
+    sns.barplot(x="Model", y="Count", hue="Answer", data=answer_df, palette="coolwarm")
+
+    # Formatting
+    plt.xlabel("")
+    plt.ylabel("Answer Count", fontsize=12)
+    plt.xticks(rotation=30, ha="right", fontsize=10)
+    plt.title("LLM Answer Distribution Across Datasets", fontsize=14)
+    plt.legend(title="Answer Option", bbox_to_anchor=(1.05, 1), loc="upper left")
+
+    # Save and show the plot
+    output_path = os.path.join("./", "answer_distribution_chart.png")
+    plt.savefig(output_path, bbox_inches="tight")
+    print(f"✅ Answer distribution chart saved as {output_path}")
+
+def generate_execution_time_chart(df):
+    """Gera gráfico de barras com o tempo de execução dos testes por modelo e dataset."""
+    model_name_mapping = {
+        "OpenAI: GPT-3.5 Turbo": "GPT-3.5",
+        "OpenAI: GPT-4o-mini": "GPT-4o-mini",
+        "Google: Gemini Flash 2.0": "Gemini Flash",
+        "Mistral: Mistral Small 3.1 24B": "Mistral 3.1",
+        "Meta: Llama 3.3 70B Instruct": "Llama 3.3",
+        "Google: Gemma 3 27B": "Gemma 3",
+        "Qwen2.5 7B Instruct": "Qwen2.5"
+    }
+
+    df["model"] = df["model"].replace(model_name_mapping)
+
+    plt.figure(figsize=(12, 6))
+    sns.barplot(x="model", y="duration_seconds", hue="dataset_name", data=df, palette="Set3")
+
+    plt.xlabel("Modelo", fontsize=12)
+    plt.ylabel("Duração (segundos)", fontsize=12)
+    plt.title("LLM Execution Time Across Cybersecurity Datasets", fontsize=14)
+    plt.xticks(rotation=30, ha="right")
+    plt.legend(title="Dataset", bbox_to_anchor=(1.05, 1), loc="upper left")
+
+    plt.tight_layout()
+    output_path = os.path.join("./", "execution_time_chart.png")
+    plt.savefig(output_path)
     plt.close()
-    print("Confidence-Weighted Accuracy Bar Chart saved")
+    print(f"✅ Execution time chart saved as {output_path}")
+
 
 
 def print_model_comparison_table(df):
@@ -239,8 +335,10 @@ def main():
 
     generate_bar_charts(df)
     generate_performance_heatmap(df)
-    generate_confidence_accuracy_bar_chart(df)
     print_model_comparison_table(df)
+    generate_dataset_bar_chart(df)
+    generate_answer_distribution_chart(df)
+    generate_execution_time_chart(df)
 
     print("Evaluation process completed successfully!")
 

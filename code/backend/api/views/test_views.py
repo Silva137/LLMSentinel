@@ -1,6 +1,5 @@
 import asyncio
 from collections import Counter
-import numpy as np
 import openai
 import regex as re
 from asgiref.sync import async_to_sync, sync_to_async
@@ -14,8 +13,7 @@ from ..models import Test, QuestionResult
 from ..serializers.question_serializer import QuestionResultSerializer
 from ..serializers.test_serializer import TestSerializer, TestCreationSerializer
 from sklearn.metrics import classification_report
-import time
-import random
+
 
 client = openai.AsyncOpenAI(
         api_key="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",
@@ -75,6 +73,26 @@ class TestViewSet(viewsets.ModelViewSet):
         serializer = QuestionResultSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['delete'])
+    def delete_by_llm(self, request):
+        """
+        Delete all tests related to a specific LLM model for the authenticated user.
+        """
+        llm_model_name = request.data.get("llm_model_name")
+
+        if not llm_model_name:
+            return Response({"error": "Missing required parameter: llm_model_name"}, status=status.HTTP_400_BAD_REQUEST)
+
+        tests_to_delete = Test.objects.filter(user=request.user, llm_model__name=llm_model_name)
+
+        if not tests_to_delete.exists():
+            return Response({"message": "No tests found for the given LLM model."}, status=status.HTTP_404_NOT_FOUND)
+
+        deleted_count, _ = tests_to_delete.delete()
+
+        return Response({"message": f"Successfully deleted {deleted_count} tests for LLM model '{llm_model_name}'."},
+                        status=status.HTTP_200_OK)
+
 
 async def evaluate_llm(test):
     """
@@ -96,13 +114,14 @@ async def evaluate_llm(test):
 
         q_results = []
         for question, result in zip(questions, results):
-            answer, explanation, confidence = result
+            answer, explanation, confidence, content = result
 
             correct = (answer.strip().upper() == question.correct_option.strip().upper())
             # Create each QuestionResult in the database (this part remains synchronous)
             q_results.append(QuestionResult(
                 test=test,
                 question=question,
+                llm_response=content,
                 answer=answer,
                 explanation=explanation,
                 correct=correct,
@@ -116,76 +135,76 @@ async def evaluate_llm(test):
         print(f"Error occurred during evaluation: {e}")
 
 
-async def query_llm(llm_model, question):
+async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
     """
-    Sends the question to the LLM model and retrieves the response.
+    Sends the question to the LLM model and retrieves the response with a retry mechanism.
     """
 
     prompt = (
-        f"You are a cybersecurity expert. Analyze the following multiple-choice question and strictly follow the response format:\n\n"
+        f"You are a cybersecurity expert. Analyze the following multiple-choice question and provide only the correct answer letter (A, B, C, or D).\n\n"
         f"Question:\n{question.question}\n\n"
         f"Options:\n"
         f"A: {question.option_a}\n"
         f"B: {question.option_b}\n"
         f"C: {question.option_c}\n"
         f"D: {question.option_d}\n\n"
-        f"### Important Instructions:\n"
-        f"- Your response **must** strictly follow the given format.\n"
-        f"- Always include 'Answer: ' followed by the correct letter (A, B, C, or D).\n"
-        f"- Always include 'Explanation: ' followed by a brief justification.\n"
-        f"- Always include 'Confidence: ' followed by a number between 0.0 and 1.0, representing your certainty in your answer.\n"
-        f"- Do not respond in free text or change the format.\n\n"
-        f"### Expected Response Format:\n"
-        f"Answer: <Correct answer letter (A, B, C, or D)>\n"
-        f"Explanation: <Brief explanation for the chosen answer>\n"
-        f"Confidence: <A float between 0.0 and 1.0>\n\n"
+        f"### Response Format:\n"
+        f"Answer: <Correct answer letter (A, B, C, or D)>\n\n"
         f"### Example Response:\n"
-        f"Answer: C\n"
-        f"Explanation: Option C is correct because ...\n"
-        f"Confidence: 0.85"
+        f"Answer: C"
     )
 
-    try:
-        response = await client.chat.completions.create(
-            model=llm_model.model_id,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=500,
-        )
+    attempt = 0
+    delay = initial_delay  # Start with the initial delay time
 
-        content = response.choices[0].message.content
-
-        # Use regex to extract answer and explanation
-        answer_match = re.search(r"Answer:\s*([A-D])", content, re.IGNORECASE)
-        explanation_match = re.search(r"Explanation:\s*(.*)", content, re.IGNORECASE)
-        confidence_match = re.search(r"Confidence:\s*([0-1]\.\d+|1|0)", content, re.IGNORECASE)
-
-        # Extract values safely
-        answer = answer_match.group(1).strip().upper() if answer_match else "X"
-        explanation = explanation_match.group(1).strip() if explanation_match else "Explanation not found."
-        confidence = float(confidence_match.group(1)) if confidence_match else 0.0
-
-        return answer, explanation, confidence
-
-    except Exception as e:
-        print(f"Unexpected Error: {e}")
-        return "X", "An unexpected error occurred while querying the LLM.", 0.0
-
-
-
-async def query_llm_with_retry(llm_model, question, max_retries=5):
-    retries = 0
-    while retries < max_retries:
+    while attempt < max_attempts:
         try:
-            return await query_llm(llm_model, question)
+            response = await client.chat.completions.create(
+                model=llm_model.model_id,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=50
+            )
+
+            if hasattr(response, "error"):
+                error_code = response.error.get("code", "Unknown")
+                error_message = response.error.get("message", "No message provided.")
+                raise Exception(f"API Error {error_code}: {error_message}")
+
+            content = response.choices[0].message.content.strip()
+
+
+            if not content:
+                print(f"Warning: Received empty response on attempt {attempt + 1}/{max_attempts}")
+                attempt += 1
+                await asyncio.sleep(delay)
+                delay *= 2  # Exponential backoff
+                continue
+
+            # Extract answer using regex
+            answer_match = re.search(r"Answer:\s*([A-D])", content, re.IGNORECASE)
+            answer = answer_match.group(1).strip().upper() if answer_match else "X"
+
+            # Return answer if valid, else retry
+            if answer in ["A", "B", "C", "D"]:
+                print(f"Succes on attempt {attempt + 1}/{max_attempts}")
+                return answer, "Not implemented yet", 0.0, content  # Only return answer and raw response
+
+            print(f"Warning: Unexpected response format on attempt {attempt + 1}/{max_attempts}")
+            attempt += 1
+            await asyncio.sleep(delay)
+            delay *= 2  # Exponential backoff
+
+
         except Exception as e:
-            if "Capacity temporarily exceeded" in str(e) and retries < max_retries - 1:
-                # Exponential backoff with jitter
-                sleep_time = (2 ** retries) + random.random()
-                print(f"Capacity exceeded. Retrying in {sleep_time:.2f} seconds...")
-                time.sleep(sleep_time)
-                retries += 1
-            else:
-                raise
+            error_msg = str(e)
+            print(f"Error on attempt {attempt + 1}/{max_attempts}: {error_msg}")
+            attempt += 1
+            await asyncio.sleep(delay)
+            delay *= 2  # Exponential backoff
+
+    print("Failed to get a valid response after multiple retries.")
+    return "X", "X", 0.0, "Error: No valid response received."
+
 
 
 
@@ -199,7 +218,6 @@ def compute_test_metrics(test):
     # Extract correct answers and predicted answers, filtering out 'X' (failed queries)
     y_true = [res.question.correct_option for res in results if res.answer != "X"]
     y_pred = [res.answer for res in results if res.answer != "X"]
-    confidences = [res.confidence for res in results if res.answer != "X"]
 
     # General test statistics
     test.total_questions = len(results)
@@ -230,15 +248,6 @@ def compute_test_metrics(test):
         # Store answer distribution as JSON
         test.answer_distribution = dict(Counter([res.answer for res in results]))
 
-        # 1. Compute Average Confidence Score
-        test.avg_confidence = np.mean(confidences) if confidences else 0.0
-
-        # 2. Compute **Confidence-Weighted Accuracy (with penalties for incorrect answers)**
-        weighted_score = sum(
-            confidences[i] * (1 if y_true[i] == y_pred[i] else -1)  # Penalize incorrect answers
-            for i in range(len(y_true))
-        )
-        test.confidence_weighted_accuracy = (weighted_score / sum(confidences)) * 100 if sum(confidences) > 0 else 0.0
 
 
 

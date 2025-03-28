@@ -88,7 +88,7 @@ async def main():
                     f"Pergunta: {question}\n"
                     f"Opções: {options}\n"
                     f"Resposta correta esperada: {correct_answer}\n"
-                    f"Responda com 'CORRETO' se a pergunta estiver bem formulada e a resposta correta for adequada, ou 'INCORRETO' caso contrário. Explique brevemente sua análise."
+                    f"Responda com 'CORRETO' se a pergunta estiver bem formulada e a resposta correta for adequada, ou 'INCORRETO' caso contrário."
                 )
 
                 prompts.append(prompt)
