@@ -1,0 +1,13 @@
+.main-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.main-content {
+    flex-grow: 1;
+    background-color: #23273A; /* A cor que pediste */
+    padding: 2rem;
+    overflow-y: auto;
+    color: white; /* Garante visibilidade do texto */
+}
