@@ -6,8 +6,8 @@
 
 .main-content {
     flex-grow: 1;
-    background-color: #23273A; /* A cor que pediste */
+    background-color: #23273A;
     padding: 2rem;
     overflow-y: auto;
-    color: white; /* Garante visibilidade do texto */
+    color: white;
 }
