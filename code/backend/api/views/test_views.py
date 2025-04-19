@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from ..models import Test, QuestionResult
+from ..models import Test, QuestionResult, Question
 from ..serializers.question_serializer import QuestionResultSerializer
 from ..serializers.test_serializer import TestSerializer, TestCreationSerializer
 from sklearn.metrics import classification_report
@@ -73,28 +73,115 @@ class TestViewSet(viewsets.ModelViewSet):
         serializer = QuestionResultSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['delete'])
-    def delete_by_llm(self, request):
+    @action(detail=True, methods=['post'])
+    def retry_failed(self, request, pk):
         """
-        Delete all tests related to a specific LLM model for the authenticated user.
+        Retry failed questions (where answer is 'X') for a specific test.
+        """
+        try:
+            test = get_object_or_404(Test, id=pk, user=request.user)
+
+            # Obter todas as questões que falharam (answer == 'X') e pre-fetch dados relacionados
+            failed_results = QuestionResult.objects.filter(test=test, answer="X").select_related('question',
+                                                                                                 'test__llm_model')
+            failed_results_list = list(failed_results)  # Evaluate the queryset synchronously
+            print(f"Found {len(failed_results_list)} failed results for test {test.id}")
+
+            if not failed_results_list:
+                return Response(
+                    {"message": "No failed questions to retry."},
+                    status=status.HTTP_200_OK,
+                    content_type='application/json'
+                )
+
+            # Pre-fetch correct_option for all questions
+            question_ids = [result.question.id for result in failed_results_list]
+            questions = Question.objects.filter(id__in=question_ids)
+            correct_options = {q.id: q.correct_option for q in questions}
+
+            # Executar retries de forma síncrona
+            async def retry_questions():
+                semaphore = asyncio.Semaphore(3)
+
+                async def limited_retry(data):
+                    async with semaphore:
+                        return await retry_query(
+                            question_result=data['question_result'],
+                            question=data['question'],
+                            llm_model=data['llm_model'],
+                            correct_option=data['correct_option']
+                        )
+
+                # Prepare data for each retry task
+                tasks_data = [
+                    {
+                        'question_result': result,
+                        'question': result.question,
+                        'llm_model': result.test.llm_model,
+                        'correct_option': correct_options.get(result.question.id, "")
+                    }
+                    for result in failed_results_list
+                ]
+                tasks = [limited_retry(data) for data in tasks_data]
+                await asyncio.gather(*tasks)
+
+            async_to_sync(retry_questions)()
+
+            # Recalcula métricas do teste após o retry
+            test.completed_at = timezone.now()
+            compute_test_metrics(test)
+            test.save()
+
+            return Response(
+                {"message": f"Retried {len(failed_results_list)} failed questions."},
+                status=status.HTTP_200_OK,
+                content_type='application/json'
+            )
+
+        except Exception as e:
+            print(f"Unhandled exception in retry_failed: {str(e)}")
+            return Response(
+                {"error": f"Server error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content_type='application/json'
+            )
+
+    @action(detail=False, methods=['delete'])
+    def delete_by_llm_and_dataset(self, request):
+        """
+        Delete all tests related to a specific LLM model and dataset for the authenticated user.
         """
         llm_model_name = request.data.get("llm_model_name")
+        dataset_name = request.data.get("dataset_name")
 
-        if not llm_model_name:
-            return Response({"error": "Missing required parameter: llm_model_name"}, status=status.HTTP_400_BAD_REQUEST)
+        if not llm_model_name or not dataset_name:
+            return Response(
+                {"error": "Missing required parameters: llm_model_name and/or dataset_name"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        tests_to_delete = Test.objects.filter(user=request.user, llm_model__name=llm_model_name)
+        tests_to_delete = Test.objects.filter(
+            user=request.user,
+            llm_model__name=llm_model_name,
+            dataset__name=dataset_name
+        )
 
         if not tests_to_delete.exists():
-            return Response({"message": "No tests found for the given LLM model."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "No tests found for the given LLM model and dataset."},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         deleted_count, _ = tests_to_delete.delete()
 
-        return Response({"message": f"Successfully deleted {deleted_count} tests for LLM model '{llm_model_name}'."},
-                        status=status.HTTP_200_OK)
+        return Response(
+            {
+                "message": f"Successfully deleted {deleted_count} questions for LLM model '{llm_model_name}' in dataset '{dataset_name}'."},
+            status=status.HTTP_200_OK
+        )
 
 
-async def evaluate_llm(test):
+async def evaluate_llm(test, questions=None):
     """
     Runs the LLM model evaluation on all questions from the dataset.
     """
@@ -106,15 +193,21 @@ async def evaluate_llm(test):
             return await query_llm(llm_model, question)
 
     try:
-        questions = await sync_to_async(list)(test.dataset.questions.all())
-        llm_model = test.llm_model
+        if questions is None:
+            questions = await sync_to_async(list)(test.dataset.questions.all())
+
+        llm_model = await sync_to_async(lambda: test.llm_model)()
 
         tasks = [limited_query(question, llm_model) for question in questions]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         q_results = []
         for question, result in zip(questions, results):
-            answer, explanation, confidence, content = result
+            if isinstance(result, Exception):
+                print(f"Error processing question {question.id}: {result}")
+                answer, explanation, confidence, content = "X", "Error during retry", 0.0, str(result)
+            else:
+                answer, explanation, confidence, content = result
 
             correct = (answer.strip().upper() == question.correct_option.strip().upper())
             # Create each QuestionResult in the database (this part remains synchronous)
@@ -135,13 +228,18 @@ async def evaluate_llm(test):
         print(f"Error occurred during evaluation: {e}")
 
 
+
+
+
 async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
     """
     Sends the question to the LLM model and retrieves the response with a retry mechanism.
     """
 
     prompt = (
-        f"You are a cybersecurity expert. Analyze the following multiple-choice question and provide only the correct answer letter (A, B, C, or D).\n\n"
+        f"You are a cybersecurity expert. Your task is to select the correct answer to the multiple-choice question below.\n"
+        f"Respond with the letter corresponding to the correct option (A, B, C, or D). Do not add explanations. Do not write anything else.\n"
+        f"Strictly follow the response format provided below.\n\n"
         f"Question:\n{question.question}\n\n"
         f"Options:\n"
         f"A: {question.option_a}\n"
@@ -162,7 +260,7 @@ async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
             response = await client.chat.completions.create(
                 model=llm_model.model_id,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=50
+                max_tokens=3000  # responsavel pelo erro empty response
             )
 
             if hasattr(response, "error"):
@@ -202,11 +300,33 @@ async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
             await asyncio.sleep(delay)
             delay *= 2  # Exponential backoff
 
-    print("Failed to get a valid response after multiple retries.")
-    return "X", "X", 0.0, "Error: No valid response received."
+    print("Failed to get a valid response after multiple retries")
+    print("Question:", question.question)
+    print("llm answer:", content)
+    return "X", "X", 0.0, "Error Response:" + content
 
 
+async def retry_query(question_result, question, llm_model, correct_option, max_attempts=5):
+    """
+    Reenvia a pergunta para o LLM. Mesmo que falhe, atualiza a resposta com uma mensagem de erro.
+    """
+    answer, explanation, confidence, content = await query_llm(llm_model, question, max_attempts=max_attempts)
 
+    if answer not in ["A", "B", "C", "D"]:
+        question_result.answer = "X"
+        question_result.explanation = "O modelo não retornou uma opção válida após o retry."
+        question_result.llm_response = content or "Resposta vazia ou inválida do modelo."
+        question_result.correct = False
+        question_result.confidence = 0.0
+    else:
+        correct = (answer.strip().upper() == correct_option.strip().upper())
+        question_result.answer = answer
+        question_result.explanation = explanation
+        question_result.llm_response = content
+        question_result.correct = correct
+        question_result.confidence = confidence
+
+    await sync_to_async(question_result.save)()
 
 
 def compute_test_metrics(test):
