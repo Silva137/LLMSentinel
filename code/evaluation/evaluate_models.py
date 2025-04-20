@@ -49,12 +49,12 @@ dataset_names = [
     #"Network Security",
     #"Operating Systems Security",
     #"tiago.csv",
-    #"Secqa V1",
-    #"Secqa V2",
+    "Secqa V1",
+    "Secqa V2",
     #"Cybermetric 80",
     #"Seceval",
-    "Secmmlu",
-    "Cyquiz",
+    #"Secmmlu",
+    #"Cyquiz",
 ]
 
 
@@ -210,7 +210,7 @@ def generate_dataset_bar_chart(df):
     # Plot settings
     sns.set_style("whitegrid")
     plt.figure(figsize=(12, 6))
-    ax = sns.barplot(x="model", y="accuracy", hue="dataset_name", data=df, palette="Set2")
+    ax = sns.barplot(x="model", y="accuracy", hue="dataset_name", data=df, palette="Set1")
 
     # Add values on top of bars
     for p in ax.patches:
@@ -218,16 +218,15 @@ def generate_dataset_bar_chart(df):
         if height > 0:  # Avoid displaying numbers for zero values
             ax.annotate(f"{height:.1f}%",
                         (p.get_x() + p.get_width() / 2., height + 0.5),
-                        ha='center', va='bottom', fontsize=11, color="black")
+                        ha='center', va='bottom', fontsize=12, color="black")
 
 
     # Formatting
-    plt.ylabel("Accuracy (%)", fontsize=13)
-    plt.xlabel("", fontsize=13)
-    plt.xticks(rotation=15, ha="center", fontsize=13)
-    plt.yticks(range(30, 110, 10))
+    plt.ylabel("Accuracy (%)", fontsize=15)
+    plt.xlabel("", fontsize=14)
+    plt.xticks(rotation=15, ha="center", fontsize=15)
 
-    plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=2, frameon=False, title=None, fontsize=13)
+    plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=2, frameon=False, title=None, fontsize=15)
     plt.tight_layout()
 
     # Save and show the plot
@@ -241,16 +240,16 @@ def generate_execution_time_chart(df):
     """Gera gráfico de barras com o tempo de execução dos testes por modelo e dataset."""
 
     plt.figure(figsize=(12, 6))
-    ax = sns.barplot(x="model", y="duration_seconds", hue="dataset_name", data=df, palette="Set3")
+    ax = sns.barplot(x="model", y="duration_seconds", hue="dataset_name", data=df, palette="Set2")
 
     # Adiciona os valores de duração acima das barras
     for container in ax.containers:
-        ax.bar_label(container, fmt="%.2f", label_type="edge", fontsize=10, padding=3)
+        ax.bar_label(container, fmt="%.2f", label_type="edge", fontsize=13, padding=3)
 
-    plt.ylabel("Duration (seconds)", fontsize=13)
-    plt.xlabel("", fontsize=13)
-    plt.xticks(rotation=15, ha="center", fontsize=13)
-    plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=2, frameon=False, title=None, fontsize=13)
+    plt.ylabel("Duration (seconds)", fontsize=15)
+    plt.xlabel("", fontsize=15)
+    plt.xticks(rotation=15, ha="center", fontsize=15)
+    plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=2, frameon=False, title=None, fontsize=15)
 
     plt.tight_layout()
     output_path = os.path.join("./", "execution_time_chart.png")
