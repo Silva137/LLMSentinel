@@ -27,7 +27,7 @@
     border-radius: 10px;
     padding: 12px 18px;
     gap: 15px;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #d5deea;
     border: 1px solid transparent;
     transition: background-color 0.2s ease, border-color 0.2s ease;
@@ -61,30 +61,27 @@
 .dataset-id { text-align: center; }
 
 
-.details-button-container {
-    flex-basis: 100px;
-    flex-shrink: 0;
+.button-container{
     display: flex;
-    justify-content: flex-end;
+    gap: 10px;
 }
 
 .details-button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background-color: #4a5568;
-    color: #e0e4ff;
     border: none;
+    background-color: #6492b6;
+    color: #e0e4ff;
     border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 0.85rem;
+    padding: 6px 10px;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    white-space: nowrap;
+    font-size: 14px;
 }
 
 .details-button:hover {
-    background-color: #5a67d8;
+    background-color: #4479b6;
 }
 
 .details-icon {

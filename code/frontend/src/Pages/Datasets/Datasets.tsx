@@ -50,8 +50,8 @@ const Datasets: React.FC = () => {
                         <div className="dataset-card header-row">
                             <span className="dataset-id header">ID</span>
                             <span className="dataset-name header">Name</span>
-                            <span className="dataset-domain header">Description</span>
-                            <span className="dataset-qcount header">Questions</span>
+                            <span className="dataset-description header">Description</span>
+                            <span className="dataset-questions header">Questions</span>
                         </div>
 
                         {/* --- Data Rows --- */}
@@ -71,11 +71,8 @@ const Datasets: React.FC = () => {
                                 <span className="dataset-questions" title={dataset.description || 'N/A'}>
                                     {truncateText(dataset.description, 20)}
                                 </span>
-                                <div className="details-button-container">
-                                    <button
-                                        className="details-button"
-                                        onClick={() => handleDatasetDetailsClick(dataset.id)}
-                                    >
+                                <div className="button-container">
+                                    <button className="details-button" onClick={() => handleDatasetDetailsClick(dataset.id)}>
                                         <SearchIcon className="details-icon" />
                                         Details
                                     </button>

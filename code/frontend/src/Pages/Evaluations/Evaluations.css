@@ -26,7 +26,7 @@
     border-radius: 10px;
     padding: 12px 18px;
     gap: 15px;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #d5deea;
     border: 1px solid transparent;
     transition: background-color 0.2s ease, border-color 0.2s ease;
@@ -62,44 +62,64 @@
 .test-correct-answers { text-align: center; }
 .test-accuracy { text-align: center; }
 
-.details-button-container {
-    flex-basis: 100px;
-    flex-shrink: 0;
+.button-container{
     display: flex;
-    justify-content: flex-end;
+    gap: 10px;
+}
+
+.create-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background-color: #6db588;
+    color: #e0e4ff;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 16px;
+}
+
+.create-button:hover {
+    background-color: #45875f;
 }
 
 .details-button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background-color: #4a5568;
-    color: #e0e4ff;
     border: none;
+    background-color: #6492b6;
+    color: #e0e4ff;
     border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 0.85rem;
+    padding: 6px 10px;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    white-space: nowrap;
+    font-size: 14px;
 }
 
 .details-button:hover {
-    background-color: #5a67d8;
+    background-color: #4479b6;
 }
 
-.details-icon {
-    width: 14px;
-    height: 14px;
-    fill: currentColor;
-}
 
 .delete-button {
-    background-color: #ef4444;
-    padding: 7px;
-    min-width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background-color: #9a4c4c;
+    color: #e0e4ff;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
 }
-.delete-button:hover { background-color: #dc2626; }
+
+
+.delete-button:hover { background-color: #783c3c; }
 
 
 .details-icon {
@@ -107,6 +127,86 @@
     height: 20px;
     fill: currentColor;
 }
+
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    background-color: #5564ae;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.modal h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.modal label {
+    display: block;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
+.modal select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.cancel-button-modal,
+.create-button-modal {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cancel-button-modal {
+    background-color: #ddd;
+    border: none;
+}
+
+.create-button-modal {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.create-button-modal:disabled {
+    background-color: #a0d3a0;
+    cursor: not-allowed;
+}
+
+
 
 
 /* Responsive adjustments */
