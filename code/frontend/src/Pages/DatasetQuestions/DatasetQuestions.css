@@ -1,0 +1,111 @@
+.questions-list-container {
+    max-width: 1600px; /* Allow wider view for question details */
+    margin: 0 auto;
+}
+
+.loading-text,
+.error-text,
+.no-questions-text {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1rem;
+    color: #a0a7d3;
+}
+
+.error-text {
+    color: #ff6b6b;
+}
+
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* Space between question cards */
+}
+
+/* Base style for question cards (header and data) */
+.question-list-card {
+    display: flex;
+    align-items: center;
+    background-color: #2a2f45; /* Card background */
+    border-radius: 10px;
+    padding: 10px 15px; /* Adjust padding */
+    gap: 15px; /* Space between columns */
+    font-size: 0.9rem;
+    border: 1px solid #363c58; /* Subtle border */
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Header Row specific styles */
+.question-list-card.header-row {
+    background-color: transparent;
+    border-radius: 0;
+    border: none; /* No border */
+    border-bottom: 1px solid #4a5175; /* Separator line */
+    padding-bottom: 8px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #c0caff; /* Brighter header text */
+}
+.question-list-card.header-row:hover {
+    border-color: transparent; /* No hover effect needed */
+    background-color: transparent;
+}
+
+/* Data Row hover effect */
+.question-list-card.data-row:hover {
+    border-color: #5a67d8; /* Highlight border on hover */
+    background-color: #30354e; /* Slightly lighter background */
+}
+
+/* --- Column Span Styles --- */
+/* Use flex-basis for initial width, flex-shrink to prevent shrinking */
+/* Use flex-grow cautiously if you want columns to expand */
+
+.q-id { flex-basis: 40px; flex-shrink: 0; text-align: center; color: #b0b8e0;}
+.q-id.header { color: #c0caff; }
+
+.q-text { flex-basis: 250px; flex-grow: 1; min-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-text.header { flex-grow: 1; flex-basis: 250px; min-width: 150px;}
+
+.q-option { flex-basis: 130px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #b0b8e0;}
+.q-option.header { flex-basis: 130px; color: #c0caff; }
+
+.q-correct { flex-basis: 60px; flex-shrink: 0; text-align: center; font-weight: bold; color: #a0a7d3; } /* Color for correct answer letter */
+.q-correct.header { flex-basis: 60px; font-weight: 600; color: #c0caff;}
+
+.q-explanation { flex-basis: 220px; flex-grow: 1; min-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #b0b8e0;}
+.q-explanation.header { flex-grow: 1; flex-basis: 220px; min-width: 120px; color: #c0caff;}
+
+.q-details-button-container { flex-basis: 100px; flex-shrink: 0; display: flex; justify-content: flex-end;}
+.q-details-button-container.header { flex-basis: 100px;}
+
+/* --- Reusing Button Styles --- */
+.details-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #4a5568; /* Match image button color */
+    color: #e0e4ff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+.details-button:hover { background-color: #5a67d8; } /* Match image hover intent */
+.details-icon { width: 14px; height: 14px; fill: currentColor; }
+
+/* --- Responsive --- */
+/* Add media queries similar to the Dataset list if needed to hide columns */
+@media (max-width: 1400px) { /* Example breakpoint */
+    .q-explanation, .q-explanation.header { display: none; }
+    .q-option, .q-option.header { flex-basis: 110px; }
+}
+
+@media (max-width: 1100px) {
+    .q-option, .q-option.header { display: none; } /* Hide all options */
+    .q-correct, .q-correct.header { flex-basis: 50px; }
+    .q-text, .q-text.header { flex-grow: 1; flex-basis: auto; }
+}

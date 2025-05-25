@@ -5,6 +5,9 @@ import Login from "./Pages/Login/Login.tsx"
 import Dashboard from "./Pages/Dashboard.tsx";
 import Models from "./Pages/Models/Models.tsx";
 import Register from "./Pages/Register/Register.tsx";
+import Datasets from "./Pages/Datasets/Datasets.tsx";
+import DatasetQuestions from "./Pages/DatasetQuestions/DatasetQuestions.tsx";
+import Evaluations from "./Pages/Evaluations/Evaluations.tsx";
 
 function App() {
 
@@ -19,8 +22,11 @@ function App() {
 
               {/* Protected Routes */}
               <Route element={<PrivateRoute />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/models" element={<Models />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/models" element={<Models />} />
+                    <Route path="/datasets" element={<Datasets />} />
+                    <Route path="/datasets/:datasetId/questions" element={<DatasetQuestions />}/>
+                    <Route path="/evaluations" element={<Evaluations/>} />
               </Route>
 
           </Routes>

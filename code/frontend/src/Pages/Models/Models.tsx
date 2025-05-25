@@ -1,45 +1,76 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Models.css";
+import {LLMModel} from "../../types/LLMModel.ts";
+import LLMModelService from "../../Services/LLMModelService.ts";
+import SearchIcon from "../../assets/searchIcon.svg?react";
 
-interface Model {
-    id: number;
-    name: string;
-    provider: string;
-    description: string;
-}
 
-const Models = () => {
-    const [models, setModels] = useState<Model[]>([]);
+const Models: React.FC = () => {
+    const [models, setModels] = useState<LLMModel[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    const fetchModels = async () => {
+        setIsLoading(true);
+        const data = await LLMModelService.searchLLMModelsByName(searchTerm);
+        setModels(data || []);
+        setIsLoading(false);
+    };
 
     useEffect(() => {
-        // Simula uma chamada à API (substitui por chamada real à API quando estiver pronta)
-        const fetchModels = async () => {
-            const mockData: Model[] = [
-                { id: 1, name: "GPT-4", provider: "OpenAI", description: "Advanced LLM by OpenAI" },
-                { id: 2, name: "Claude 3", provider: "Anthropic", description: "Constitutional AI model" },
-                { id: 3, name: "Gemini Flash 1.5", provider: "Google", description: "High-speed model for generation tasks" },
-                { id: 4, name: "LLaMA 3", provider: "Meta", description: "Efficient open-source LLM" },
-            ];
-            setModels(mockData);
-            console.log(mockData)
-        };
-
         fetchModels();
     }, []);
 
+    const handleSearch = () => {
+        fetchModels();
+    };
+
     return (
-        <div className="models-page">
-            <h2 className="models-title">Available LLMs</h2>
-            <div className="models-grid">
-                {models.map((model) => (
-                    <div key={model.id} className="model-card">
-                        <h3>{model.name}</h3>
-                        <p className="provider">{model.provider}</p>
-                        <p className="description">{model.description}</p>
-                    </div>
-                ))}
+        <div className="page">
+            <h1 className="page-title">Models</h1>
+
+            {/* Search Bar */}
+            <div className="search-container">
+                <SearchIcon className="search-icon" onClick={handleSearch}/>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {if(e.key === "Enter") handleSearch()}}
+                    placeholder="Search for models"
+                    className="search-input"
+                />
             </div>
+
+            {/* Models Count */}
+            <p className="models-available-text">{models.length} models available</p>
+
+            {/* Models Grid */}
+            <div className="models-grid">
+                {isLoading ? (
+                    <p className="loading-text">Loading models...</p>
+                ) : models.length > 0 ? (
+                    models.map((model) => (
+                        <div key={model.model_id} className="model-card">
+                            <h3 className="model-name">{model.name}</h3>
+                            {model.description && (
+                                <p className="model-description">
+                                    {model.description.length > 100
+                                        ? model.description.substring(0, 100) + '...'
+                                        : model.description}
+                                </p>
+                            )}
+                            <p className="model-provider">by {model.provider}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p className="no-models-text">No models found matching your search.</p>
+                )}
+            </div>
+
         </div>
+
+
     );
 };
 

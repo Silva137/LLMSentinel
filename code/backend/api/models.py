@@ -18,6 +18,8 @@ class LLMModel(BaseModel):
     name = models.CharField(max_length=100)
     provider = models.CharField(max_length=100)
     description = models.TextField(max_length=1000, blank=True, null=True)
+    #model_extra = models.JSONField(null=True, blank=True)
+
 
     class Meta:
         verbose_name = "LLM Model"
@@ -51,8 +53,8 @@ class Question(BaseModel):
     option_c = models.CharField(max_length=500)
     option_d = models.CharField(max_length=500)
     correct_option = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')])
-    difficulty = models.CharField(max_length=6, choices=[('Easy', 'Easy'), ('Medium', 'Medium'), ('Hard', 'Hard')], null=True)
-    domain = models.CharField(max_length=500, null=True)
+    difficulty = models.CharField(max_length=6, choices=[('Easy', 'Easy'), ('Medium', 'Medium'), ('Hard', 'Hard')], null=True) #retirar
+    domain = models.CharField(max_length=500, null=True) #retirar
     explanation = models.TextField(max_length=1000, blank=True, null=True)
 
     class Meta:

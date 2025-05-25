@@ -26,13 +26,15 @@ class Command(BaseCommand):
                 name = getattr(model, "name", "")
                 provider = model_id.split("/")[0] if "/" in model_id else "Unknown"
                 description = getattr(model, "description", "")
+                #model_extra = getattr(model, "model_extra", {})  #Informacao adicional sobre os modelos
 
                 new_models.append(
                     LLMModel(
                         model_id=model_id,
                         name=name,
                         provider=provider,
-                        description=description
+                        description=description,
+                        #model_extra=model_extra
                     )
                 )
 

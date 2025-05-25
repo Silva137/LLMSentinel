@@ -1,0 +1,154 @@
+.tests-list-container {
+    max-width: 80%;
+    margin: 0 auto;
+    padding-bottom: 5rem;
+}
+
+.loading-text,
+.no-tests-text {
+    text-align: center;
+    padding: 2rem;
+    font-size: 2rem;
+    color: #a0a7d3;
+}
+
+.tests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.test-card {
+    display: grid;
+    grid-template-columns: 0.4fr 1.5fr 2fr 1fr 1fr 0.8fr;
+    align-items: center;
+    background-color: #2a2f45;
+    border-radius: 10px;
+    padding: 12px 18px;
+    gap: 15px;
+    font-size: 0.9rem;
+    color: #d5deea;
+    border: 1px solid transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.test-card.header-row {
+    background-color: transparent;
+    border-radius: 0;
+    border-bottom: 1px solid #4a5175;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #c0caff;
+}
+
+.test-card.data-row:hover {
+    border-color: #6a6fbf;
+}
+
+.test-id,
+.test-dataset,
+.test-llm-model,
+.test-correct-answers,
+.test-accuracy{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+
+.test-id { text-align: center; }
+.test-correct-answers { text-align: center; }
+.test-accuracy { text-align: center; }
+
+.details-button-container {
+    flex-basis: 100px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.details-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #4a5568;
+    color: #e0e4ff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.details-button:hover {
+    background-color: #5a67d8;
+}
+
+.details-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+.delete-button {
+    background-color: #ef4444;
+    padding: 7px;
+    min-width: auto;
+}
+.delete-button:hover { background-color: #dc2626; }
+
+
+.details-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .test-card {
+        /* Adjust grid columns for medium screens */
+        grid-template-columns: 0.4fr 1.2fr 1.5fr 0.8fr 0.8fr 1fr; /* Hide one column (e.g., correct answers) */
+        font-size: 0.85rem;
+        padding: 10px 15px;
+        gap: 10px;
+    }
+    .test-correct-answers, .test-correct-answers.header {
+        display: none; /* Example: Hide correct answers column */
+    }
+    .details-button, .delete-button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .page.evaluations-page { padding: 1rem; }
+    .evaluations-page .page-title { font-size: 1.5rem; }
+    .create-test-button { padding: 8px 12px; font-size: 0.85rem;}
+
+    .test-card {
+        /* Further adjust grid for small screens */
+        grid-template-columns: 0.5fr 2fr 1fr 1fr; /* ID, Dataset, Accuracy, Actions */
+        font-size: 0.8rem;
+    }
+    .test-llm-model, .test-llm-model.header,
+    .test-total-questions, .test-total-questions.header,
+    .test-correct-answers, .test-correct-answers.header { /* Ensure correct answers also hidden if not already */
+        display: none;
+    }
+    .details-button span, .delete-button span { /* If buttons have text spans */
+        /* display: none; */ /* Hides text, shows only icon if spans exist */
+    }
+    .details-button, .delete-button {
+        padding: 6px; /* Smaller padding for icon-only look */
+        gap: 0;
+        min-width: auto;
+    }
+    .details-button span { display: none;} /* Hide "Details" text to match image */
+}

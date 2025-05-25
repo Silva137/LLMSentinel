@@ -1,26 +1,101 @@
-.models-page {
-    padding: 2rem;
-    color: white;
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 400px;
+    height: 38px;
+    background-color: #363c58;
+    border-radius: 13px;
+    margin: 2rem auto 0.5rem;
 }
 
-.models-title {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
+.search-icon {
+    color: white;
+    margin-top: 2px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+
+.search-icon:hover {
+    transform: scale(1.2);
+}
+
+.search-input::placeholder {
+    color: #dadada;
+}
+
+.search-input {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
+.models-available-text {
+    text-align: center;
+    color: #c7cded;
+    font-size: 14px;
+    margin-bottom: 2rem;
+    margin-top: 0rem;
+
+}
+
+.loading-text,
+.no-models-text {
+    text-align: center;
+    color: #b0b8e0;
+    font-size: 16px;
+    grid-column: 1 / -1;
+    margin-top: 2rem;
 }
 
 .models-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    max-width: 1300px;
+    margin: 0 auto 4rem;
 }
+
 
 .model-card {
-    background-color: #2a2e45;
-    padding: 1.2rem;
-    border-radius: 10px;
+    background-color: #2f354c;
+    padding: 1.5rem;
+    border-radius: 15px;
+    color: white;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 150px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Optional subtle shadow */
+    transition: transform 0.1s ease-in-out;
 }
 
-.model-card h3 {
-    margin-bottom: 0.5rem;
-    color: #67d9a0;
+.model-card:hover {
+    transform: scale(1.05);
 }
+
+
+.model-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #e0e4ff;
+}
+
+.model-description {
+    font-size: 0.9rem;
+    color: #b0b8e0;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+}
+
+.model-provider {
+    font-size: 0.85rem;
+    color: #99A8FF;
+    margin-top: auto; /* Pushes to the bottom */
+    font-style: italic;
+}
+

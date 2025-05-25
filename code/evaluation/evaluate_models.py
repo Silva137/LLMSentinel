@@ -14,7 +14,7 @@ matplotlib.use('Agg')
 API_URL = "http://localhost:8001/api/tests/"
 LOGIN_URL = "http://localhost:8001/api/auth/login/"
 COOKIES = {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoyOTQ1MDcxODM4LCJpYXQiOjE3NDUwNzE4MzgsImp0aSI6ImJjMzBmMDM5MGVkYzQ2NWQ4MjdlMzE1ZjFkYzZiMzFhIiwidXNlcl9pZCI6MX0.eG9Q1lqYUdIhmq_Nfboy9ytGZDC7MWRUbjwpVTWUCsw"
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoyOTQ2MTIwNDI0LCJpYXQiOjE3NDYxMjA0MjQsImp0aSI6Ijk1ZDcwZDViMzdjZTRhZmQ5ODkyYzliNjlkYzcwY2NiIiwidXNlcl9pZCI6MX0.AbbXfqf1TD0eEOwxpkGXTJXO6QSiWVirNFfc5IqbFR4"
 }
 
 models1 = [
@@ -41,16 +41,18 @@ models2 = [
 ]
 
 dataset_names = [
-    #"Applications Security",
-    #"Cloud Security",
-    #"Cryptography",
-    #"Digital Forensics",
-    #"Iam",
-    #"Network Security",
-    #"Operating Systems Security",
-    #"tiago.csv",
-    "Secqa V1",
-    "Secqa V2",
+    "Applications Security",
+    "Cloud Security",
+    "Cryptography",
+    "Digital Forensics",
+    "Iam",
+    "Network Security",
+    "Operating Systems Security",
+    #"Malware",
+    #"Ctf",
+    #"Honeypots",
+    #"Secqa V1",
+    #"Secqa V2",
     #"Cybermetric 80",
     #"Seceval",
     #"Secmmlu",
@@ -98,7 +100,7 @@ def evaluate_models():
                         continue
 
                 except Exception as e:
-                    print(f"⚠️ Error for {model} on Dataset {dataset_name}: {e}")
+                    print(f"Error for {model} on Dataset {dataset_name}: {e}")
                     continue
 
                 time.sleep(1)
@@ -203,6 +205,59 @@ def generate_bar_charts(df):
         plt.close()
 
 
+def generate_average_accuracy_chart(df):
+    """
+    Generates a bar chart showing the average accuracy per model across all evaluated datasets.
+    """
+    if df.empty:
+        print("DataFrame is empty. Skipping average accuracy chart generation.")
+        return
+
+    # Calculate the average accuracy for each model
+    # Group by 'model' and calculate the mean of 'accuracy'
+    # .reset_index() converts the grouped result back into a DataFrame
+    avg_accuracy_df = df.groupby('model')['accuracy'].mean().reset_index()
+
+    # Sort models by average accuracy for better visualization (optional)
+    avg_accuracy_df = avg_accuracy_df.sort_values('accuracy', ascending=False)
+
+    # Plotting
+    sns.set_style("whitegrid")
+    plt.figure(figsize=(10, 6)) # Adjust figure size as needed
+
+    # Create the bar plot
+    ax = sns.barplot(
+        x='model',
+        y='accuracy',
+        data=avg_accuracy_df,
+        palette='viridis' # You can choose a different color palette
+    )
+
+    # Add the average accuracy value on top of each bar
+    for p in ax.patches:
+        height = p.get_height()
+        if pd.notna(height): # Check if height is NaN before annotating
+            ax.annotate(f'{height:.1f}', # Format to one decimal place
+                        (p.get_x() + p.get_width() / 2., height),
+                        ha='center', va='bottom',
+                        fontsize=10, color='black',
+                        xytext=(0, 3), # 3 points vertical offset
+                        textcoords='offset points')
+
+    # Formatting
+    plt.xlabel("Model", fontsize=12)
+    plt.ylabel("Average Accuracy (%) Across Datasets", fontsize=12)
+    plt.title("Average Model Accuracy Across All Evaluated Datasets", fontsize=14)
+    plt.xticks(rotation=45, ha="right", fontsize=10) # Rotate labels if they overlap
+    plt.ylim(0, 105) # Set y-axis limit slightly above 100%
+    plt.tight_layout() # Adjust layout to prevent labels overlapping
+
+    # Save the plot
+    output_path = os.path.join("./", "average_accuracy_per_model.png")
+    plt.savefig(output_path, bbox_inches="tight")
+    plt.close()
+    print(f"Average accuracy per model chart saved as {output_path}")
+
 
 def generate_dataset_bar_chart(df):
     """Generates a grouped bar chart showing model performance across datasets with values on top of bars."""
@@ -212,13 +267,14 @@ def generate_dataset_bar_chart(df):
     plt.figure(figsize=(12, 6))
     ax = sns.barplot(x="model", y="accuracy", hue="dataset_name", data=df, palette="Set1")
 
+
     # Add values on top of bars
-    for p in ax.patches:
-        height = p.get_height()
-        if height > 0:  # Avoid displaying numbers for zero values
-            ax.annotate(f"{height:.1f}%",
-                        (p.get_x() + p.get_width() / 2., height + 0.5),
-                        ha='center', va='bottom', fontsize=12, color="black")
+    #for p in ax.patches:
+    #    height = p.get_height()
+    #    if height > 0:  # Avoid displaying numbers for zero values
+    #        ax.annotate(f"{height:.0f}",
+    #                    (p.get_x() + p.get_width() / 2., height + 0.5),
+    #                    ha='center', va='bottom', fontsize=11, color="black")
 
 
     # Formatting
@@ -226,7 +282,13 @@ def generate_dataset_bar_chart(df):
     plt.xlabel("", fontsize=14)
     plt.xticks(rotation=15, ha="center", fontsize=15)
 
-    plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=2, frameon=False, title=None, fontsize=15)
+    plt.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1.15),
+        ncol=4,
+        frameon=False,
+        fontsize=13
+    )
     plt.tight_layout()
 
     # Save and show the plot
@@ -243,13 +305,19 @@ def generate_execution_time_chart(df):
     ax = sns.barplot(x="model", y="duration_seconds", hue="dataset_name", data=df, palette="Set2")
 
     # Adiciona os valores de duração acima das barras
-    for container in ax.containers:
-        ax.bar_label(container, fmt="%.2f", label_type="edge", fontsize=13, padding=3)
+    #for container in ax.containers:
+    #    ax.bar_label(container, fmt="%.0f", label_type="edge", fontsize=11, padding=3)
 
     plt.ylabel("Duration (seconds)", fontsize=15)
     plt.xlabel("", fontsize=15)
     plt.xticks(rotation=15, ha="center", fontsize=15)
-    plt.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25), ncol=2, frameon=False, title=None, fontsize=15)
+    plt.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1.15),
+        ncol=4,
+        frameon=False,
+        fontsize=13
+    )
 
     plt.tight_layout()
     output_path = os.path.join("./", "execution_time_chart.png")
@@ -280,6 +348,7 @@ def main():
     df = save_results(results)
 
     generate_bar_charts(df)
+    generate_average_accuracy_chart(df)
     print_model_comparison_table(df)
     generate_dataset_bar_chart(df)
     generate_execution_time_chart(df)

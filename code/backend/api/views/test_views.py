@@ -260,7 +260,7 @@ async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
             response = await client.chat.completions.create(
                 model=llm_model.model_id,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=3000  # responsavel pelo erro empty response
+                max_tokens=20000  # responsavel pelo erro empty response
             )
 
             if hasattr(response, "error"):

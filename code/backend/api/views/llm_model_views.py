@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from ..models import LLMModel
@@ -21,5 +22,18 @@ class LLMModelViewSet(viewsets.ModelViewSet):
     serializer_class = LLMModelSerializer
     permission_classes = [IsAuthenticated]
 
+    #search by name
+    def get_queryset(self):
+        queryset = LLMModel.objects.all()
+        name = self.request.query_params.get('name')
+        if name:
+            name = name.strip().lower()
+            search_terms = name.split()
+            # Query to match all terms using AND logic
+            query = Q()
+            for term in search_terms:
+                query &= Q(name__icontains=term)
+            queryset = queryset.filter(query)
+        return queryset
 
 

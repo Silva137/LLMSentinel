@@ -14,3 +14,13 @@ html, body, #root {
 body {
   overflow: hidden;
 }
+
+.page {
+  color: white;
+}
+
+.page-title {
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
