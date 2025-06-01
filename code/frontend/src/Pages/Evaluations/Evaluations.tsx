@@ -17,7 +17,7 @@ const truncateText = (text: string | null | undefined, maxLength: number): strin
 
 const Evaluations: React.FC = () => {
     const [tests, setTests] = useState<Test[]>([]);
-    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
     const [selectedDataset, setSelectedDataset] = useState<string>('');
     const [selectedModel, setSelectedModel] = useState<string>('');
     const [datasets, setDatasets] = useState<Dataset[]>([]);

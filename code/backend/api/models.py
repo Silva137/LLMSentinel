@@ -34,6 +34,8 @@ class Dataset(BaseModel):
     """Represents a dataset for testing LLMs."""
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=1000, blank=True, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='datasets', null=True)
+    is_public = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Dataset"

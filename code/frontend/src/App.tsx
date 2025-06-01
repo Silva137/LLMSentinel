@@ -8,6 +8,8 @@ import Register from "./Pages/Register/Register.tsx";
 import Datasets from "./Pages/Datasets/Datasets.tsx";
 import DatasetQuestions from "./Pages/DatasetQuestions/DatasetQuestions.tsx";
 import Evaluations from "./Pages/Evaluations/Evaluations.tsx";
+import TestDetails from "./Pages/TestDetails/TestDetails.tsx";
+import CommunityDatasets from "./Pages/CommunityDatasets/CommunityDatasets.tsx";
 
 function App() {
 
@@ -27,6 +29,9 @@ function App() {
                     <Route path="/datasets" element={<Datasets />} />
                     <Route path="/datasets/:datasetId/questions" element={<DatasetQuestions />}/>
                     <Route path="/evaluations" element={<Evaluations/>} />
+                    <Route path="/evaluations/:testId/results" element={<TestDetails />} />
+                    <Route path="/community" element={<CommunityDatasets/>} />
+
               </Route>
 
           </Routes>

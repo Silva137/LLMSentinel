@@ -12,6 +12,7 @@ class DatasetSerializer(serializers.ModelSerializer):
 class DatasetUploadSerializer(serializers.Serializer):
     file = serializers.FileField(required=True)
     name = serializers.CharField(max_length=50, required=True)
+    description = serializers.CharField(max_length=500, required=False, allow_blank=True, allow_null=True)
 
     def validate(self, attrs):
 

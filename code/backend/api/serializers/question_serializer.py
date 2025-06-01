@@ -9,6 +9,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class QuestionResultSerializer(serializers.ModelSerializer):
+    question = QuestionSerializer(read_only=True)
     class Meta:
         model = QuestionResult
         fields = '__all__'

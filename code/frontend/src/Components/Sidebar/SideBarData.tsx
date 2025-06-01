@@ -1,11 +1,11 @@
 import { JSX } from "react";
-import { Logout } from "pixelarticons/fonts/react";
 
 import ModelsIcon from "../../assets/modelsIcon.svg?react";
 import DatasetsIcon from "../../assets/datasetsIcon.svg?react";
 import EvaluationsIcon from "../../assets/evaluationsIcon.svg?react";
 import ResultsIcon from "../../assets/resultsIcon.svg?react";
-import LeaderboardIcon from "../../assets/leaderboardIcon.svg?react";
+import CommunityIcon from "../../assets/communityIcon.svg?react";
+import Logout from "../../assets/logoutIcon.svg?react";
 
 interface NavItem {
     icon: JSX.Element;
@@ -35,12 +35,12 @@ export const navItems: NavItem[] = [
         link: "/results",
     },
     {
-        icon: <LeaderboardIcon />,
-        text: "Leaderboard",
-        link: "/leaderboard",
+        icon: <CommunityIcon />,
+        text: "Community",
+        link: "/community",
     },
     {
-        icon: <Logout size={24} fill="white" />,
+        icon: <Logout fill="white" />,
         text: "Logout",
         link: "/logout",
     },

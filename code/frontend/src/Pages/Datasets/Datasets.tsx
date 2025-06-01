@@ -4,6 +4,7 @@ import "./Datasets.css";
 import {Dataset} from "../../types/Dataset.ts";
 import {useNavigate} from "react-router-dom";
 import SearchIcon from "../../assets/searchIcon.svg?react";
+import UploadDatasetModal from "../../Components/UploadDatasetModal/UploadDatasetModal.tsx";
 
 
 const truncateText = (text: string | null | undefined, maxLength: number): string => {
@@ -16,6 +17,8 @@ const Datasets: React.FC = () => {
     const [datasets, setDatasets] = useState<Dataset[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const navigate = useNavigate();
+    const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
+
 
 
     const fetchDatasets = async () => {
@@ -38,6 +41,10 @@ const Datasets: React.FC = () => {
     return (
         <div className="page">
             <h1 className="page-title">Datasets</h1>
+
+            <button className="upload-button" onClick={() => setShowUploadModal(true)}>
+                Upload Dataset
+            </button>
 
             <div className="datasets-list-container">
                 {isLoading ? (
@@ -82,6 +89,16 @@ const Datasets: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {showUploadModal && (
+                <UploadDatasetModal
+                    onClose={() => setShowUploadModal(false)}
+                    onSuccess={() => {
+                        fetchDatasets();
+                        setShowUploadModal(false);
+                    }}
+                />
+            )}
         </div>
     );
 };

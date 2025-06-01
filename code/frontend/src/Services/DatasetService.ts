@@ -24,6 +24,35 @@ class DatasetService {
             return null;
         }
     }
+
+    async getPublicDatasets(): Promise<Dataset[] | null> {
+        try {
+            const response = await api.get("/datasets/", {
+                params: {
+                    is_public: true
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Fetching public datasets failed:", error);
+            return null;
+        }
+    }
+
+    async uploadDataset(name: string, description: string, file: File): Promise<{ message: string } | null> {
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('description', description);
+        formData.append('file', file);
+
+        try {
+            const response = await api.post('/datasets/upload/', formData);
+            return response.data;
+        } catch (error) {
+            console.error("Upload dataset failed:", error);
+            return null;
+        }
+    }
 }
 
 export default new DatasetService();

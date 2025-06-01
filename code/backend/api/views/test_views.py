@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from ..models import Test, QuestionResult, Question
 from ..serializers.question_serializer import QuestionResultSerializer
-from ..serializers.test_serializer import TestSerializer, TestCreationSerializer
+from ..serializers.test_serializer import TestSerializer, TestCreationSerializer, TestListSerializer
 from sklearn.metrics import classification_report
 
 
@@ -25,6 +25,13 @@ class TestViewSet(viewsets.ModelViewSet):
     queryset = Test.objects.all()
     serializer_class = TestSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return TestSerializer  # single test (includes results)
+        elif self.action == 'create':
+            return TestCreationSerializer
+        return TestListSerializer  # list of tests (without results)
 
     def get_queryset(self):
         """

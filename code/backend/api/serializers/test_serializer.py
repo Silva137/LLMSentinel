@@ -17,6 +17,16 @@ class TestSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TestListSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    dataset = DatasetSerializer(read_only=True)
+    llm_model = LLMModelSerializer(read_only=True)
+
+    class Meta:
+        model = Test
+        fields = ["id", "user", "dataset", "llm_model", "correct_answers", "accuracy_percentage", "completed_at"]
+
+
 class TestCreationSerializer(serializers.ModelSerializer):
     dataset_name = serializers.CharField(write_only=True, required=True)
     llm_model_name = serializers.CharField(write_only=True, required=True)

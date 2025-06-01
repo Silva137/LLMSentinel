@@ -1,6 +1,5 @@
 import api from "./Axios.ts";
 import { Test } from '../types/Test';
-import {QuestionResult} from "../types/QuestionResult.ts";
 
 
 class TestService {
@@ -19,12 +18,12 @@ class TestService {
         }
     }
 
-    async getQuestionResults(testId: string | number): Promise<QuestionResult[] | null> {
+    async getTestById(testId: string): Promise<Test | null> {
         try {
-            const response = await api.get(`/tests/${testId}/results/`);
+            const response = await api.get(`/tests/${testId}/`);
             return response.data;
         } catch (error) {
-            console.error(`Fetching question results for test ${testId} failed:`, error);
+            console.error(`Fetching test ${testId} failed:`, error);
             return null;
         }
     }

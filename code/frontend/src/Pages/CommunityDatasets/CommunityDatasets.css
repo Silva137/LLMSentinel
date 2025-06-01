@@ -1,39 +1,4 @@
-.search-container {
-    display: flex;
-    align-items: center;
-    width: 400px;
-    height: 38px;
-    background-color: #363c58;
-    border-radius: 13px;
-    margin: 2rem auto 0.5rem;
-}
-
-.search-icon {
-    color: white;
-    margin-top: 2px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-
-.search-icon:hover {
-    transform: scale(1.2);
-}
-
-.search-input::placeholder {
-    color: #dadada;
-}
-
-.search-input {
-    width: 100%;
-    background-color: transparent;
-    border: none;
-    color: white;
-    font-size: 14px;
-    outline: none;
-}
-
-.models-available-text {
+.pdatasets-available-text {
     text-align: center;
     color: #c7cded;
     font-size: 14px;
@@ -41,7 +6,7 @@
 }
 
 .loading-text,
-.no-models-text {
+.no-pdatasets-text {
     text-align: center;
     color: #b0b8e0;
     font-size: 16px;
@@ -49,7 +14,7 @@
     margin-top: 2rem;
 }
 
-.models-grid {
+.pdatasets-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 2rem;
@@ -57,8 +22,7 @@
     margin: 0 auto 4rem;
 }
 
-
-.model-card {
+.pdataset-card {
     background-color: #2f354c;
     padding: 1.5rem;
     border-radius: 15px;
@@ -71,29 +35,57 @@
     transition: transform 0.1s ease-in-out;
 }
 
-.model-card:hover {
+.pdataset-card:hover {
     transform: scale(1.05);
 }
 
-
-.model-name {
+.pdataset-name {
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 0.75rem;
     color: #e0e4ff;
 }
 
-.model-description {
+.pdataset-description {
     font-size: 0.9rem;
     color: #b0b8e0;
     line-height: 1.4;
     margin-bottom: 1rem;
 }
 
-.model-provider {
+.pdataset-owner {
     font-size: 0.85rem;
     color: #99A8FF;
     margin-top: auto; /* Pushes to the bottom */
     font-style: italic;
 }
 
+.pdataset-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.download-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #4a61dd;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.download-button:hover {
+    background-color: #3b4fb0;
+}
+
+.download-icon {
+    width: 16px;
+    height: 16px;
+    color: white;
+}
