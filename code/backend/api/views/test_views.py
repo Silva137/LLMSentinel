@@ -59,6 +59,7 @@ class TestViewSet(viewsets.ModelViewSet):
 
         if serializer.is_valid():
             test = serializer.save()
+            test.started_at = timezone.now()
             async_to_sync(evaluate_llm)(test)
             test.completed_at = timezone.now()
 
@@ -212,11 +213,12 @@ async def evaluate_llm(test, questions=None):
         for question, result in zip(questions, results):
             if isinstance(result, Exception):
                 print(f"Error processing question {question.id}: {result}")
-                answer, explanation, confidence, content = "X", "Error during retry", 0.0, str(result)
+                answer, explanation, response_time, content = "X", "Error during retry", 0.0, str(result)
             else:
-                answer, explanation, confidence, content = result
+                answer, explanation, response_time, content = result
 
             correct = (answer.strip().upper() == question.correct_option.strip().upper())
+
             # Create each QuestionResult in the database (this part remains synchronous)
             q_results.append(QuestionResult(
                 test=test,
@@ -225,8 +227,8 @@ async def evaluate_llm(test, questions=None):
                 answer=answer,
                 explanation=explanation,
                 correct=correct,
-                response_time=0.5,
-                confidence=confidence
+                response_time=response_time,
+                confidence=0.0
             ))
 
         await sync_to_async(QuestionResult.objects.bulk_create)(q_results)
@@ -264,11 +266,15 @@ async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
 
     while attempt < max_attempts:
         try:
+            start_time = timezone.now()
+
             response = await client.chat.completions.create(
                 model=llm_model.model_id,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=20000  # responsavel pelo erro empty response
             )
+
+            response_time = (timezone.now() - start_time).total_seconds()
 
             if hasattr(response, "error"):
                 error_code = response.error.get("code", "Unknown")
@@ -292,12 +298,12 @@ async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
             # Return answer if valid, else retry
             if answer in ["A", "B", "C", "D"]:
                 print(f"Succes on attempt {attempt + 1}/{max_attempts}")
-                return answer, "Not implemented yet", 0.0, content  # Only return answer and raw response
+                return answer, "Not implemented yet", response_time, content
 
             print(f"Warning: Unexpected response format on attempt {attempt + 1}/{max_attempts}")
             attempt += 1
             await asyncio.sleep(delay)
-            delay *= 2  # Exponential backoff
+            delay *= 2
 
 
         except Exception as e:
@@ -317,13 +323,14 @@ async def retry_query(question_result, question, llm_model, correct_option, max_
     """
     Reenvia a pergunta para o LLM. Mesmo que falhe, atualiza a resposta com uma mensagem de erro.
     """
-    answer, explanation, confidence, content = await query_llm(llm_model, question, max_attempts=max_attempts)
+    answer, explanation, response_time, content = await query_llm(llm_model, question, max_attempts=max_attempts)
 
     if answer not in ["A", "B", "C", "D"]:
         question_result.answer = "X"
         question_result.explanation = "O modelo não retornou uma opção válida após o retry."
         question_result.llm_response = content or "Resposta vazia ou inválida do modelo."
         question_result.correct = False
+        question_result.response_time = 0.0
         question_result.confidence = 0.0
     else:
         correct = (answer.strip().upper() == correct_option.strip().upper())
@@ -331,7 +338,8 @@ async def retry_query(question_result, question, llm_model, correct_option, max_
         question_result.explanation = explanation
         question_result.llm_response = content
         question_result.correct = correct
-        question_result.confidence = confidence
+        question_result.response_time = response_time
+        question_result.confidence = 0.0
 
     await sync_to_async(question_result.save)()
 

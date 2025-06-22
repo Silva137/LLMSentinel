@@ -35,7 +35,7 @@ client = openai.AsyncOpenAI(
 async def ask_openrouter_async(prompt):
     try:
         response = await client.chat.completions.create(
-            model="openai/gpt-4o",
+            model="google/gemini-2.0-flash-001",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.6,
             max_tokens=500,
@@ -60,7 +60,7 @@ async def main(dataset_path):
             correct_answer = row['Correct Answer']
 
             prompt = (
-                f"You are a cybersecurity expert. Please review the following multiple choice question and assess if the given correct option is truly correct.\n"
+                f"You are a cybersecurity expert. Please review the following multiple choice question and assess if its well structured and the correct option is truly correct.\n"
                 f"Question: {question}\n"
                 f"Options: {options}\n"
                 f"The answer marked as correct is: {correct_answer}\n"

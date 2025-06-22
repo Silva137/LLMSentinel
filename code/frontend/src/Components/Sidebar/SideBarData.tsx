@@ -31,8 +31,8 @@ export const navItems: NavItem[] = [
     },
     {
         icon: <ResultsIcon />,
-        text: "Results",
-        link: "/results",
+        text: "Overview",
+        link: "/overview",
     },
     {
         icon: <CommunityIcon />,

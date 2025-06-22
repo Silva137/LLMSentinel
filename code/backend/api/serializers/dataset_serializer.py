@@ -1,9 +1,14 @@
 import pandas as pd
 from rest_framework import serializers
+
+from .user_serializer import UserSerializer
 from ..models import Dataset
 
 
 class DatasetSerializer(serializers.ModelSerializer):
+    total_questions = serializers.IntegerField(source='get_total_questions', read_only=True)
+    owner = UserSerializer(read_only=True)
+
     class Meta:
         model = Dataset
         fields = '__all__'

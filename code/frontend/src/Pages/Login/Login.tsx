@@ -3,10 +3,12 @@ import "../../App.css"
 import { useState } from "react";
 import { useAuth } from "../../Context/AuthContext.tsx";
 import * as React from "react";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const {login} = useAuth();
 
@@ -18,13 +20,34 @@ const Login = () => {
         }
     };
 
+    const toggleShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
         <div className="login-bg-container">
             <div className="login-form-container">
                 <div className="login-text">Log in</div>
                 <form onSubmit={handleLoginSubmit}>
-                    <input onChange={e => setUsername(e.target.value)} type="username" className="input" placeholder="Username" required></input>
-                    <input onChange={e => setPassword(e.target.value)} type="password" className="input" placeholder="Password" required></input>
+                    <input
+                        onChange={e => setUsername(e.target.value)}
+                        type="text"
+                        className="input"
+                        placeholder="Username"
+                        required
+                    />
+                    <div className="password-input-container">
+                        <input
+                            onChange={(e) => setPassword(e.target.value)}
+                            type={showPassword ? "text" : "password"}
+                            className="input password-field"
+                            placeholder="Password"
+                            required
+                        />
+                        <span className="toggle-password-icon" onClick={toggleShowPassword}>
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </span>
+                    </div>
                     <button type="submit" className="login-button">Log in</button>
                 </form>
                 <h2 className="secondary-text" >
@@ -41,6 +64,5 @@ const Login = () => {
         </div>
     );
 };
-
 
 export default Login;

@@ -40,6 +40,16 @@ class TestService {
             return null;
         }
     }
+
+    async deleteTestById(testId: string): Promise<boolean> {
+        try {
+            const response = await api.delete(`/tests/${testId}/`);
+            return response.status === 204;
+        } catch (error) {
+            console.error(`Deleting test ${testId} failed:`, error);
+            return false;
+        }
+    }
 }
 
 export default new TestService();

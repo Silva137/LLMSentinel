@@ -37,6 +37,9 @@ class Dataset(BaseModel):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='datasets', null=True)
     is_public = models.BooleanField(default=False)
 
+    def get_total_questions(self):
+        return self.questions.count()  # Counts related questions
+
     class Meta:
         verbose_name = "Dataset"
         verbose_name_plural = "Datasets"

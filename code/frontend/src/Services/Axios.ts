@@ -28,8 +28,12 @@ api.interceptors.response.use(
                         refreshPromise = null;
                         if (!success) {
                             console.error("Refresh token failed");
-                            await AuthService.logout();
-                            window.location.href = "/login";
+                            try {
+                                window.location.href = "/login";
+                                await AuthService.logout();
+                            } catch (error) {
+                                console.warn("Logout failed or no refresh token:", error);
+                            }
                         }
                         return success;
                     } catch (err) {
@@ -53,6 +57,7 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
 
 
 export default api;

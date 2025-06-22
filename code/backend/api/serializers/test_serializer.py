@@ -24,7 +24,7 @@ class TestListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Test
-        fields = ["id", "user", "dataset", "llm_model", "correct_answers", "accuracy_percentage", "completed_at"]
+        fields = ["id", "user", "dataset", "llm_model", "correct_answers", "accuracy_percentage", "completed_at", "started_at"]
 
 
 class TestCreationSerializer(serializers.ModelSerializer):

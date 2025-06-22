@@ -9,4 +9,6 @@ export interface Test {
     correct_answers: number;
     accuracy_percentage: number;
     results: QuestionResult[];
+    started_at: string;
+    completed_at: string;
 }

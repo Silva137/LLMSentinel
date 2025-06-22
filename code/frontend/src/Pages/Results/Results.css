@@ -1,0 +1,417 @@
+/* src/Pages/Results/Results.css */
+.results-layout-page {
+    display: flex;
+    height: calc(100vh - 60px); /* Adjust based on your header/navbar height */
+    color: #e0e4ff;
+    overflow: hidden; /* Prevent overall page scroll, individual panels will scroll */
+}
+
+.results-sidebar {
+    width: 280px; /* Width of the model selection sidebar */
+    background-color: #2f354c; /* Darker sidebar background */
+    padding: 20px;
+    overflow-y: auto; /* Allow scrolling for model list */
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px; /* Added for consistency with other elements */
+}
+
+.sidebar-title {
+    font-size: 1.3rem;
+    color: #ffffff;
+    margin-bottom: 0; /* Remove default margin */
+}
+
+.sidebar-subtitle {
+    font-size: 0.8rem;
+    color: #aeb4da;
+    margin-bottom: 1.5rem;
+}
+
+.model-selection-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1; /* Allow list to take available space */
+}
+
+.model-selection-list li {
+    margin-bottom: 0.75rem;
+}
+
+.model-selection-list label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #c7cded;
+    transition: color 0.2s;
+}
+.model-selection-list label:hover {
+    color: #ffffff;
+}
+
+.model-selection-list input[type="checkbox"] {
+    margin-right: 10px;
+    accent-color: #8884d8; /* Color for the checkbox itself */
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+.model-selection-list input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.model-selection-list input[type="checkbox"]:disabled + span {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+.loading-text-sidebar,
+.no-data-sidebar {
+    color: #a0a7d3;
+    font-style: italic;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Main Content Area */
+.results-main-content {
+    flex-grow: 1;
+    padding: 20px 30px; /* Consistent padding */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.main-content-title {
+    font-size: 1.8rem;
+    color: #ffffff;
+    text-align: left;
+    margin-top: 0; /* Remove default margin if parent handles spacing */
+    margin-bottom: 0; /* Removed, parent gap will handle */
+}
+
+.main-content-filters {
+    background-color: #2a2f45;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.main-content-filters label {
+    font-size: 0.95rem;
+    color: #c7cded;
+    margin-right: 0.5rem;
+}
+
+.main-content-filters select {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #4a5175;
+    background-color: #363c58;
+    color: #e0e4ff;
+    font-size: 0.9rem;
+    min-width: 300px;
+}
+.main-content-filters select:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+.main-content-filters select:focus {
+    outline: none;
+    border-color: #6a6fbf;
+    box-shadow: 0 0 0 2px rgba(106, 111, 191, 0.3);
+}
+.main-content-filters span {
+    color: #a0a7d3;
+    font-size: 0.9rem;
+}
+
+
+.charts-display-area {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    /* flex-grow: 1; No longer needed if table is also part of main scroll */
+}
+
+.chart-wrapper {
+    background-color: #2f354c;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    min-height: 480px;
+}
+
+.chart-title-header { /* This was missing from the original, if you meant a title for the chart itself */
+    font-size: 1.1rem;
+    color: #c7cded;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid #404663;
+    padding-bottom: 0.75rem;
+}
+
+.loading-text.chart-loading,
+.no-chart-data,
+.error-text.results-error.main-content-error { /* Combined error and no data messages */
+    text-align: center;
+    color: #a0a7d3;
+    font-style: italic;
+    margin: auto;
+    font-size: 1rem;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px; /* Ensure it takes some space */
+}
+
+.error-text.results-error.main-content-error {
+    background-color: rgba(177, 51, 51, 0.1);
+    border: 1px solid rgba(177, 51, 51, 0.3);
+    padding: 1rem;
+    border-radius: 6px;
+}
+
+
+/* Recharts specific tweaks */
+.recharts-legend-item-text {
+    color: #c7cded !important;
+    font-size: 0.85rem !important;
+}
+.recharts-cartesian-axis-tick-value {
+    fill: #a0a7d3 !important;
+    font-size: 0.75rem !important;
+}
+.recharts-label {
+    fill: #b0b8e0 !important;
+    font-size: 0.85rem !important;
+}
+.recharts-tooltip-label {
+    color: #e0e4ff !important;
+    font-weight: 600 !important;
+    margin-bottom: 5px !important;
+}
+
+
+/* --- Styles for Data Table Section --- */
+.results-data-table-container {
+    background-color: #2f354c; /* Consistent with chart wrapper */
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    /* margin-top: 2rem; Spacing handled by parent .results-main-content gap */
+}
+
+.results-data-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.result-table-row {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr; /* Model Name, Acc, Time, Correct, Total */
+    gap: 1rem;
+    align-items: center;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    color: #b0b8e0;
+}
+
+.result-table-row.header-row {
+    background-color: transparent;
+    border-bottom: 1px solid #4a5175;
+    font-weight: 600;
+    color: #c7cded;
+    padding-bottom: 8px;
+    margin-bottom: 0.25rem;
+}
+
+.result-table-row.data-row {
+    background-color: #2a2f45;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+.result-table-row.data-row:hover {
+    background-color: #363c58;
+}
+
+.result-table-cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+.result-table-cell.header {
+    color: #c7cded;
+}
+
+/* Specific alignments for numeric data in table */
+.result-table-row .result-table-cell:nth-child(2), /* Accuracy */
+.result-table-row .result-table-cell:nth-child(3), /* Time */
+.result-table-row .result-table-cell:nth-child(4), /* Correct Ans. */
+.result-table-row .result-table-cell:nth-child(5)  /* Total Qs. */
+{
+    text-align: center;
+}
+/* Header alignment to match */
+.result-table-row.header-row .result-table-cell:nth-child(2),
+.result-table-row.header-row .result-table-cell:nth-child(3),
+.result-table-row.header-row .result-table-cell:nth-child(4),
+.result-table-row.header-row .result-table-cell:nth-child(5)
+{
+    text-align: center;
+}
+
+
+/* --- Responsive adjustments for the table --- */
+@media (max-width: 992px) {
+    .results-data-table-container {
+        padding: 1rem;
+    }
+    .result-table-row {
+        grid-template-columns: 2fr 1fr 1fr; /* Model Name, Acc, Time */
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+    .result-table-row .result-table-cell:nth-child(4), /* Correct Ans. */
+    .result-table-row .result-table-cell:nth-child(5), /* Total Qs. */
+    .result-table-row.header-row .result-table-cell:nth-child(4),
+    .result-table-row.header-row .result-table-cell:nth-child(5) {
+        display: none;
+    }
+    .results-sidebar { /* Make sidebar smaller on medium screens */
+        width: 240px;
+    }
+    .results-main-content {
+        padding: 20px; /* Slightly less padding */
+    }
+}
+
+@media (max-width: 768px) { /* For smaller screens like tablets */
+    .results-layout-page {
+        flex-direction: column; /* Stack sidebar and main content */
+        height: auto; /* Allow content to define height */
+        overflow: auto; /* Allow overall page scroll */
+    }
+    .results-sidebar {
+        width: 100%; /* Full width */
+        height: auto; /* Adjust height */
+        max-height: 300px; /* Limit sidebar height with scroll */
+        border-radius: 8px 8px 0 0; /* Round top corners if stacked */
+        margin-bottom: 1rem; /* Space between sidebar and main content */
+    }
+    .results-main-content {
+        padding: 15px;
+        overflow-y: visible; /* Main content doesn't need its own scroll if page scrolls */
+    }
+    .main-content-title {
+        font-size: 1.5rem;
+    }
+    .main-content-filters {
+        flex-direction: column; /* Stack filters */
+        align-items: stretch; /* Make select full width */
+    }
+    .main-content-filters select {
+        min-width: auto; /* Allow select to be full width */
+        width: 100%;
+    }
+    .chart-wrapper, .results-data-table-container {
+        padding: 1rem;
+    }
+    .chart-wrapper {
+        min-height: 350px; /* Shorter min height for charts */
+    }
+    .data-table-title {
+        font-size: 1.1rem;
+    }
+    .result-table-row {
+        grid-template-columns: 1.5fr 1fr; /* Model Name, Accuracy */
+        font-size: 0.8rem;
+    }
+    .result-table-row .result-table-cell:nth-child(3) { /* Time */
+        display: none;
+    }
+    .result-table-row.header-row .result-table-cell:nth-child(3) {
+        display: none;
+    }
+}
+
+/* src/Pages/Results/Results.css */
+/* ... (all your existing styles) ... */
+
+/* --- CUSTOM SCROLLBAR STYLES (WebKit based) --- */
+
+/* Apply to elements that are likely to scroll */
+.results-sidebar,
+.results-main-content,
+.results-data-table-container, /* If it can scroll horizontally */
+.chart-wrapper /* If content within it could ever scroll */ {
+    /* For WebKit browsers (Chrome, Safari, Edge, Opera) */
+    &::-webkit-scrollbar {
+        width: 8px; /* Width of the vertical scrollbar */
+        height: 8px; /* Height of the horizontal scrollbar */
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #2a2f45; /* Background of the scrollbar track - slightly lighter than main bg */
+        border-radius: 10px; /* Rounded track */
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #4a5175; /* Color of the scrollbar thumb (the draggable part) */
+        border-radius: 10px; /* Rounded thumb */
+        border: 2px solid #2a2f45; /* Creates a "padding" effect around the thumb */
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: #5a67d8; /* Slightly brighter on hover */
+    }
+
+    /* For Firefox (limited styling) */
+    scrollbar-width: thin; /* "auto" or "thin" */
+    scrollbar-color: #4a5175 #2a2f45; /* thumb track */
+}
+
+/* If you want to specifically style a horizontal scrollbar differently,
+   you might target an element that specifically has overflow-x: auto.
+   For example, if your .results-data-table might get a horizontal scrollbar:
+*/
+.results-data-table { /* Assuming this div might get overflow-x: auto if table is too wide */
+    /* ... other .results-data-table styles ... */
+    overflow-x: auto; /* Ensure horizontal scroll is enabled if content overflows */
+
+    /* Apply WebKit scrollbar styles if you want them different for horizontal */
+    &::-webkit-scrollbar {
+        height: 8px; /* Specifically for horizontal */
+        width: 8px;  /* Keep vertical consistent if it also scrolls */
+    }
+    &::-webkit-scrollbar-track {
+        background: #2a2f45;
+        border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: #4a5175;
+        border-radius: 10px;
+        border: 2px solid #2a2f45;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: #5a67d8;
+    }
+
+    /* Firefox specific for horizontal scroll */
+    scrollbar-width: thin;
+    scrollbar-color: #4a5175 #2a2f45;
+}

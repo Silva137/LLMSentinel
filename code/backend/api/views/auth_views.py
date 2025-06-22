@@ -138,7 +138,7 @@ def logout(request):
         except Exception:
             return Response({"success": False, "error": "Invalid or expired refresh token."}, status=status.HTTP_400_BAD_REQUEST)
 
-        res = Response({"success": True, "message": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
+        res = Response({"success": True, "message": "Successfully logged out."}, status=status.HTTP_200_OK)
 
         res.delete_cookie("access_token", path='/', samesite='None')
         res.delete_cookie("refresh_token", path='/', samesite='None')

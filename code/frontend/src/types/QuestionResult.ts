@@ -8,5 +8,5 @@ export interface QuestionResult {
     answer: string;
     explanation: string;
     correct: boolean;
-    responseTime: number;
+    response_time: number;
 }

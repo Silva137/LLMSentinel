@@ -18,7 +18,7 @@ const Datasets: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const navigate = useNavigate();
     const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
-
+    const [isLoadingAction, setIsLoadingAction] = useState<boolean>(false);
 
 
     const fetchDatasets = async () => {
@@ -33,6 +33,46 @@ const Datasets: React.FC = () => {
         navigate(`/datasets/${datasetId}/questions`);
     };
 
+    const handleToggleShare = async (datasetId: string | number, makePublic: boolean) => {
+        const action = makePublic ? "share" : "unshare";
+        const confirmed = window.confirm(`Are you sure you want to ${action} this dataset?`);
+        if (!confirmed) return;
+
+        try {
+            setIsLoadingAction(true);
+            const success = await DatasetService.updateDatasetVisibility(datasetId.toString(), makePublic);
+            if (success) {
+                await fetchDatasets();
+            } else {
+                alert(`Failed to ${action} dataset. Please try again.`);
+            }
+        } catch (error) {
+            console.error(`Error trying to ${action} dataset:`, error);
+            alert(`An error occurred while trying to ${action} the dataset.`);
+        } finally {
+            setIsLoadingAction(false);
+        }
+    };
+
+    const handleDeleteClick = async (datasetId: string | number) => {
+        const confirmed = window.confirm(`Are you sure you want to delete this dataset? This action cannot be undone.`);
+        if (confirmed) {
+            try {
+                setIsLoadingAction(true);
+                const success = await DatasetService.deleteDatasetById(datasetId.toString());
+                if (success) {
+                    await fetchDatasets();
+                } else {
+                    alert("Failed to delete dataset. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error deleting dataset:", error);
+                alert("An error occurred while deleting the dataset.");
+            } finally {
+                setIsLoadingAction(false);
+            }
+        }
+    };
 
     useEffect(() => {
         fetchDatasets();
@@ -62,12 +102,12 @@ const Datasets: React.FC = () => {
                         </div>
 
                         {/* --- Data Rows --- */}
-                        {datasets.map((dataset, index) => (
+                        {datasets.map((dataset) => (
                             <div
                                 key={dataset.id}
                                 className="dataset-card data-row"
                             >
-                                <span className="dataset-id">{index + 1}</span> {/* Displaying index + 1 */}
+                                <span className="dataset-id">{dataset.id}</span> {/* Displaying index + 1 */}
                                 <span className="dataset-name" title={dataset.name}>
                                     {truncateText(dataset.name, 30)}
                                 </span>
@@ -75,14 +115,31 @@ const Datasets: React.FC = () => {
                                     {truncateText(dataset.description, 20)}
                                 </span>
                                 {/* --- change to display total questions --- */}
-                                <span className="dataset-questions" title={dataset.description || 'N/A'}>
-                                    {truncateText(dataset.description, 20)}
+                                <span className="dataset-questions" title={dataset.total_questions.toString() || 'N/A'}>
+                                    {truncateText(dataset.total_questions.toString(), 20)}
                                 </span>
                                 <div className="button-container">
                                     <button className="details-button" onClick={() => handleDatasetDetailsClick(dataset.id)}>
                                         <SearchIcon className="details-icon" />
                                         Details
                                     </button>
+
+                                    {dataset.owner && (
+                                        <>
+                                            <button
+                                                className="share-button"
+                                                onClick={() => handleToggleShare(dataset.id, !dataset.is_public)}
+                                            >
+                                                {dataset.is_public ? "Unshare" : "Share"}
+                                            </button>
+                                            <button className="delete-button"
+                                                    onClick={() => handleDeleteClick(dataset.id)}>
+                                                {isLoadingAction ? 'Deleting...' : 'Delete'}
+                                            </button>
+                                        </>
+                                    )}
+
+
                                 </div>
                             </div>
                         ))}

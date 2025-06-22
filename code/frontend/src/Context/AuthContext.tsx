@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const user = await AuthService.authenticated_user();
             setUser(user);
             setLoading(false);
-            navigate('/dashboard');
+            navigate('/evaluations');
         } else
             alert('Incorrect username or password')
 

@@ -2,8 +2,11 @@ import {NavLink} from "react-router-dom";
 import {navItems} from "./SideBarData.jsx";
 import "./Sidebar.css";
 import logo from "../../assets/logo.png"
+import {useAuth} from "../../Context/AuthContext.tsx";
 
 const Sidebar = () => {
+    const { user } = useAuth();
+
     return (
         <div className="sidebar">
             <div className="sidebar-header">
@@ -22,6 +25,18 @@ const Sidebar = () => {
                     </NavLink>
                 ))}
             </nav>
+
+            {user && (
+                <div className="sidebar-user-card">
+                    <div className="sidebar-user-avatar">
+                        {user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="sidebar-user-info">
+                        <span className="sidebar-user-name">{user.username}</span>
+                        <span className="sidebar-user-email">{user.email}</span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

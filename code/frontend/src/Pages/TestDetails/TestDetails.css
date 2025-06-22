@@ -18,11 +18,10 @@
     gap: 0.75rem;
 }
 
-
 .result-card {
     display: grid;
-    /* ID, Question, OptA, OptB, OptC, OptD, LLM Ans, Explanation, Actions */
-    grid-template-columns: 0.4fr 1.2fr 1fr 1fr 1fr 1fr 0.8fr 1.5fr 1fr;
+    /* ID, Question, OptA, OptB, OptC, OptD, LLM Ans, Explanation, Time*/
+    grid-template-columns: 0.4fr 1.2fr 1fr 1fr 1fr 1fr 0.5fr 1fr 1fr;
     align-items: center;
     background-color: #2a2f45;
     border-radius: 10px;
@@ -31,7 +30,8 @@
     font-size: 1rem;
     color: #d5deea;
     border: 1px solid transparent;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: height 0.3s ease, background-color 0.2s ease, border-color 0.2s ease;
+    overflow: hidden;
 }
 
 .result-card.header-row {
@@ -48,28 +48,40 @@
     border-color: #6a6fbf;
 }
 
+.result-card.expanded {
+    height: auto;
+    align-items: flex-start;
+}
+
 .result-id,
 .result-question,
 .result-option,
 .result-llm-answer,
-.result-explanation{
+.result-explanation,
+.result-time {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: left;
 }
 
-.result-id{ text-align: center; }
+.result-id { text-align: center; }
 .result-llm-answer { text-align: center; font-weight: bold; }
-.result-llm-answer.correct { color: #52b574;}
-.result-llm-answer.incorrect { color: #b56c6c;}
+.result-time {text-align: center}
+.result-llm-answer.correct { color: #52b574; }
+.result-llm-answer.incorrect { color: #b56c6c; }
 
+.result-card.expanded .result-question,
+.result-card.expanded .result-option,
+.result-card.expanded .result-explanation {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
 
-
-/* Responsive adjustments (adapt from previous if needed) */
 @media (max-width: 1400px) {
     .result-card {
-        grid-template-columns: 0.4fr 1.5fr 1fr 1fr 1fr 1fr 0.8fr 1fr; /* Hide explanation */
+        grid-template-columns: 0.4fr 1.5fr 1fr 1fr 1fr 1fr 0.8fr 1fr;
         gap: 10px;
     }
     .result-explanation, .result-explanation.header { display: none; }
@@ -77,9 +89,8 @@
 
 @media (max-width: 1100px) {
     .result-card {
-        grid-template-columns: 0.4fr 2fr 0.8fr 1fr; /* ID, Question, LLM Ans, Actions */
+        grid-template-columns: 0.4fr 2fr 0.8fr 1fr;
     }
     .result-option, .result-option.header,
     .result-explanation, .result-explanation.header { display: none; }
 }
-/* Add more breakpoints if necessary */

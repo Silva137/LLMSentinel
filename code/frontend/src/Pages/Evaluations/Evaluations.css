@@ -20,7 +20,8 @@
 
 .test-card {
     display: grid;
-    grid-template-columns: 0.4fr 1.5fr 2fr 1fr 1fr 0.8fr;
+    /* ID, Dataset, LLMmodel, Correct Ans, Accuracy, Time */
+    grid-template-columns: 0.4fr 1fr 1fr 1fr 0.5fr 0.5fr 0.7fr;
     align-items: center;
     background-color: #2a2f45;
     border-radius: 10px;
@@ -50,7 +51,8 @@
 .test-dataset,
 .test-llm-model,
 .test-correct-answers,
-.test-accuracy{
+.test-accuracy,
+.test-time{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -61,10 +63,12 @@
 .test-id { text-align: center; }
 .test-correct-answers { text-align: center; }
 .test-accuracy { text-align: center; }
+.test-time { text-align: center; }
 
 .button-container{
     display: flex;
     gap: 10px;
+    justify-content: flex-end;
 }
 
 .create-button {
@@ -103,6 +107,11 @@
     background-color: #4479b6;
 }
 
+.details-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
 
 .delete-button {
     display: inline-flex;
@@ -118,15 +127,7 @@
     font-size: 14px;
 }
 
-
 .delete-button:hover { background-color: #783c3c; }
-
-
-.details-icon {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-}
 
 
 

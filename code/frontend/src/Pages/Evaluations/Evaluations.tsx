@@ -9,11 +9,6 @@ import {LLMModel} from "../../types/LLMModel.ts";
 import DatasetService from "../../Services/DatasetService.ts";
 import LLMModelService from "../../Services/LLMModelService.ts";
 
-const truncateText = (text: string | null | undefined, maxLength: number): string => {
-    if (!text) return 'N/A';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-};
 
 const Evaluations: React.FC = () => {
     const [tests, setTests] = useState<Test[]>([]);
@@ -29,6 +24,7 @@ const Evaluations: React.FC = () => {
     const fetchTests = async () => {
         setIsLoading(true);
         const data = await TestService.getAllTests();
+        console.log(data);
         setTests(data || [])
         setIsLoading(false);
     };
@@ -44,9 +40,24 @@ const Evaluations: React.FC = () => {
         navigate(`/evaluations/${testId}/results`);
     };
 
-    const handleDeleteClick = (testId: string | number) => {
-        console.log(`Delete test with ID: ${testId}`);
-        //todo
+    const handleDeleteClick = async (testId: string | number) => {
+        const confirmed = window.confirm(`Are you sure you want to delete this test?`);
+        if (confirmed) {
+            try {
+                setIsLoadingAction(true);
+                const success = await TestService.deleteTestById(testId.toString());
+                if (success) {
+                    await fetchTests();
+                } else {
+                    alert("Failed to delete test. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error deleting test:", error);
+                alert("An error occurred while deleting the test.");
+            } finally {
+                setIsLoadingAction(false);
+            }
+        }
     };
 
     const handleCreateTest = async () => {
@@ -101,26 +112,30 @@ const Evaluations: React.FC = () => {
                             <span className="test-llm-model header">LLM Model</span>
                             <span className="test-correct-answers header">Correct Answers</span>
                             <span className="test-accuracy header">Accuracy</span>
+                            <span className="test-time header">Execution Time</span>
                         </div>
 
                         {/* --- Data Rows --- */}
-                        {tests.map((test, index) => (
+                        {tests.map((test) => (
                             <div
                                 key={test.id}
                                 className="test-card data-row"
                             >
-                                <span className="test-id">{index + 1}</span>
+                                <span className="test-id">{test.id}</span>
                                 <span className="test-dataset" title={test.dataset.name}>
-                                    {truncateText(test.dataset.name, 30)}
+                                    {test.dataset.name}
                                 </span>
                                 <span className="test-model" title={test.llm_model.name || 'N/A'}>
-                                    {truncateText(test.llm_model.name, 20)}
+                                    {test.llm_model.name}
                                 </span>
                                 <span className="test-correct-answers" title={test.correct_answers.toString() || 'N/A'}>
-                                    {truncateText(test.correct_answers.toString(), 20)}
+                                    {test.correct_answers.toString()}
                                 </span>
                                 <span className="test-accuracy" title={test.accuracy_percentage.toString() || 'N/A'}>
-                                    {truncateText(test.accuracy_percentage.toString(), 20)}
+                                    {test.accuracy_percentage.toFixed(2) + '%'}
+                                </span>
+                                <span className="test-time">
+                                    {Math.round((new Date(test.completed_at).getTime() - new Date(test.started_at).getTime()) / 1000) + 's'}
                                 </span>
                                 <div className="button-container">
                                     <button className="details-button" onClick={() => handleTestDetailsClick(test.id)}>
@@ -128,7 +143,7 @@ const Evaluations: React.FC = () => {
                                         Details
                                     </button>
                                     <button className="delete-button" onClick={() => handleDeleteClick(test.id)}>
-                                        Delete
+                                        {isLoadingAction ? 'Deleting...' : 'Delete'}
                                     </button>
                                 </div>
                             </div>

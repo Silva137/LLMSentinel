@@ -36,6 +36,7 @@
     flex-direction: column;
     gap: 1rem;
     width: 100%;
+    flex-grow: 1;
 }
 
 .menu-item {
@@ -61,4 +62,54 @@
 
 .menu-item:hover svg {
     transform: scale(1.2);
+}
+
+.sidebar-menu > .menu-item:last-child {
+    margin-top: auto;
+    margin-bottom: 3em;
+}
+
+.sidebar-user-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.65rem;
+    background-color: rgba(74, 79, 104, 0.76);
+    padding: 1rem;
+    border-radius: 15px;
+    margin: 0 0.5rem 3rem;
+    color: #d6d9f1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-user-avatar {
+    width: 45px;
+    height: 45px;
+    background-color: #96a7ff;
+    display: flex;
+    justify-content: center;
+    border-radius: 100px;
+    align-items: center;
+    color: #363C58;
+    font-size: 1.5rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.sidebar-user-name {
+    font-weight: bold;
+    color: #e0e4ff;
+    line-height: 1.2;
+}
+
+.sidebar-user-email {
+    font-weight: lighter;
+    color: #e0e4ff;
+    font-size: 0.9em;
 }

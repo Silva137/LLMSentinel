@@ -69,12 +69,19 @@
     min-height: 160px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
     transition: transform 0.1s ease-in-out;
+    overflow: hidden;
 }
 
 .model-card:hover {
     transform: scale(1.05);
 }
 
+
+.model-card.expanded {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
 
 .model-name {
     font-size: 1.1rem;

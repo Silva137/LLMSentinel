@@ -3,15 +3,7 @@ import { useParams} from 'react-router-dom';
 import TestService from '../../Services/TestService';
 import { Test } from '../../types/Test';
 import { QuestionResult } from '../../types/QuestionResult';
-import InfoIcon from '../../assets/infoIcon.svg?react';
 import './TestDetails.css';
-
-// Helper function for text truncation
-const truncateText = (text: string | null | undefined, maxLength: number): string => {
-    if (!text) return 'N/A';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-};
 
 const TestDetails: React.FC = () => {
     const { testId } = useParams<{ testId: string }>();
@@ -19,6 +11,7 @@ const TestDetails: React.FC = () => {
     const [test, setTest] = useState<Test | null>(null);
     const [questionResults, setQuestionResults] = useState<QuestionResult[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
     const fetchTestDetails = async () => {
         setIsLoading(true);
@@ -39,6 +32,17 @@ const TestDetails: React.FC = () => {
         fetchTestDetails();
     }, [testId]);
 
+    const toggleExpand = (index: number) => {
+        setExpandedRows((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(index)) {
+                newSet.delete(index);
+            } else {
+                newSet.add(index);
+            }
+            return newSet;
+        });
+    };
 
     return (
         <div className="page">
@@ -61,34 +65,42 @@ const TestDetails: React.FC = () => {
                             <span className="result-option header">Option D</span>
                             <span className="result-llm-answer header">LLM Answer</span>
                             <span className="result-explanation header">Explanation</span>
-                            <span className="result-actions header"></span>
+                            <span className="result-time header">Response Time</span>
                         </div>
 
 
                         {/* --- Data Rows --- */}
                         {questionResults.map((result, index) => (
-                            <div key={result.id} className="result-card data-row">
+                            <div
+                                key={result.id}
+                                className={`result-card data-row ${expandedRows.has(index) ? 'expanded' : ''}`}
+                                onClick={() => toggleExpand(index)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <span className="result-id">{index + 1}</span>
                                 <span className="result-question" title={result.question.question}>
-                                    {truncateText(result.question?.question, 15)}
+                                    {result.question.question }
                                 </span>
-                                <span className="result-option" title={result.question?.option_a}>
-                                     {truncateText(result.question?.option_a, 15)}
-                                 </span>
-                                <span className="result-option" title={result.question?.option_b}>
-                                     {truncateText(result.question?.option_b, 15)}
-                                 </span>
-                                <span className="result-option" title={result.question?.option_c}>
-                                     {truncateText(result.question?.option_c, 15)}
-                                 </span>
-                                <span className="result-option" title={result.question?.option_d}>
-                                     {truncateText(result.question?.option_d, 15)}
-                                 </span>
+                                <span className="result-option" title={result.question.option_a}>
+                                    {result.question.option_a}
+                                </span>
+                                <span className="result-option" title={result.question.option_b}>
+                                    {result.question.option_b}
+                                </span>
+                                <span className="result-option" title={result.question.option_c}>
+                                    {result.question.option_c}
+                                </span>
+                                <span className="result-option" title={result.question.option_d}>
+                                    {result.question.option_d}
+                                </span>
                                 <span className={`result-llm-answer ${result.correct ? 'correct' : 'incorrect'}`}>
                                     {result.answer}
                                 </span>
                                 <span className="result-explanation" title={result.explanation ?? undefined}>
-                                    {truncateText(result.explanation, 20)}
+                                    {result.explanation}
+                                </span>
+                                <span className="result-time">
+                                    {result.response_time + 's'}
                                 </span>
                             </div>
                         ))}

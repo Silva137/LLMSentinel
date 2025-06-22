@@ -63,6 +63,34 @@ class DatasetViewSet(viewsets.ModelViewSet):
         except Dataset.DoesNotExist:
             return Response({"detail": "Dataset not found."}, status=status.HTTP_404_NOT_FOUND)
 
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def clone(self, request, pk=None):
+        """
+        Clone a public dataset to the current user's private collection.
+        """
+        try:
+            original = Dataset.objects.get(pk=pk, is_public=True)
+        except Dataset.DoesNotExist:
+            return Response({"error": "Public dataset not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create new dataset
+        new_dataset = Dataset.objects.create(
+            name=original.name,
+            description=original.description,
+            owner=request.user,
+            is_public=False
+        )
+
+        # Clone questions
+        questions = original.questions.all()
+        for question in questions:
+            question.pk = None
+            question.dataset = new_dataset
+            question.save()
+
+        return Response({"message": "Dataset cloned successfully."}, status=status.HTTP_201_CREATED)
+
+
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def upload(self, request):
         """
@@ -87,7 +115,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
             file_content = io.BytesIO(file.read())
 
             dataset = pd.read_csv(file_content, sep=';', skiprows=1)
-            dataset_obj = Dataset.objects.create(name=dataset_name, description=dataset_description, owner=user)
+            dataset_obj = Dataset.objects.create(name=dataset_name, description=dataset_description, owner=user, is_public=False)
             questions = []
 
             # Convert DataFrame rows into Question objects

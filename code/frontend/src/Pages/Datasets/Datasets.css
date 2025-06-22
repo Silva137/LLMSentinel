@@ -35,7 +35,7 @@
 
 .dataset-card {
     display: grid;
-    grid-template-columns: 0.4fr 1.5fr 2fr 1fr 0.8fr;
+    grid-template-columns: 0.4fr 1.5fr 2fr 1fr 1.7fr;
     align-items: center;
     background-color: #2a2f45;
     border-radius: 10px;
@@ -73,14 +73,17 @@
 }
 
 .dataset-id { text-align: center; }
+.dataset-questions {text-align: center;}
 
 
 .button-container{
     display: flex;
     gap: 10px;
+    justify-content: flex-end;
 }
 
 .details-button {
+    margin-left: auto;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -103,6 +106,38 @@
     height: 20px;
     fill: currentColor;
 }
+
+.share-button {
+    background-color: #836ecc;
+    color: white;
+    padding: 0.3rem 0.7rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 0.5rem;
+}
+
+.share-button:hover {
+    background-color: #6b59a3;
+}
+
+.delete-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background-color: #9a4c4c;
+    color: #e0e4ff;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+}
+
+.delete-button:hover { background-color: #783c3c; }
 
 /* Responsive adjustments */
 @media (max-width: 992px) { /* Adjust breakpoint */

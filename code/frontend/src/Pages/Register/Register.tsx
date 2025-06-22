@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthService from "../../Services/AuthService.ts";
 import * as React from "react";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
 
 
 const Register = () => {
@@ -12,6 +14,9 @@ const Register = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const navigate = useNavigate();
 
@@ -25,6 +30,14 @@ const Register = () => {
         }
     }
 
+    const toggleShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const toggleShowConfirmPassword = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+
     return (
         <div className="login-bg-container">
             <div className="login-form-container">
@@ -32,11 +45,35 @@ const Register = () => {
                 <form onSubmit={handleRegisterSubmit}>
                     <input value={username} onChange={e => setUsername(e.target.value)} type="text" className="input" placeholder="Username" required></input>
                     <input value={email} onChange={e => setEmail(e.target.value)} type="email" className="input" placeholder="Email" required></input>
-                    <input value={password} onChange={e => setPassword(e.target.value)} type="password" className="input" placeholder="Password" required></input>
-                    <input value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} type="password" className="input" placeholder="Confirm Password" required></input>
+                    <div className="password-input-container">
+                        <input
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            type={showPassword ? "text" : "password"}
+                            className="input password-field"
+                            placeholder="Password"
+                            required
+                        />
+                        <span className="toggle-password-icon" onClick={toggleShowPassword}>
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </span>
+                    </div>
+                    <div className="password-input-container">
+                        <input
+                            value={confirmPassword}
+                            onChange={e => setConfirmPassword(e.target.value)}
+                            type={showConfirmPassword ? "text" : "password"}
+                            className="input password-field"
+                            placeholder="Confirm Password"
+                            required
+                        />
+                        <span className="toggle-password-icon" onClick={toggleShowConfirmPassword}>
+                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                        </span>
+                    </div>
                     <button type="submit" className="register-button">Register</button>
                 </form>
-                <h2 className="secondary-text" >
+                <h2 className="secondary-text">
                     Already have an account? <a href="/login">Login here</a>
                 </h2>
             </div>

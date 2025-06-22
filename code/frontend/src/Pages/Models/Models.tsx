@@ -9,6 +9,7 @@ const Models: React.FC = () => {
     const [models, setModels] = useState<LLMModel[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
 
     const fetchModels = async () => {
         setIsLoading(true);
@@ -23,6 +24,18 @@ const Models: React.FC = () => {
 
     const handleSearch = () => {
         fetchModels();
+    };
+
+    const toggleExpand = (index: number) => {
+        setExpandedCards((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(index)) {
+                newSet.delete(index);
+            } else {
+                newSet.add(index);
+            }
+            return newSet;
+        });
     };
 
     return (
@@ -50,12 +63,17 @@ const Models: React.FC = () => {
                 {isLoading ? (
                     <p className="loading-text">Loading models...</p>
                 ) : models.length > 0 ? (
-                    models.map((model) => (
-                        <div key={model.model_id} className="model-card">
+                    models.map((model, index) => (
+                        <div
+                            key={model.model_id}
+                            className={`model-card ${expandedCards.has(index) ? 'expanded' : ''}`}
+                            onClick={() => toggleExpand(index)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <h3 className="model-name">{model.name}</h3>
                             {model.description && (
                                 <p className="model-description">
-                                    {model.description.length > 100
+                                    {expandedCards.has(index) ? model.description : model.description.length > 100
                                         ? model.description.substring(0, 100) + '...'
                                         : model.description}
                                 </p>
@@ -67,10 +85,7 @@ const Models: React.FC = () => {
                     <p className="no-models-text">No models found matching your search.</p>
                 )}
             </div>
-
         </div>
-
-
     );
 };
 
