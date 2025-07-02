@@ -4,11 +4,13 @@ import { Test } from '../types/Test';
 
 class TestService {
 
-    async getAllTests(datasetName?: string, llmModelName?: string): Promise<Test[] | null> {
+    async getAllTests(datasetName?: string, llmModelName?: string, sortCriteria?: string): Promise<Test[] | null> {
         try {
             const queryParams = new URLSearchParams();
-            if (datasetName) queryParams.append('dataset_name', datasetName);
-            if (llmModelName) queryParams.append('llm_model_name', llmModelName);
+            if (datasetName) queryParams.append("dataset_name", datasetName);
+            if (llmModelName) queryParams.append("llm_model_name", llmModelName);
+            if (sortCriteria) queryParams.append("sort_criteria", sortCriteria);
+
 
             const response = await api.get("/tests/?" + queryParams.toString());
             return response.data;

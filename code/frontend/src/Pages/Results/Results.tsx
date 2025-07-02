@@ -1,8 +1,7 @@
 // src/Pages/Results/Results.tsx
 import React, { useEffect, useState, useMemo } from 'react';
 import ResultsService, { SelectableModel, SelectableDataset, ModelPerformanceData } from '../../Services/ResultsService';
-import CombinedPerformanceBarChart from '../../Components/PerformaceChart.tsx'; // Ensure correct path
-import InfoIcon from '../../assets/infoIcon.svg?react'; // For potential details in table
+import CombinedPerformanceBarChart from '../../Components/PerformaceChart.tsx';
 import './Results.css';
 
 const MAX_SELECTED_MODELS = 8;
@@ -10,16 +9,14 @@ const MAX_SELECTED_MODELS = 8;
 const Results: React.FC = () => {
     const [testedModels, setTestedModels] = useState<SelectableModel[]>([]);
     const [selectedModelIds, setSelectedModelIds] = useState<Set<string>>(new Set());
-
     const [availableDatasets, setAvailableDatasets] = useState<SelectableDataset[]>([]);
     const [selectedDatasetId, setSelectedDatasetId] = useState<string>('');
-
     const [rawPerformanceData, setRawPerformanceData] = useState<ModelPerformanceData[]>([]);
-
     const [isLoadingModels, setIsLoadingModels] = useState<boolean>(true);
     const [isLoadingDatasets, setIsLoadingDatasets] = useState<boolean>(false);
     const [isLoadingChartData, setIsLoadingChartData] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
 
     useEffect(() => {
         const fetchModels = async () => {
@@ -41,18 +38,17 @@ const Results: React.FC = () => {
         if (selectedModelIds.size > 0) {
             const fetchDatasets = async () => {
                 setIsLoadingDatasets(true);
-                setError(null); // Clear previous errors when fetching new datasets
+                setError(null);
                 try {
                     const datasets = await ResultsService.getAvailableDatasetsForModels(Array.from(selectedModelIds));
                     setAvailableDatasets(datasets || []);
                     if (datasets && datasets.length > 0) {
-                        // If current selectedDatasetId is not in new list, or no dataset is selected, select the first one
                         if (!selectedDatasetId || !datasets.find(d => d.id === selectedDatasetId)) {
                             setSelectedDatasetId(datasets[0].id);
                         }
                     } else {
-                        setSelectedDatasetId(''); // No datasets available for selection
-                        setRawPerformanceData([]); // Clear chart data if no datasets
+                        setSelectedDatasetId('');
+                        setRawPerformanceData([]);
                     }
                 } catch (err) {
                     console.error("Failed to fetch available datasets:", err);
@@ -68,36 +64,37 @@ const Results: React.FC = () => {
         } else {
             setAvailableDatasets([]);
             setSelectedDatasetId('');
-            setRawPerformanceData([]); // Clear data if no models are selected
+            setRawPerformanceData([]);
         }
-    }, [selectedModelIds]); // Removed selectedDatasetId, it will be handled by the next useEffect
+    }, [selectedModelIds]);
 
     useEffect(() => {
         if (selectedModelIds.size > 0 && selectedDatasetId) {
             const fetchPerformanceData = async () => {
                 setIsLoadingChartData(true);
-                setError(null); // Clear previous errors
+                setError(null);
                 try {
                     const data = await ResultsService.getModelsPerformanceDataOnDataset(
                         Array.from(selectedModelIds),
                         selectedDatasetId
                     );
                     setRawPerformanceData(data || []);
+                    console.log("Fetched performance data:", data);
                 } catch (err) {
                     console.error("Failed to fetch performance data:", err);
                     setError("Could not load performance data for the selected dataset.");
-                    setRawPerformanceData([]); // Clear data on error
+                    setRawPerformanceData([]);
                 } finally {
                     setIsLoadingChartData(false);
                 }
             };
             fetchPerformanceData();
         } else if (selectedModelIds.size === 0 || !selectedDatasetId) {
-            // Clear data if models or dataset are deselected
             setRawPerformanceData([]);
-            setIsLoadingChartData(false); // Ensure loading is stopped
+            setIsLoadingChartData(false);
         }
-    }, [selectedModelIds, selectedDatasetId]); // This effect fetches data based on selections
+    }, [selectedModelIds, selectedDatasetId]);
+
 
     const handleModelSelectionChange = (modelId: string) => {
         setSelectedModelIds(prevSelected => {
@@ -111,24 +108,23 @@ const Results: React.FC = () => {
                     alert(`You can select a maximum of ${MAX_SELECTED_MODELS} models.`);
                 }
             }
-            // When model selection changes, we might need to reset or re-evaluate selectedDatasetId
-            // This is handled by the useEffect for availableDatasets
             return newSelected;
         });
     };
 
-    const processedChartData = useMemo((): (ModelPerformanceData & { durationSeconds?: number })[] => {
-        return rawPerformanceData.map(item => {
-            let durationSeconds: number | undefined = undefined;
-            if (item.startedAt && item.completedAt) {
-                const start = new Date(item.startedAt).getTime();
-                const end = new Date(item.completedAt).getTime();
-                if (!isNaN(start) && !isNaN(end) && end >= start) {
-                    durationSeconds = (end - start) / 1000;
-                }
-            }
-            return { ...item, durationSeconds };
-        }).filter(item => item.accuracyPercentage !== undefined && item.durationSeconds !== undefined && item.modelName !== undefined); // Added modelName check
+
+    const processedChartData = useMemo((): ModelPerformanceData[] => {
+        return rawPerformanceData.filter(item =>
+            item.modelName !== undefined &&
+            item.accuracyPercentage !== null && item.accuracyPercentage !== undefined &&
+            item.durationSeconds !== null && item.durationSeconds !== undefined &&
+            item.numberOfExecutions !== undefined
+        ).map(item => ({
+            ...item,
+            accuracyPercentage: typeof item.accuracyPercentage === 'string'
+                ? parseFloat(item.accuracyPercentage)
+                : item.accuracyPercentage,
+        }));
     }, [rawPerformanceData]);
 
     const selectedDatasetName = availableDatasets.find(d => d.id === selectedDatasetId)?.name;
@@ -153,7 +149,7 @@ const Results: React.FC = () => {
                                         onChange={() => handleModelSelectionChange(model.id)}
                                         disabled={!selectedModelIds.has(model.id) && selectedModelIds.size >= MAX_SELECTED_MODELS && !isLoadingModels}
                                     />
-                                    <span>{model.name}</span> {/* Wrapped text in span for styling disabled state */}
+                                    <span>{model.name}</span>
                                 </label>
                             </li>
                         ))}
@@ -164,7 +160,7 @@ const Results: React.FC = () => {
             <main className="results-main-content">
                 <h1 className="page-title main-content-title">Model Performance Comparison</h1>
                 <div className="main-content-filters">
-                    <label htmlFor="dataset-select-results">Select Dataset:</label> {/* Unique ID */}
+                    <label htmlFor="dataset-select-results">Select Dataset:</label>
                     {isLoadingDatasets && selectedModelIds.size > 0 ? (
                         <span>Loading available datasets...</span>
                     ) : (
@@ -211,38 +207,38 @@ const Results: React.FC = () => {
                     </div>
                 </div>
 
-                {/* --- NEW: Data Table Section --- */}
+
+                {/* --- Data Table Section --- */}
                 {processedChartData.length > 0 && !isLoadingChartData && (
                     <div className="results-data-table-container">
+                        <h3 className="data-table-title">Detailed Performance Data</h3>
                         <div className="results-data-table">
                             {/* Header Row for Table */}
                             <div className="result-table-row header-row">
                                 <span className="result-table-cell header">Model Name</span>
-                                <span className="result-table-cell header">Accuracy (%)</span>
-                                <span className="result-table-cell header">Time (s)</span>
-                                <span className="result-table-cell header">Correct Ans.</span>
-                                <span className="result-table-cell header">Total Qs.</span>
-                                {/* Add more headers if needed, e.g., for test ID or details button */}
+                                <span className="result-table-cell header">Avg. Accuracy (%)</span>
+                                <span className="result-table-cell header">Avg. Time (s)</span>
+                                <span className="result-table-cell header">Executions</span>
                             </div>
                             {/* Data Rows for Table */}
                             {processedChartData.map((item, index) => (
                                 <div key={`${item.modelId}-${item.datasetId}-${index}`} className="result-table-row data-row">
                                     <span className="result-table-cell" title={item.modelName}>{item.modelName}</span>
                                     <span className="result-table-cell">
-                                        {item.accuracyPercentage !== undefined ? parseFloat(item.accuracyPercentage.toString()).toFixed(2) : 'N/A'}
+                                        {/* item.accuracyPercentage is now average and can be null */}
+                                        {item.accuracyPercentage !== null ? item.accuracyPercentage.toFixed(2) : 'N/A'}
                                     </span>
                                     <span className="result-table-cell">
-                                        {item.durationSeconds !== undefined ? item.durationSeconds.toFixed(2) : 'N/A'}
+                                        {/* item.durationSeconds is now average and can be null */}
+                                        {item.durationSeconds !== null ? item.durationSeconds.toFixed(2) : 'N/A'}
                                     </span>
-                                    <span className="result-table-cell">{item.correctAnswers ?? 'N/A'}</span>
-                                    <span className="result-table-cell">{item.totalQuestions ?? 'N/A'}</span>
+                                    <span className="result-table-cell">{item.numberOfExecutions}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                 )}
                 {/* --- End of Data Table Section --- */}
-
             </main>
         </div>
     );

@@ -1,7 +1,13 @@
 import api from "./Axios.ts";
 import { LLMModel } from "../types/LLMModel.ts";
 
+export interface TestedModels {
+    id: string;
+    name: string;
+}
+
 class LLMModelService {
+
 
     async getAllLLMModels(): Promise<LLMModel[] | null> {
         try {
@@ -10,6 +16,16 @@ class LLMModelService {
         } catch (error) {
             console.error("Fetching LLM models failed:", error);
             return null;
+        }
+    }
+
+    async getTestedModels(): Promise<TestedModels[]> {
+        try {
+            const response = await api.get<TestedModels[]>('/results/tested-models/');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching tested models:', error);
+            throw error;
         }
     }
 

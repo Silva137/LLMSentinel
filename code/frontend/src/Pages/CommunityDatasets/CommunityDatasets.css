@@ -46,15 +46,7 @@
     color: #e0e4ff;
 }
 
-.clickable-dataset-name {
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
 
-.clickable-dataset-name:hover{
-    color: #96AEFF;
-    text-decoration: underline;
-}
 
 .pdataset-description {
     font-size: 0.9rem;

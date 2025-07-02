@@ -50,7 +50,6 @@ const PerformanceChart: React.FC<Props> = ({ data, datasetName }) => {
                 contentStyle={{ backgroundColor: '#2f354c', border: '1px solid #4a5175', borderRadius: '5px' }}
                 itemStyle={{ color: '#e0e4ff' }}
                 formatter={(value: number, name: string) => {
-                    // Ensure 'name' matches the 'name' prop of the <Bar /> components
                     if (name === 'Accuracy') return [`${(value as number).toFixed(1)}%`, name];
                     if (name === 'Execution Time') return [`${(value as number).toFixed(2)}s`, name];
                     return [value, name];

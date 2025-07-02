@@ -2,12 +2,12 @@
 import api from "./Axios.ts";
 
 export interface SelectableModel {
-    id: string; // Ensure this matches backend (string)
+    id: string;
     name: string;
 }
 
 export interface SelectableDataset {
-    id: string; // Ensure this matches backend (string)
+    id: string;
     name: string;
 }
 
@@ -17,10 +17,8 @@ export interface ModelPerformanceData {
     datasetId: string;
     datasetName: string;
     accuracyPercentage: number;
-    startedAt: string; // ISO string format
-    completedAt: string; // ISO string format
-    // Calculated on frontend:
-    durationSeconds?: number;
+    durationSeconds: number;
+    numberOfExecutions: number;
 }
 const ResultsService = {
     getTestedModels: async (): Promise<SelectableModel[]> => {
@@ -29,7 +27,7 @@ const ResultsService = {
             return response.data;
         } catch (error) {
             console.error('Error fetching tested models:', error);
-            throw error; // Or return [] or null based on your error handling preference
+            throw error;
         }
     },
 
@@ -66,8 +64,6 @@ const ResultsService = {
             queryParams.append('model_ids', modelIds.join(','));
             queryParams.append('dataset_id', datasetId);
 
-            // Assuming backend endpoint is now /results/models-performance-on-dataset/
-            // and returns data matching the ModelPerformanceData interface
             const response = await api.get<ModelPerformanceData[]>(`/results/models-performance-on-dataset/?${queryParams.toString()}`);
             return response.data;
         } catch (error) {

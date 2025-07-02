@@ -107,7 +107,7 @@ const Datasets: React.FC = () => {
                                 key={dataset.id}
                                 className="dataset-card data-row"
                             >
-                                <span className="dataset-id">{dataset.id}</span> {/* Displaying index + 1 */}
+                                <span className="dataset-id">{dataset.id}</span>
                                 <span className="dataset-name" title={dataset.name}>
                                     {truncateText(dataset.name, 30)}
                                 </span>

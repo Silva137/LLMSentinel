@@ -11,21 +11,9 @@ import tabulate
 
 matplotlib.use('Agg')
 
-API_URL = "http://localhost:8001/api/tests/"
-LOGIN_URL = "http://localhost:8001/api/auth/login/"
 COOKIES = {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoyOTQ2MTIwNDI0LCJpYXQiOjE3NDYxMjA0MjQsImp0aSI6Ijk1ZDcwZDViMzdjZTRhZmQ5ODkyYzliNjlkYzcwY2NiIiwidXNlcl9pZCI6MX0.AbbXfqf1TD0eEOwxpkGXTJXO6QSiWVirNFfc5IqbFR4"
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoyNjUwNzAxMDEwLCJpYXQiOjE3NTA3MDEwMTAsImp0aSI6ImU2YjFlNWFmMzc5YzQ1ZWJiMmM2ZWQxMGEyNGE4M2E2IiwidXNlcl9pZCI6MX0.dUA9Mru83XBT5S-3mQXZYJ_3HSK86Ifscp2K-wbZJLA"
 }
-
-models1 = [
-    "OpenAI: GPT-3.5 Turbo",
-    "OpenAI: GPT-4o-mini",
-    "Google: Gemini Flash 2.0",
-    "Mistral: Mistral Small 3.1 24B",
-    "Meta: Llama 3.3 70B Instruct",
-    "Google: Gemma 3 27B",
-    "Qwen2.5 7B Instruct"
-]
 
 models2 = [
     "OpenAI: GPT-4o",
@@ -54,25 +42,55 @@ dataset_names = [
     #"Secqa V1",
     #"Secqa V2",
     #"Cybermetric 80",
-    #"Seceval",
+    #"Seceval",`
     #"Secmmlu",
     #"Cyquiz",
 ]
 
 
-def get_existing_test(dataset_name, model):
+def get_existing_tests(dataset_name, model):
     """Check if a test already exists for a given dataset and model."""
 
-    response = requests.get(API_URL, params={"dataset_name": dataset_name, "llm_model_name": model}, cookies=COOKIES)
+    response = requests.get("http://localhost:8001/api/tests/", params={"dataset_name": dataset_name, "llm_model_name": model}, cookies=COOKIES)
 
     if response.status_code == 200:
         tests = response.json()  # Gets the list of tests
 
-        if tests:  # If there are any results, return the first test
-            print(f"Found existing test for {model} on Dataset {dataset_name}")
-            return tests[0]  # Take only the first test
+        if tests:
+            print(f"Found {len(tests)} test(s) for {model} on Dataset {dataset_name}")
+            return tests
 
-    return None  # No existing test found
+    return []  # No existing test found
+
+
+def get_or_run_tests(dataset_name, model, required_tests=3):
+    """
+    Ensure that there are at least `required_tests` for the given dataset and model.
+    If not, execute additional tests via the POST API until the total count is met.
+    Returns a list with the final (at least required) tests.
+    """
+    tests = get_existing_tests(dataset_name, model)
+
+    while len(tests) < required_tests:
+        # Run a new test.
+        body = {"dataset_name": dataset_name, "llm_model_name": model}
+        print(f"Evaluating {model} on Dataset {dataset_name}... (new test)")
+        try:
+            response = requests.post("http://localhost:8001/api/tests/", json=body, cookies=COOKIES)
+            if response.status_code == 201:
+                new_test = response.json()
+                tests.append(new_test)
+                print(f"Success: {model} on Dataset {dataset_name} (total tests now: {len(tests)})")
+            else:
+                print(f"Failed to run test for {model} on Dataset {dataset_name} - HTTP {response.status_code}")
+                break
+        except Exception as e:
+            print(f"Error running test for {model} on Dataset {dataset_name}: {e}")
+            break
+        time.sleep(1)
+
+    return tests[-required_tests:]
+
 
 
 def evaluate_models():
@@ -81,68 +99,35 @@ def evaluate_models():
 
     for dataset_name in dataset_names:
         for model in models2:
-            existing_test = get_existing_test(dataset_name, model)
+            tests = get_or_run_tests(dataset_name, model, required_tests=3)
+            #print answer distribution of each test
+            for test in tests:
+                print(f"Test ID: {test['id']}, Answer Distribution: {test.get('answer_distribution', 'N/A')}")
+            if not tests:
+                print(f"Skipping {model} on Dataset {dataset_name} because no tests could be obtained.")
+                continue
 
-            if existing_test:
-                data = existing_test
-            else:
-                body = {"dataset_name": dataset_name, "llm_model_name": model}
-                print(f"Evaluating {model} on Dataset {dataset_name}...")
+            # Step 2: Get average/median performance from external API
+            try:
+                response = requests.get(
+                    "http://localhost:8001/api/results/model-average-performance-on-dataset/",
+                    params={
+                        "model_name": model,
+                        "dataset_name": dataset_name
+                    }, cookies=COOKIES
+                )
+                response.raise_for_status()
+                avg_data = response.json()
 
-                try:
-                    response = requests.post(API_URL, json=body, cookies=COOKIES)
-
-                    if response.status_code == 201:
-                        data = response.json()
-                        print(f"Success: {model} on Dataset {dataset_name}")
-                    else:
-                        print(f"Failed for {model} on Dataset {dataset_name} - {response.status_code}")
-                        continue
-
-                except Exception as e:
-                    print(f"Error for {model} on Dataset {dataset_name}: {e}")
-                    continue
-
-                time.sleep(1)
-
-            # Extract evaluation metrics
-            accuracy = data.get("accuracy_percentage", None)
-            f1_score = data.get("f1_avg", None)
-            precision = data.get("precision_avg", None)
-            recall = data.get("recall_avg", None)
-            correct_answers = data.get("correct_answers", None)
-            total_questions = sum(data.get("answer_distribution", {}).values())
-
-            # Extract class-wise metrics
-            class_metrics = data.get("class_metrics", {})
-            class_precision = {k: v.get("precision", None) for k, v in class_metrics.items()}
-            class_recall = {k: v.get("recall", None) for k, v in class_metrics.items()}
-            class_f1 = {k: v.get("f1-score", None) for k, v in class_metrics.items()}
-
-            # Extract answer distribution
-            answer_distribution = data.get("answer_distribution", {})
-            started_at = data.get("started_at", "")
-            completed_at = data.get("completed_at", "")
-
-            start = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
-            end = datetime.fromisoformat(completed_at.replace("Z", "+00:00"))
-            test_duration = (end - start).total_seconds()
-
-            results.append({
-                "dataset_name": dataset_name,
-                "model": model,
-                "accuracy": accuracy,
-                "f1_score": f1_score,
-                "precision": precision,
-                "recall": recall,
-                "correct_answers": correct_answers,
-                "total_questions": total_questions,
-                "class_precision": class_precision,
-                "class_recall": class_recall,
-                "class_f1": class_f1,
-                "answer_distribution": answer_distribution,
-                "duration_seconds": test_duration
-            })
+                results.append({
+                    "model_name": avg_data.get("modelName"),
+                    "dataset_name": avg_data.get("datasetName"),
+                    "average_accuracy": avg_data.get("averageAccuracyPercentage"),
+                    "average_duration_seconds": avg_data.get("averageDurationSeconds"),
+                    "number_of_executions": avg_data.get("numberOfExecutions")
+                })
+            except Exception as e:
+                print(f"Error fetching average data for {model} on {dataset_name}: {e}")
 
     return results
 
@@ -151,6 +136,7 @@ def save_results(results):
     """Saves evaluation results to CSV."""
     df = pd.DataFrame(results)
 
+    # Rename model names for better readability
     model_name_map = {
         "OpenAI: GPT-4o": "GPT-4o",
         "OpenAI: GPT-4o-mini": "GPT-4o Mini",
@@ -164,12 +150,11 @@ def save_results(results):
         "Mistral: Mistral Small 3.1 24B": "Mistral Small"
     }
 
-    df["model"] = df["model"].apply(lambda name: model_name_map.get(name, name))
-
-    df["class_precision"] = df["class_precision"].apply(json.dumps)
-    df["class_recall"] = df["class_recall"].apply(json.dumps)
-    df["class_f1"] = df["class_f1"].apply(json.dumps)
-    df["answer_distribution"] = df["answer_distribution"].apply(json.dumps)
+    df["model"] = df["model_name"].apply(lambda name: model_name_map.get(name, name))
+    df.rename(columns={
+        "average_accuracy": "accuracy",
+        "average_duration_seconds": "duration_seconds"
+    }, inplace=True)
 
     df.to_csv("evaluation_results.csv", index=False)
     print("✅ Results saved to evaluation_results.csv")
@@ -178,31 +163,30 @@ def save_results(results):
 
 def generate_bar_charts(df):
     """Generates bar plots for model accuracy, precision, recall"""
-
     output_dir = "./"
     sns.set(style="whitegrid")
 
-    # **Accuracy Comparison**
     plt.figure(figsize=(12, 6))
-    sns.barplot(x="dataset_name", y="accuracy", hue="model", data=df, palette="Set2")
+    ax = sns.barplot(x="dataset_name", y="accuracy", hue="model_name", data=df, palette="Set2")
+
+    # Add values on top of bars
+    for p in ax.patches:
+        height = p.get_height()
+        if pd.notna(height):
+            ax.annotate(f"{height:.1f}",
+                        (p.get_x() + p.get_width() / 2., height),
+                        ha='center', va='bottom',
+                        fontsize=10, color='black',
+                        xytext=(0, 3), textcoords='offset points')
+
     plt.xlabel("Dataset Name", fontsize=12)
     plt.ylabel("Accuracy (%)", fontsize=12)
     plt.title("Model Accuracy Across Datasets", fontsize=14)
     plt.legend(title="LLM Model")
+    plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "accuracy_comparison.png"))
     plt.close()
 
-    # **Precision, Recall, and F1-score**
-    metrics = ["precision", "recall", "f1_score"]
-    for metric in metrics:
-        plt.figure(figsize=(12, 6))
-        sns.barplot(x="dataset_name", y=metric, hue="model", data=df, palette="Set1")
-        plt.xlabel("Dataset Name", fontsize=12)
-        plt.ylabel(f"{metric.capitalize()} Score", fontsize=12)
-        plt.title(f"{metric.capitalize()} Across Models and Datasets", fontsize=14)
-        plt.legend(title="LLM Model")
-        plt.savefig(os.path.join(output_dir, f"{metric}_comparison.png"))
-        plt.close()
 
 
 def generate_average_accuracy_chart(df):
@@ -229,8 +213,10 @@ def generate_average_accuracy_chart(df):
     ax = sns.barplot(
         x='model',
         y='accuracy',
+        hue='model',
         data=avg_accuracy_df,
-        palette='viridis' # You can choose a different color palette
+        palette='viridis',
+        dodge=False
     )
 
     # Add the average accuracy value on top of each bar
@@ -240,15 +226,15 @@ def generate_average_accuracy_chart(df):
             ax.annotate(f'{height:.1f}', # Format to one decimal place
                         (p.get_x() + p.get_width() / 2., height),
                         ha='center', va='bottom',
-                        fontsize=10, color='black',
+                        fontsize=12, color='black',
                         xytext=(0, 3), # 3 points vertical offset
                         textcoords='offset points')
 
     # Formatting
-    plt.xlabel("Model", fontsize=12)
+    plt.xlabel("Model", fontsize=15)
     plt.ylabel("Average Accuracy (%) Across Datasets", fontsize=12)
     plt.title("Average Model Accuracy Across All Evaluated Datasets", fontsize=14)
-    plt.xticks(rotation=45, ha="right", fontsize=10) # Rotate labels if they overlap
+    plt.xticks(rotation=45, ha="right", fontsize=15) # Rotate labels if they overlap
     plt.ylim(0, 105) # Set y-axis limit slightly above 100%
     plt.tight_layout() # Adjust layout to prevent labels overlapping
 
@@ -262,36 +248,30 @@ def generate_average_accuracy_chart(df):
 def generate_dataset_bar_chart(df):
     """Generates a grouped bar chart showing model performance across datasets with values on top of bars."""
 
-    # Plot settings
     sns.set_style("whitegrid")
     plt.figure(figsize=(12, 6))
     ax = sns.barplot(x="model", y="accuracy", hue="dataset_name", data=df, palette="Set1")
 
+    for p in ax.patches:
+        height = p.get_height()
+        if pd.notna(height) and height > 0:
+            ax.annotate(f"{height:.0f}",
+                        (p.get_x() + p.get_width() / 2., height),
+                        ha='center', va='bottom',
+                        fontsize=9, color="black",
+                        xytext=(0, 3), textcoords='offset points')
 
-    # Add values on top of bars
-    #for p in ax.patches:
-    #    height = p.get_height()
-    #    if height > 0:  # Avoid displaying numbers for zero values
-    #        ax.annotate(f"{height:.0f}",
-    #                    (p.get_x() + p.get_width() / 2., height + 0.5),
-    #                    ha='center', va='bottom', fontsize=11, color="black")
-
-
-    # Formatting
     plt.ylabel("Accuracy (%)", fontsize=15)
-    plt.xlabel("", fontsize=14)
+    plt.xlabel("", fontsize=15)
     plt.xticks(rotation=15, ha="center", fontsize=15)
-
     plt.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, 1.15),
         ncol=4,
         frameon=False,
-        fontsize=13
+        fontsize=14
     )
     plt.tight_layout()
-
-    # Save and show the plot
     output_path = os.path.join("./", "dataset_performance_chart.png")
     plt.savefig(output_path, bbox_inches="tight")
     print(f"✅ Bar chart saved as {output_path}")
@@ -304,9 +284,14 @@ def generate_execution_time_chart(df):
     plt.figure(figsize=(12, 6))
     ax = sns.barplot(x="model", y="duration_seconds", hue="dataset_name", data=df, palette="Set2")
 
-    # Adiciona os valores de duração acima das barras
-    #for container in ax.containers:
-    #    ax.bar_label(container, fmt="%.0f", label_type="edge", fontsize=11, padding=3)
+    for p in ax.patches:
+        height = p.get_height()
+        if pd.notna(height) and height > 0:
+            ax.annotate(f"{height:.0f}",
+                        (p.get_x() + p.get_width() / 2., height),
+                        ha='center', va='bottom',
+                        fontsize=9, color="black",
+                        xytext=(0, 3), textcoords='offset points')
 
     plt.ylabel("Duration (seconds)", fontsize=15)
     plt.xlabel("", fontsize=15)
@@ -316,28 +301,13 @@ def generate_execution_time_chart(df):
         bbox_to_anchor=(0.5, 1.15),
         ncol=4,
         frameon=False,
-        fontsize=13
+        fontsize=14
     )
-
     plt.tight_layout()
     output_path = os.path.join("./", "execution_time_chart.png")
     plt.savefig(output_path)
     plt.close()
     print(f"✅ Execution time chart saved as {output_path}")
-
-
-def print_model_comparison_table(df):
-    """Prints a table summarizing the model performance across datasets, including answer distribution."""
-    table = df[["dataset_name", "model", "accuracy", "precision", "recall", "f1_score", "answer_distribution"]].copy()
-
-    # Convert the answer_distribution JSON strings back to dictionaries and format them for display
-    table["answer_distribution"] = table["answer_distribution"].apply(
-        lambda x: json.loads(x) if isinstance(x, str) else x)
-    table["answer_distribution"] = table["answer_distribution"].apply(
-        lambda x: ", ".join([f"{k}: {v}" for k, v in x.items()]))
-
-    # Print the table using tabulate
-    print(tabulate.tabulate(table, headers="keys", tablefmt="pretty", showindex=True))
 
 
 def main():
@@ -349,7 +319,6 @@ def main():
 
     generate_bar_charts(df)
     generate_average_accuracy_chart(df)
-    print_model_comparison_table(df)
     generate_dataset_bar_chart(df)
     generate_execution_time_chart(df)
 

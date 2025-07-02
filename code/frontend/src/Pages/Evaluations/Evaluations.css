@@ -20,7 +20,6 @@
 
 .test-card {
     display: grid;
-    /* ID, Dataset, LLMmodel, Correct Ans, Accuracy, Time */
     grid-template-columns: 0.4fr 1fr 1fr 1fr 0.5fr 0.5fr 0.7fr;
     align-items: center;
     background-color: #2a2f45;
@@ -52,20 +51,18 @@
 .test-llm-model,
 .test-correct-answers,
 .test-accuracy,
-.test-time{
+.test-time {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: left;
 }
 
+.test-id, .test-correct-answers, .test-accuracy, .test-time {
+    text-align: center;
+}
 
-.test-id { text-align: center; }
-.test-correct-answers { text-align: center; }
-.test-accuracy { text-align: center; }
-.test-time { text-align: center; }
-
-.button-container{
+.button-container {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
@@ -89,22 +86,31 @@
     background-color: #45875f;
 }
 
-.details-button {
+.details-button, .delete-button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     border: none;
-    background-color: #6492b6;
-    color: #e0e4ff;
     border-radius: 6px;
     padding: 6px 10px;
     cursor: pointer;
     transition: background-color 0.2s ease;
     font-size: 14px;
+    color: #e0e4ff;
 }
 
+.details-button {
+    background-color: #6492b6;
+}
 .details-button:hover {
     background-color: #4479b6;
+}
+
+.delete-button {
+    background-color: #9a4c4c;
+}
+.delete-button:hover {
+    background-color: #783c3c;
 }
 
 .details-icon {
@@ -113,143 +119,62 @@
     fill: currentColor;
 }
 
-.delete-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border: none;
-    background-color: #9a4c4c;
-    color: #e0e4ff;
-    border-radius: 6px;
-    padding: 6px 10px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-size: 14px;
-}
 
-.delete-button:hover { background-color: #783c3c; }
-
-
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+.evaluations-controls {
     display: flex;
+    gap: 3rem;
+    align-items: center;
     justify-content: center;
-    align-items: center;
+    margin-bottom: 2rem;
 }
 
-.modal {
-    background-color: #5564ae;
-    padding: 2rem;
-    border-radius: 12px;
-    max-width: 400px;
-    width: 100%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-}
-
-.modal h2 {
-    margin-top: 0;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.modal label {
-    display: block;
-    margin-bottom: 0.5rem;
-    margin-top: 1rem;
-    font-weight: bold;
-}
-
-.modal select {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-}
-
-.modal-buttons {
+.control-group {
     display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.cancel-button-modal,
-.create-button-modal {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.cancel-button-modal {
-    background-color: #ddd;
-    border: none;
-}
-
-.create-button-modal {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-}
-
-.create-button-modal:disabled {
-    background-color: #a0d3a0;
-    cursor: not-allowed;
+.control-group label {
+    font-size: 0.9rem;
+    color: #c0caff;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 
 
-
-/* Responsive adjustments */
 @media (max-width: 992px) {
     .test-card {
-        /* Adjust grid columns for medium screens */
-        grid-template-columns: 0.4fr 1.2fr 1.5fr 0.8fr 0.8fr 1fr; /* Hide one column (e.g., correct answers) */
+        grid-template-columns: 0.4fr 1.2fr 1.5fr 0.8fr 0.8fr 1fr;
         font-size: 0.85rem;
         padding: 10px 15px;
         gap: 10px;
     }
     .test-correct-answers, .test-correct-answers.header {
-        display: none; /* Example: Hide correct answers column */
-    }
-    .details-button, .delete-button {
-        padding: 6px 10px;
-        font-size: 0.8rem;
+        display: none;
     }
 }
 
 @media (max-width: 768px) {
     .page.evaluations-page { padding: 1rem; }
     .evaluations-page .page-title { font-size: 1.5rem; }
-    .create-test-button { padding: 8px 12px; font-size: 0.85rem;}
+    .create-test-button { padding: 8px 12px; font-size: 0.85rem; }
 
     .test-card {
-        /* Further adjust grid for small screens */
-        grid-template-columns: 0.5fr 2fr 1fr 1fr; /* ID, Dataset, Accuracy, Actions */
+        grid-template-columns: 0.5fr 2fr 1fr 1fr;
         font-size: 0.8rem;
     }
     .test-llm-model, .test-llm-model.header,
     .test-total-questions, .test-total-questions.header,
-    .test-correct-answers, .test-correct-answers.header { /* Ensure correct answers also hidden if not already */
+    .test-correct-answers, .test-correct-answers.header {
         display: none;
     }
-    .details-button span, .delete-button span { /* If buttons have text spans */
-        /* display: none; */ /* Hides text, shows only icon if spans exist */
+    .details-button span, .delete-button span {
+        display: none;
     }
     .details-button, .delete-button {
-        padding: 6px; /* Smaller padding for icon-only look */
+        padding: 6px;
         gap: 0;
         min-width: auto;
     }
-    .details-button span { display: none;} /* Hide "Details" text to match image */
 }

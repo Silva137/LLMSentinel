@@ -39,6 +39,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
         else:
             return Dataset.objects.filter(Q(owner=user) | Q(owner=None))
 
+
     @action(detail=True, methods=['post'], url_path='share')
     def share_dataset(self, request, pk=None):
         """

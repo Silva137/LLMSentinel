@@ -17,7 +17,6 @@ const Community: React.FC = () => {
     const [publicDatasets, setPublicDatasets] = useState<Dataset[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const { user } = useAuth();
-    const navigate = useNavigate();
 
     const fetchPublicDatasets = async () => {
         setIsLoading(true);
@@ -41,9 +40,6 @@ const Community: React.FC = () => {
         }
     };
 
-    const handleDatasetNameClick = (datasetId: number) => {
-        navigate(`/datasets/${datasetId}/questions`); // Navigate to the questions page
-    };
 
     useEffect(() => {
         fetchPublicDatasets();
@@ -65,7 +61,6 @@ const Community: React.FC = () => {
                         <div key={dataset.id} className="pdataset-card">
                             <h3
                                 className="pdataset-name clickable-dataset-name"
-                                onClick={() => handleDatasetNameClick(dataset.id)}
                                 role="button"
                                 tabIndex={0}
                             >

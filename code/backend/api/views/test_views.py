@@ -3,6 +3,7 @@ from collections import Counter
 import openai
 import regex as re
 from asgiref.sync import async_to_sync, sync_to_async
+from django.db.models import F
 from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -34,20 +35,32 @@ class TestViewSet(viewsets.ModelViewSet):
         return TestListSerializer  # list of tests (without results)
 
     def get_queryset(self):
-        """
-        Override default GET to return only tests of the authenticated user.
-        Supports filtering by dataset_id and llm_model_name.
-        """
         queryset = Test.objects.filter(user=self.request.user)
+
+        sort_map = {
+            "accuracy_desc": "-accuracy_percentage",
+            "accuracy_asc": "accuracy_percentage",
+            "time_desc": "-execution_time",
+            "time_asc": "execution_time",
+            "id_desc": "-id",
+            "id_asc": "id",
+        }
 
         dataset_name = self.request.query_params.get("dataset_name")
         llm_model_name = self.request.query_params.get("llm_model_name")
+        sort_criteria = self.request.query_params.get("sort_criteria", "id_desc")
 
         if dataset_name:
             queryset = queryset.filter(dataset__name=dataset_name)
-
         if llm_model_name:
             queryset = queryset.filter(llm_model__name=llm_model_name)
+
+
+        if sort_criteria in ["time_desc", "time_asc"]:
+            queryset = queryset.annotate(execution_time=F('completed_at') - F('started_at'))
+
+        sort_expr = sort_map.get(sort_criteria, "-id")  # Default: recent first
+        queryset = queryset.order_by(sort_expr)
 
         return queryset
 
