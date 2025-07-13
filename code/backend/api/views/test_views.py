@@ -17,9 +17,13 @@ from sklearn.metrics import classification_report
 
 
 client = openai.AsyncOpenAI(
-        api_key="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",
+        api_key="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",
         base_url="https://openrouter.ai/api/v1"
     )
+
+
+#api_key="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", old one
+
 
 
 class TestViewSet(viewsets.ModelViewSet):

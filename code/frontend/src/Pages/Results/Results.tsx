@@ -1,10 +1,9 @@
-// src/Pages/Results/Results.tsx
 import React, { useEffect, useState, useMemo } from 'react';
 import ResultsService, { SelectableModel, SelectableDataset, ModelPerformanceData } from '../../Services/ResultsService';
 import CombinedPerformanceBarChart from '../../Components/PerformaceChart.tsx';
 import './Results.css';
 
-const MAX_SELECTED_MODELS = 8;
+const MAX_SELECTED_MODELS = 10;
 
 const Results: React.FC = () => {
     const [testedModels, setTestedModels] = useState<SelectableModel[]>([]);
@@ -129,6 +128,7 @@ const Results: React.FC = () => {
 
     const selectedDatasetName = availableDatasets.find(d => d.id === selectedDatasetId)?.name;
 
+
     return (
         <div className="page results-layout-page">
             <aside className="results-sidebar">
@@ -238,7 +238,6 @@ const Results: React.FC = () => {
                         </div>
                     </div>
                 )}
-                {/* --- End of Data Table Section --- */}
             </main>
         </div>
     );

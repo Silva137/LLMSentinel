@@ -56,8 +56,8 @@ const PerformanceChart: React.FC<Props> = ({ data, datasetName }) => {
                 }}
             />
             <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: '20px' }} />
-            <Bar yAxisId="accuracy" dataKey="accuracyPercentage" fill="#8884d8" name="Accuracy" barSize={50} />
-            <Bar yAxisId="time" dataKey="durationSeconds" fill="#82ca9d" name="Execution Time" barSize={50} />
+            <Bar yAxisId="accuracy" dataKey="accuracyPercentage" fill="#8884d8" name="Accuracy" barSize={50} animationDuration={2000} />
+            <Bar yAxisId="time" dataKey="durationSeconds" fill="#82ca9d" name="Execution Time" barSize={50} animationDuration={2000} />
         </BarChart>
     );
 
