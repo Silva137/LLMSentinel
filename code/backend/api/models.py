@@ -80,6 +80,8 @@ class Test(BaseModel):
 
     correct_answers = models.IntegerField(default=0)
     accuracy_percentage = models.FloatField(default=0.0)
+    confidence_interval_low = models.FloatField(default=0.0)
+    confidence_interval_high = models.FloatField(default=0.0)
 
     # Macro evaluation metrics
     precision_avg = models.FloatField(default=0.0)

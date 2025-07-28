@@ -1,5 +1,6 @@
 from datetime import datetime
 import matplotlib
+import numpy as np
 import requests
 import json
 import pandas as pd
@@ -7,12 +8,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import time
 import os
-import tabulate
+from tabulate import tabulate
+import matplotlib.patches as mpatches
 
 matplotlib.use('Agg')
 
 COOKIES = {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoyNjUwNzAxMDEwLCJpYXQiOjE3NTA3MDEwMTAsImp0aSI6ImU2YjFlNWFmMzc5YzQ1ZWJiMmM2ZWQxMGEyNGE4M2E2IiwidXNlcl9pZCI6MX0.dUA9Mru83XBT5S-3mQXZYJ_3HSK86Ifscp2K-wbZJLA"
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1OTU5NDA1LCJpYXQiOjE3NTMzNjc0MDUsImp0aSI6IjEyZjI5N2U2NTg5ZTRjYmRhMTdhNTgwOWFjYjhhZmQzIiwidXNlcl9pZCI6MX0.zEZEQYu3yabZYg-5Cjj0cWa9Re5XAaC7YJJgiiSYzUY"
 }
 
 models2 = [
@@ -20,7 +22,7 @@ models2 = [
     "OpenAI: GPT-4o-mini",
     "Anthropic: Claude 3.7 Sonnet",
     "Anthropic: Claude 3.5 Haiku",
-    "Google: Gemini 2.5 Pro Preview",
+    "Google: Gemini 2.5 Pro",
     "Google: Gemini 2.0 Flash",
     "xAI: Grok 3 Beta",
     "xAI: Grok 3 Mini Beta",
@@ -36,22 +38,36 @@ dataset_names = [
     #"Iam",
     #"Network Security",
     #"Operating Systems Security",
-    "Malware",
-    "Ctf",
-    "Honeypots",
-    #"Secqa V1",
-    #"Secqa V2",
+    #"Malware",
+    #"Ctf",
+    #"Honeypots",
+    "Secqa V1",
+    "Secqa V2",
     #"Cybermetric 80",
     #"Seceval",`
     #"Secmmlu",
     #"Cyquiz",
 ]
 
+model_name_map = {
+    "OpenAI: GPT-4o": "GPT-4o",
+    "OpenAI: GPT-4o-mini": "GPT-4o Mini",
+    "Anthropic: Claude 3.7 Sonnet": "Claude 3.7 Sonnet",
+    "Anthropic: Claude 3.5 Haiku": "Claude 3.5 Haiku",
+    "Google: Gemini 2.5 Pro": "Gemini 2.5 Pro",
+    "Google: Gemini 2.0 Flash": "Gemini 2.0 Flash",
+    "xAI: Grok 3 Beta": "Grok 3",
+    "xAI: Grok 3 Mini Beta": "Grok 3 Mini",
+    "Mistral Large 2411": "Mistral Large 2411",
+    "Mistral: Mistral Small 3.1 24B": "Mistral Small 3.1"
+}
+
 
 def get_existing_tests(dataset_name, model):
     """Check if a test already exists for a given dataset and model."""
 
-    response = requests.get("http://localhost:8001/api/tests/", params={"dataset_name": dataset_name, "llm_model_name": model}, cookies=COOKIES)
+    response = requests.get("http://localhost:8001/api/tests/",
+                            params={"dataset_name": dataset_name, "llm_model_name": model}, cookies=COOKIES)
 
     if response.status_code == 200:
         tests = response.json()  # Gets the list of tests
@@ -92,7 +108,6 @@ def get_or_run_tests(dataset_name, model, required_tests=3):
     return tests[-required_tests:]
 
 
-
 def evaluate_models():
     """Runs the evaluation process for multiple models and datasets, retrieving existing tests when available."""
     results = []
@@ -124,6 +139,8 @@ def evaluate_models():
                     "dataset_name": avg_data.get("datasetName"),
                     "average_accuracy": avg_data.get("averageAccuracyPercentage"),
                     "average_duration_seconds": avg_data.get("averageDurationSeconds"),
+                    "confidence_interval_low": avg_data.get("confidenceIntervalLow"),
+                    "confidence_interval_high": avg_data.get("confidenceIntervalHigh"),
                     "number_of_executions": avg_data.get("numberOfExecutions")
                 })
             except Exception as e:
@@ -136,20 +153,6 @@ def save_results(results):
     """Saves evaluation results to CSV."""
     df = pd.DataFrame(results)
 
-    # Rename model names for better readability
-    model_name_map = {
-        "OpenAI: GPT-4o": "GPT-4o",
-        "OpenAI: GPT-4o-mini": "GPT-4o Mini",
-        "Anthropic: Claude 3.7 Sonnet": "Claude 3.7 Sonnet",
-        "Anthropic: Claude 3.5 Haiku": "Claude 3.5 Haiku",
-        "Google: Gemini 2.5 Pro Preview": "Gemini 2.5 Pro",
-        "Google: Gemini 2.0 Flash": "Gemini 2.0 Flash",
-        "xAI: Grok 3 Beta": "Grok 3",
-        "xAI: Grok 3 Mini Beta": "Grok 3 Mini",
-        "Mistral Large 2411": "Mistral Large",
-        "Mistral: Mistral Small 3.1 24B": "Mistral Small"
-    }
-
     df["model"] = df["model_name"].apply(lambda name: model_name_map.get(name, name))
     df.rename(columns={
         "average_accuracy": "accuracy",
@@ -157,8 +160,74 @@ def save_results(results):
     }, inplace=True)
 
     df.to_csv("evaluation_results.csv", index=False)
-    print("✅ Results saved to evaluation_results.csv")
+    print("Results saved to evaluation_results.csv")
     return df
+
+
+def generate_confidence_interval_plot(df):
+    """
+    Gera gráfico com pontos de accuracy e intervalos de confiança (95%) como barras de erro verticais,
+    usando cor para identificar o dataset e apenas o nome do modelo no eixo X, com espaçamento entre medidas.
+    """
+    if df.empty:
+        print("DataFrame vazio. Gráfico de IC não gerado.")
+        return
+
+    df["model"] = df["model"].replace(model_name_map)
+    df = df.dropna(subset=["accuracy", "confidence_interval_low", "confidence_interval_high"]).copy()
+    df["ci_minus"] = df["accuracy"] - df["confidence_interval_low"]
+    df["ci_plus"] = df["confidence_interval_high"] - df["accuracy"]
+
+    # Ordenar
+    df_sorted = df.sort_values(by=["dataset_name", "accuracy"], ascending=[False, False])
+    unique_datasets = sorted(df_sorted["dataset_name"].unique())
+    color_palette = plt.get_cmap("tab10")
+    color_map = {name: color_palette(i) for i, name in enumerate(unique_datasets)}
+    df_sorted["color"] = df_sorted["dataset_name"].map(color_map)
+
+    # Criação do gráfico com espaçamento
+    spacing_factor = 1.3  # Aumenta o espaçamento horizontal
+    plt.figure(figsize=(18, 8))  # Ajustar conforme benchmark !!!!!!!!!!!!!
+    x_labels = []
+    x_positions = []
+
+    for i, (_, row) in enumerate(df_sorted.iterrows()):
+        x = i * spacing_factor
+        x_positions.append(x)
+        x_labels.append(row["model"])
+        plt.errorbar(
+            x=x,
+            y=row["accuracy"],
+            yerr=[[row["ci_minus"]], [row["ci_plus"]]],
+            fmt='o',
+            color=row["color"],
+            ecolor=row["color"],
+            capsize=5,
+            markeredgewidth=1.5,
+        )
+
+    plt.xticks(ticks=x_positions, labels=x_labels, rotation=90, ha="right", fontsize=10)
+    plt.ylabel("Accuracy (%)", fontsize=12)
+    plt.xlabel("Model", fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+    # Legenda
+    handles = [plt.Line2D([0], [0], color=color_map[d], marker='o', linestyle='', markersize=10) for d in unique_datasets]
+    plt.legend(
+        handles, unique_datasets,
+        loc='upper center',
+        bbox_to_anchor=(0.5, 1.15),
+        ncol=len(unique_datasets),
+        frameon=False,
+        fontsize=12
+    )
+
+    plt.tight_layout()
+    output_path = os.path.join("./", "confidence_interval_plot_by_model_legend.png")
+    plt.savefig(output_path, bbox_inches="tight")
+    plt.close()
+    print(f"✅ Confidence Interval plot saved to {output_path}")
+
 
 
 def generate_bar_charts(df):
@@ -188,7 +257,6 @@ def generate_bar_charts(df):
     plt.close()
 
 
-
 def generate_average_accuracy_chart(df):
     """
     Generates a bar chart showing the average accuracy per model across all evaluated datasets.
@@ -207,7 +275,7 @@ def generate_average_accuracy_chart(df):
 
     # Plotting
     sns.set_style("whitegrid")
-    plt.figure(figsize=(10, 6)) # Adjust figure size as needed
+    plt.figure(figsize=(10, 6))  # Adjust figure size as needed
 
     # Create the bar plot
     ax = sns.barplot(
@@ -222,21 +290,21 @@ def generate_average_accuracy_chart(df):
     # Add the average accuracy value on top of each bar
     for p in ax.patches:
         height = p.get_height()
-        if pd.notna(height): # Check if height is NaN before annotating
-            ax.annotate(f'{height:.1f}', # Format to one decimal place
+        if pd.notna(height):  # Check if height is NaN before annotating
+            ax.annotate(f'{height:.1f}',  # Format to one decimal place
                         (p.get_x() + p.get_width() / 2., height),
                         ha='center', va='bottom',
                         fontsize=12, color='black',
-                        xytext=(0, 3), # 3 points vertical offset
+                        xytext=(0, 3),  # 3 points vertical offset
                         textcoords='offset points')
 
     # Formatting
     plt.xlabel("Model", fontsize=15)
     plt.ylabel("Average Accuracy (%) Across Datasets", fontsize=12)
     plt.title("Average Model Accuracy Across All Evaluated Datasets", fontsize=14)
-    plt.xticks(rotation=45, ha="right", fontsize=15) # Rotate labels if they overlap
-    plt.ylim(0, 105) # Set y-axis limit slightly above 100%
-    plt.tight_layout() # Adjust layout to prevent labels overlapping
+    plt.xticks(rotation=45, ha="right", fontsize=15)  # Rotate labels if they overlap
+    plt.ylim(0, 105)  # Set y-axis limit slightly above 100%
+    plt.tight_layout()  # Adjust layout to prevent labels overlapping
 
     # Save the plot
     output_path = os.path.join("./", "average_accuracy_per_model.png")
@@ -274,8 +342,7 @@ def generate_dataset_bar_chart(df):
     plt.tight_layout()
     output_path = os.path.join("./", "dataset_performance_chart.png")
     plt.savefig(output_path, bbox_inches="tight")
-    print(f"✅ Bar chart saved as {output_path}")
-
+    print(f"Bar chart saved as {output_path}")
 
 
 def generate_execution_time_chart(df):
@@ -307,20 +374,110 @@ def generate_execution_time_chart(df):
     output_path = os.path.join("./", "execution_time_chart.png")
     plt.savefig(output_path)
     plt.close()
-    print(f"✅ Execution time chart saved as {output_path}")
+    print(f"Execution time chart saved as {output_path}")
+
+
+def generate_metrics_table(df):
+    """
+    Gera uma tabela com: Accuracy, Execution Time e Intervalo de Confiança (±) por modelo e dataset.
+    Exporta para CSV e imprime no terminal.
+    """
+    if df.empty:
+        print("DataFrame está vazio. Nenhuma tabela gerada.")
+        return
+
+    summary = []
+
+    for _, row in df.iterrows():
+        acc = row["accuracy"]
+        dur = row["duration_seconds"]
+        ci_low = row.get("confidence_interval_low")
+        ci_high = row.get("confidence_interval_high")
+
+        # Cálculo da margem ± para exibir estilo LLM Arena
+        if pd.notna(ci_low) and pd.notna(ci_high) and pd.notna(acc):
+            margin_plus = ci_high - acc
+            margin_minus = acc - ci_low
+            ci_display = f"+{margin_plus:.1f}/-{margin_minus:.1f}"
+        else:
+            ci_display = "N/A"
+
+        summary.append([
+            row["model"],
+            row["dataset_name"],
+            f"{acc:.2f}" if pd.notna(acc) else "N/A",
+            f"{dur:.2f}" if pd.notna(dur) else "N/A",
+            ci_display
+        ])
+
+    headers = ["Model", "Dataset", "Accuracy (%)", "Execution Time (s)", "95% CI (±)"]
+
+    # Export to CSV
+    df_summary = pd.DataFrame(summary, columns=headers)
+    df_summary.to_csv("model_metrics_summary.csv", index=False)
+    print("Tabela de métricas salva como 'model_metrics_summary.csv'\n")
+
+    # Print preview in terminal
+    print(tabulate(summary, headers=headers, tablefmt="grid"))
+
+
+def generate_execution_time_heatmap(df):
+    """
+    Gera um heatmap com os tempos de execução (em segundos) para cada modelo em cada dataset.
+    """
+    if df.empty:
+        print("DataFrame vazio. Heatmap não gerado.")
+        return
+
+    # Prepara dados: Pivot table com modelos como linhas e datasets como colunas
+    pivot_df = df.pivot_table(
+        index="model",
+        columns="dataset_name",
+        values="duration_seconds",
+        aggfunc="mean"
+    )
+
+    # Ordena por tempo médio de execução total
+    pivot_df["Avg"] = pivot_df.mean(axis=1)
+    pivot_df = pivot_df.sort_values(by="Avg", ascending=False).drop(columns="Avg")
+
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(
+        pivot_df,
+        annot=True,
+        fmt=".0f",
+        cmap="YlGnBu",
+        linewidths=0.5,
+        cbar_kws={"label": "Duration (s)"}
+    )
+
+    plt.title("Execution Time per Model per Dataset (Heatmap)", fontsize=14)
+    plt.xlabel("Dataset", fontsize=12)
+    plt.ylabel("Model", fontsize=12)
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+
+    output_path = os.path.join("./", "execution_time_heatmap.png")
+    plt.savefig(output_path, bbox_inches="tight")
+    plt.close()
+    print(f"Heatmap saved as {output_path}")
 
 
 def main():
     print("Starting LLM Model Evaluation...")
 
     results = evaluate_models()
-
     df = save_results(results)
+
+    #df = pd.read_csv("evaluation_results.csv")
 
     generate_bar_charts(df)
     generate_average_accuracy_chart(df)
     generate_dataset_bar_chart(df)
     generate_execution_time_chart(df)
+    generate_confidence_interval_plot(df)
+    generate_execution_time_heatmap(df)
+    generate_metrics_table(df)
 
     print("Evaluation process completed successfully!")
 

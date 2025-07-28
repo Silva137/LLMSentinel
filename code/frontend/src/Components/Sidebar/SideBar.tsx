@@ -1,6 +1,6 @@
 import {NavLink} from "react-router-dom";
 import {navItems} from "./SideBarData.jsx";
-import "./Sidebar.css";
+import "./SideBar.css";
 import logo from "../../assets/logo.png"
 import {useAuth} from "../../Context/AuthContext.tsx";
 

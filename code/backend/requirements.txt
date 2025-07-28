@@ -13,3 +13,4 @@ pandas
 requests
 regex
 scikit-learn
+statsmodels

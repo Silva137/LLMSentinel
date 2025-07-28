@@ -14,16 +14,16 @@ from ..models import Test, QuestionResult, Question
 from ..serializers.question_serializer import QuestionResultSerializer
 from ..serializers.test_serializer import TestSerializer, TestCreationSerializer, TestListSerializer
 from sklearn.metrics import classification_report
-
+from statsmodels.stats.proportion import proportion_confint
 
 client = openai.AsyncOpenAI(
-        api_key="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",
-        base_url="https://openrouter.ai/api/v1"
-    )
+    api_key="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",
+    base_url="https://openrouter.ai/api/v1"
+)
 
+SEMAPHORE_UNITS = 30
 
 #api_key="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", old one
-
 
 
 class TestViewSet(viewsets.ModelViewSet):
@@ -58,7 +58,6 @@ class TestViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(dataset__name=dataset_name)
         if llm_model_name:
             queryset = queryset.filter(llm_model__name=llm_model_name)
-
 
         if sort_criteria in ["time_desc", "time_asc"]:
             queryset = queryset.annotate(execution_time=F('completed_at') - F('started_at'))
@@ -124,9 +123,8 @@ class TestViewSet(viewsets.ModelViewSet):
             questions = Question.objects.filter(id__in=question_ids)
             correct_options = {q.id: q.correct_option for q in questions}
 
-            # Executar retries de forma síncrona
             async def retry_questions():
-                semaphore = asyncio.Semaphore(3)
+                semaphore = asyncio.Semaphore(SEMAPHORE_UNITS)
 
                 async def limited_retry(data):
                     async with semaphore:
@@ -171,6 +169,39 @@ class TestViewSet(viewsets.ModelViewSet):
                 content_type='application/json'
             )
 
+    @action(detail=False, methods=['delete'], url_path='delete-by-llm')
+    def delete_by_llm(self, request):
+        """
+        Delete all tests for a given LLM model name.
+        """
+        llm_model_name = request.data.get("llm_model_name")
+
+        if not llm_model_name:
+            return Response(
+                {"error": "Missing required parameter: llm_model_name"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        tests_to_delete = Test.objects.filter(
+            user=request.user,
+            llm_model__name=llm_model_name
+        )
+
+        if not tests_to_delete.exists():
+            return Response(
+                {"message": f"No tests found for the model '{llm_model_name}'."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        deleted_count, _ = tests_to_delete.delete()
+
+        return Response(
+            {
+                "message": f"Successfully deleted {deleted_count} tests for LLM model '{llm_model_name}'."
+            },
+            status=status.HTTP_200_OK
+        )
+
     @action(detail=False, methods=['delete'])
     def delete_by_llm_and_dataset(self, request):
         """
@@ -211,7 +242,7 @@ async def evaluate_llm(test, questions=None):
     Runs the LLM model evaluation on all questions from the dataset.
     """
 
-    semaphore = asyncio.Semaphore(3)
+    semaphore = asyncio.Semaphore(SEMAPHORE_UNITS)
 
     async def limited_query(question, llm_model):
         async with semaphore:
@@ -236,7 +267,6 @@ async def evaluate_llm(test, questions=None):
 
             correct = (answer.strip().upper() == question.correct_option.strip().upper())
 
-            # Create each QuestionResult in the database (this part remains synchronous)
             q_results.append(QuestionResult(
                 test=test,
                 question=question,
@@ -254,10 +284,7 @@ async def evaluate_llm(test, questions=None):
         print(f"Error occurred during evaluation: {e}")
 
 
-
-
-
-async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
+async def query_llm(llm_model, question, max_attempts=4, initial_delay=4):
     """
     Sends the question to the LLM model and retrieves the response with a retry mechanism.
     """
@@ -299,7 +326,6 @@ async def query_llm(llm_model, question, max_attempts=3, initial_delay=2):
                 raise Exception(f"API Error {error_code}: {error_message}")
 
             content = response.choices[0].message.content.strip()
-
 
             if not content:
                 print(f"Warning: Received empty response on attempt {attempt + 1}/{max_attempts}")
@@ -377,10 +403,14 @@ def compute_test_metrics(test):
     test.accuracy_percentage = (test.correct_answers / len(y_true) * 100) if len(y_true) > 0 else 0
     test.failed_queries = sum(1 for res in results if res.answer == "X")
 
+    ci_low, ci_high = calculate_confidence_interval(test.correct_answers, len(y_true))
+    test.confidence_interval_low = ci_low
+    test.confidence_interval_high = ci_high
+
     # Compute Precision, Recall, and F1-score for each class (A, B, C, D)
     class_metrics = {}
     if y_true and y_pred:
-        classification_metrics = classification_report(y_true, y_pred, labels=['A', 'B', 'C', 'D'], output_dict=True)
+        classification_metrics = classification_report(y_true, y_pred, labels=['A', 'B', 'C', 'D'], output_dict=True, zero_division=0)
 
         for option in ['A', 'B', 'C', 'D']:
             class_metrics[option] = {
@@ -400,7 +430,15 @@ def compute_test_metrics(test):
         # Store answer distribution as JSON
         test.answer_distribution = dict(Counter([res.answer for res in results]))
 
-
-
-
     test.save()
+
+
+def calculate_confidence_interval(correct: int, total: int, alpha: float = 0.05):
+    """
+    Calcula o intervalo de confiança com o method de Wilson.
+    """
+    if total == 0:
+        return 0.0, 0.0
+
+    ci_low, ci_high = proportion_confint(correct, total, alpha=alpha, method='wilson')
+    return ci_low * 100, ci_high * 100

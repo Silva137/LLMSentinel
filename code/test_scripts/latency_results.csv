@@ -1,0 +1,31 @@
+prompt_index,platform,latency_seconds
+1,Vertex AI,8.1656
+1,Google AI Studio,8.413
+1,OpenRouter,9.6397
+2,Vertex AI,7.5905
+2,Google AI Studio,7.6058
+2,OpenRouter,8.5905
+3,Vertex AI,8.49
+3,Google AI Studio,9.1854
+3,OpenRouter,11.7342
+4,Vertex AI,10.1938
+4,Google AI Studio,11.3538
+4,OpenRouter,10.8312
+5,Vertex AI,12.285
+5,Google AI Studio,11.727
+5,OpenRouter,27.3482
+6,Vertex AI,11.1345
+6,Google AI Studio,10.7436
+6,OpenRouter,11.7043
+7,Vertex AI,7.7065
+7,Google AI Studio,9.9105
+7,OpenRouter,11.1832
+8,Vertex AI,13.9199
+8,Google AI Studio,15.6911
+8,OpenRouter,17.7978
+9,Vertex AI,11.1494
+9,Google AI Studio,26.2849
+9,OpenRouter,10.8205
+10,Vertex AI,9.7841
+10,Google AI Studio,10.1733
+10,OpenRouter,11.0876

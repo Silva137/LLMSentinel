@@ -116,10 +116,29 @@ def get_openrouter_models():
         print(f"Error fetching LLM models from OpenRouter: {e}")
 
 
+def get_api_key_limits(api_key):
+    url = "https://openrouter.ai/api/v1/auth/key"
+    headers = {
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        limits = response.json()
+        print(json.dumps(limits, indent=2))
+        return limits
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching API key limits: {e}")
+        return None
+
+
 if __name__ == "__main__":
     # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     # asyncio.run(test_gpt())
     # print(query_llm_fireworks())
     # print(get_fireworks_models())
     #print(query_llm_openrouter())
-    print(get_openrouter_models())
+    #print(get_openrouter_models())
+    api_key = "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"
+    get_api_key_limits(api_key)

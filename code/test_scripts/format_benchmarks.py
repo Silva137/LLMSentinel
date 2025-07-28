@@ -155,7 +155,6 @@ def convert_secqa_format(input_csv, output_csv):
 
 
 if __name__ == "__main__":
-    #change_sep()
     #json_to_csv()
     #json_to_csv_SecEval()
     #split_csv_by_dataset_CyberBench()
