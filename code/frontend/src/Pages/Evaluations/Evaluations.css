@@ -1,5 +1,5 @@
 .tests-list-container {
-    max-width: 80%;
+    max-width: 95%;
     margin: 0 auto;
     padding-bottom: 5rem;
 }
@@ -20,7 +20,7 @@
 
 .test-card {
     display: grid;
-    grid-template-columns: 0.4fr 1fr 1fr 1fr 0.5fr 0.5fr 0.7fr;
+    grid-template-columns: 0.4fr 1fr 1fr 1fr 0.5fr 0.5fr 0.6fr 0.7fr;
     align-items: center;
     background-color: #2a2f45;
     border-radius: 10px;
@@ -51,6 +51,7 @@
 .test-llm-model,
 .test-correct-answers,
 .test-accuracy,
+.test-CI,
 .test-time {
     white-space: nowrap;
     overflow: hidden;
@@ -58,7 +59,7 @@
     text-align: left;
 }
 
-.test-id, .test-correct-answers, .test-accuracy, .test-time {
+.test-id, .test-correct-answers, .test-accuracy, .test-CI, .test-time {
     text-align: center;
 }
 
@@ -100,7 +101,7 @@
 }
 
 .details-button {
-    background-color: #6492b6;
+    background-color: #5396ca;
 }
 .details-button:hover {
     background-color: #4479b6;
@@ -139,42 +140,4 @@
     color: #c0caff;
     font-weight: 500;
     white-space: nowrap;
-}
-
-
-
-@media (max-width: 992px) {
-    .test-card {
-        grid-template-columns: 0.4fr 1.2fr 1.5fr 0.8fr 0.8fr 1fr;
-        font-size: 0.85rem;
-        padding: 10px 15px;
-        gap: 10px;
-    }
-    .test-correct-answers, .test-correct-answers.header {
-        display: none;
-    }
-}
-
-@media (max-width: 768px) {
-    .page.evaluations-page { padding: 1rem; }
-    .evaluations-page .page-title { font-size: 1.5rem; }
-    .create-test-button { padding: 8px 12px; font-size: 0.85rem; }
-
-    .test-card {
-        grid-template-columns: 0.5fr 2fr 1fr 1fr;
-        font-size: 0.8rem;
-    }
-    .test-llm-model, .test-llm-model.header,
-    .test-total-questions, .test-total-questions.header,
-    .test-correct-answers, .test-correct-answers.header {
-        display: none;
-    }
-    .details-button span, .delete-button span {
-        display: none;
-    }
-    .details-button, .delete-button {
-        padding: 6px;
-        gap: 0;
-        min-width: auto;
-    }
 }

@@ -9,6 +9,8 @@ export interface Test {
     correct_answers: number;
     accuracy_percentage: number;
     results: QuestionResult[];
+    confidence_interval_low: number;
+    confidence_interval_high: number;
     started_at: string;
     completed_at: string;
 }

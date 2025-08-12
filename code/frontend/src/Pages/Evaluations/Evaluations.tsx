@@ -1,41 +1,41 @@
 import React, { useEffect, useState } from "react";
 import TestService from "../../Services/TestService";
 import './Evaluations.css';
-import '../../Components/CreateTestModal/CreateTestModal.css'; // For modal styles if any are shared
+import '../../Components/CreateTestModal/CreateTestModal.css';
 import { Test } from "../../types/Test";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "../../assets/searchIcon.svg?react";
-import { Dataset } from "../../types/Dataset.ts"; // For modal
-import { LLMModel } from "../../types/LLMModel.ts"; // For modal
-import DatasetService from "../../Services/DatasetService.ts"; // For modal
-import LLMModelService, { TestedModels } from "../../Services/LLMModelService.ts"; // For modal and filters
+import { Dataset } from "../../types/Dataset.ts";
+import { LLMModel } from "../../types/LLMModel.ts";
+import DatasetService from "../../Services/DatasetService.ts";
+import LLMModelService, { TestedModels } from "../../Services/LLMModelService.ts";
 import CreateTestModal from "../../Components/CreateTestModal/CreateTestModal.tsx";
 import Select, { StylesConfig, GroupBase, SingleValue } from 'react-select';
-import ResultsService, {SelectableDataset} from "../../Services/ResultsService.ts"; // Import SingleValue for onChange type
+import ResultsService, {SelectableDataset} from "../../Services/ResultsService.ts";
 
 
 const Evaluations: React.FC = () => {
-    const [tests, setTests] = useState<Test[]>([]); // This will hold the tests from backend (already filtered/sorted)
+    const [tests, setTests] = useState<Test[]>([]);
     const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
 
-    // --- States for CreateTestModal (passed as props) ---
+    // --- States for CreateTestModal ---
     const [modalDatasets, setModalDatasets] = useState<Dataset[]>([]);
     const [modalModels, setModalModels] = useState<LLMModel[]>([]);
-    const [selectedDatasetForCreation, setSelectedDatasetForCreation] = useState<string>(''); // ID
-    const [selectedModelForCreation, setSelectedModelForCreation] = useState<string>(''); // ID
+    const [selectedDatasetForCreation, setSelectedDatasetForCreation] = useState<string>('');
+    const [selectedModelForCreation, setSelectedModelForCreation] = useState<string>('');
     // ---------------------------------------------------
 
     const [filterDatasetName, setFilterDatasetName] = useState<string>('');
     const [filterModelName, setFilterModelName] = useState<string>('');
-    const [sortCriteria, setSortCriteria] = useState<string>('id_desc'); // Default sort: accuracy_percentage_desc
+    const [sortCriteria, setSortCriteria] = useState<string>('id_desc');
 
     // --- States to populate filter dropdowns ---
     const [availableFilterDatasets, setAvailableFilterDatasets] = useState<SelectableDataset[]>([]);
-    const [availableFilterModels, setAvailableFilterModels] = useState<TestedModels[]>([]); // Using TestedModels type
+    const [availableFilterModels, setAvailableFilterModels] = useState<TestedModels[]>([]);
     // -----------------------------------------
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [isLoadingAction, setIsLoadingAction] = useState<boolean>(false); // For delete/create
+    const [isLoadingAction, setIsLoadingAction] = useState<boolean>(false);
     const navigate = useNavigate();
 
     // Fetch tests based on current filters and sort criteria from backend
@@ -228,6 +228,7 @@ const Evaluations: React.FC = () => {
                             <span className="test-llm-model header">LLM Model</span>
                             <span className="test-correct-answers header">Correct Ans.</span>
                             <span className="test-accuracy header">Accuracy</span>
+                            <span className="test-CI header">95% CI (±)</span>
                             <span className="test-time header">Execution Time</span>
                             <span className="test-actions header">Actions</span>
                         </div>
@@ -241,10 +242,13 @@ const Evaluations: React.FC = () => {
                                     {test.llm_model.name}
                                 </span>
                                 <span className="test-correct-answers">
-                                    {test.correct_answers}
+                                    {`${test.correct_answers}/${test.dataset.total_questions}`}
                                 </span>
                                 <span className="test-accuracy">
                                     {test.accuracy_percentage !== null ? test.accuracy_percentage.toFixed(2) + '%' : 'N/A'}
+                                </span>
+                                <span className="test-CI">
+                                    {`+${(test.confidence_interval_high - test.accuracy_percentage).toFixed(1)} / -${(test.accuracy_percentage - test.confidence_interval_low).toFixed(1)}`}
                                 </span>
                                 <span className="test-time">
                                     {test.completed_at && test.started_at
@@ -296,23 +300,23 @@ interface SelectOptionType {
 const customSelectStyles: StylesConfig<SelectOptionType, false, GroupBase<SelectOptionType>> = {
     control: (provided, state) => ({
         ...provided,
-        backgroundColor: '#1e2235', // Darker input background
+        backgroundColor: '#1e2235',
         borderColor: state.isFocused ? '#6a6fbf' : '#363c58',
         boxShadow: state.isFocused ? '0 0 0 1px #6a6fbf' : 'none',
         borderRadius: '8px',
-        minHeight: '40px', // Consistent height with other inputs
+        minHeight: '40px',
         color: '#e0e4ff',
         fontSize: '0.9rem',
-        minWidth: '200px', // Fixed width for filter/sort dropdowns
+        minWidth: '200px',
         width: '200px',
         '&:hover': { borderColor: '#6a6fbf' },
     }),
     menu: (provided) => ({
         ...provided,
-        backgroundColor: '#2f354c', // Dropdown menu background
+        backgroundColor: '#2f354c',
         borderRadius: '8px',
         marginTop: '4px',
-        zIndex: 10, // Ensure dropdown is above other elements
+        zIndex: 10,
     }),
     option: (provided, state) => ({
         ...provided,

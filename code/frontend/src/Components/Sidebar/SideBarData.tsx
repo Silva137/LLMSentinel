@@ -6,11 +6,13 @@ import EvaluationsIcon from "../../assets/evaluationsIcon.svg?react";
 import ResultsIcon from "../../assets/resultsIcon.svg?react";
 import CommunityIcon from "../../assets/communityIcon.svg?react";
 import Logout from "../../assets/logoutIcon.svg?react";
+import SettingsIcon from "../../assets/settingsIcon.svg?react";
 
 interface NavItem {
     icon: JSX.Element;
     text: string;
-    link: string;
+    link?: string;
+    action?: () => void;
 }
 
 export const navItems: NavItem[] = [
@@ -38,6 +40,10 @@ export const navItems: NavItem[] = [
         icon: <CommunityIcon />,
         text: "Community",
         link: "/community",
+    },
+    {
+        icon: <SettingsIcon />,
+        text: "Settings",
     },
     {
         icon: <Logout fill="white" />,

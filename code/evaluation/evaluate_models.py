@@ -1,15 +1,12 @@
-from datetime import datetime
 import matplotlib
-import numpy as np
 import requests
-import json
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import time
 import os
 from tabulate import tabulate
-import matplotlib.patches as mpatches
+
 
 matplotlib.use('Agg')
 
@@ -31,22 +28,22 @@ models2 = [
 ]
 
 dataset_names = [
-    #"Applications Security",
-    #"Cloud Security",
-    #"Cryptography",
-    #"Digital Forensics",
-    #"Iam",
-    #"Network Security",
-    #"Operating Systems Security",
-    #"Malware",
-    #"Ctf",
-    #"Honeypots",
+    "Applications Security",
+    "Cloud Security",
+    "Cryptography",
+    "Digital Forensics",
+    "Iam",
+    "Network Security",
+    "Operating Systems Security",
+    "Malware",
+    "Ctf",
+    "Honeypots",
     "Secqa V1",
     "Secqa V2",
     #"Cybermetric 80",
     #"Seceval",`
-    #"Secmmlu",
-    #"Cyquiz",
+    "Secmmlu",
+    "Cyquiz",
 ]
 
 model_name_map = {
@@ -166,8 +163,8 @@ def save_results(results):
 
 def generate_confidence_interval_plot(df):
     """
-    Gera gráfico com pontos de accuracy e intervalos de confiança (95%) como barras de erro verticais,
-    usando cor para identificar o dataset e apenas o nome do modelo no eixo X, com espaçamento entre medidas.
+    Gera gráfico com pontos de accuracy e intervalos de confiança (95%) agrupando por modelo,
+    com offset por dataset, ordenado por média de accuracy, com separadores e espaçamento ajustado.
     """
     if df.empty:
         print("DataFrame vazio. Gráfico de IC não gerado.")
@@ -178,55 +175,62 @@ def generate_confidence_interval_plot(df):
     df["ci_minus"] = df["accuracy"] - df["confidence_interval_low"]
     df["ci_plus"] = df["confidence_interval_high"] - df["accuracy"]
 
-    # Ordenar
-    df_sorted = df.sort_values(by=["dataset_name", "accuracy"], ascending=[False, False])
-    unique_datasets = sorted(df_sorted["dataset_name"].unique())
-    color_palette = plt.get_cmap("tab10")
-    color_map = {name: color_palette(i) for i, name in enumerate(unique_datasets)}
-    df_sorted["color"] = df_sorted["dataset_name"].map(color_map)
+    # Ordenar modelos por média de accuracy
+    model_order = df.groupby("model")["accuracy"].mean().sort_values(ascending=False).index.tolist()
+    model_to_x = {model: idx for idx, model in enumerate(model_order)}
 
-    # Criação do gráfico com espaçamento
-    spacing_factor = 1.3  # Aumenta o espaçamento horizontal
-    plt.figure(figsize=(18, 8))  # Ajustar conforme benchmark !!!!!!!!!!!!!
-    x_labels = []
-    x_positions = []
+    # Dataset offsets e cores
+    unique_datasets = sorted(df["dataset_name"].unique())
+    offset_step = 1 / max(len(unique_datasets) - 1, 1)
+    offset_map = {d: -0.3 + i * offset_step for i, d in enumerate(unique_datasets)}
 
-    for i, (_, row) in enumerate(df_sorted.iterrows()):
-        x = i * spacing_factor
-        x_positions.append(x)
-        x_labels.append(row["model"])
+    palette = plt.get_cmap("tab10")
+    dataset_colors = {d: palette(i) for i, d in enumerate(unique_datasets)}
+
+    # Plot
+    plt.figure(figsize=(22, 8))
+    spacing = 2
+
+    for _, row in df.iterrows():
+        x_base = model_to_x[row["model"]] * spacing
+        x = x_base + offset_map[row["dataset_name"]]
+        color = dataset_colors[row["dataset_name"]]
+
         plt.errorbar(
             x=x,
             y=row["accuracy"],
             yerr=[[row["ci_minus"]], [row["ci_plus"]]],
             fmt='o',
-            color=row["color"],
-            ecolor=row["color"],
+            color=color,
+            ecolor=color,
             capsize=5,
-            markeredgewidth=1.5,
+            markeredgewidth=1.5
         )
 
-    plt.xticks(ticks=x_positions, labels=x_labels, rotation=90, ha="right", fontsize=10)
-    plt.ylabel("Accuracy (%)", fontsize=12)
-    plt.xlabel("Model", fontsize=12)
-    plt.grid(axis='y', linestyle='--', alpha=0.6)
+    # Eixo X
+    x_ticks = [i * spacing for i in range(len(model_order))]
+    plt.xticks(ticks=x_ticks, labels=model_order, rotation=25, ha="right", fontsize=16)
+    plt.xlabel("Model", fontsize=18)
+    plt.ylabel("Accuracy (%)", fontsize=18)
+    plt.grid(axis="y", linestyle="--", alpha=0.6)
 
     # Legenda
-    handles = [plt.Line2D([0], [0], color=color_map[d], marker='o', linestyle='', markersize=10) for d in unique_datasets]
+    handles = [plt.Line2D([0], [0], color=dataset_colors[d], marker='o', linestyle='', markersize=10) for d in unique_datasets]
     plt.legend(
         handles, unique_datasets,
         loc='upper center',
         bbox_to_anchor=(0.5, 1.15),
         ncol=len(unique_datasets),
         frameon=False,
-        fontsize=12
+        fontsize=16
     )
+    plt.tick_params(axis='y', labelsize=16)
 
     plt.tight_layout()
-    output_path = os.path.join("./", "confidence_interval_plot_by_model_legend.png")
+    output_path = os.path.join("./", "confidence_interval_plot.png")
     plt.savefig(output_path, bbox_inches="tight")
     plt.close()
-    print(f"✅ Confidence Interval plot saved to {output_path}")
+    print(f"✅ Confidence interval plot saved to {output_path}")
 
 
 
@@ -294,14 +298,13 @@ def generate_average_accuracy_chart(df):
             ax.annotate(f'{height:.1f}',  # Format to one decimal place
                         (p.get_x() + p.get_width() / 2., height),
                         ha='center', va='bottom',
-                        fontsize=12, color='black',
+                        fontsize=14, color='black',
                         xytext=(0, 3),  # 3 points vertical offset
                         textcoords='offset points')
 
     # Formatting
     plt.xlabel("Model", fontsize=15)
-    plt.ylabel("Average Accuracy (%) Across Datasets", fontsize=12)
-    plt.title("Average Model Accuracy Across All Evaluated Datasets", fontsize=14)
+    plt.ylabel("Average Accuracy (%) Across All Datasets", fontsize=14)
     plt.xticks(rotation=45, ha="right", fontsize=15)  # Rotate labels if they overlap
     plt.ylim(0, 105)  # Set y-axis limit slightly above 100%
     plt.tight_layout()  # Adjust layout to prevent labels overlapping
@@ -429,32 +432,33 @@ def generate_execution_time_heatmap(df):
         print("DataFrame vazio. Heatmap não gerado.")
         return
 
-    # Prepara dados: Pivot table com modelos como linhas e datasets como colunas
     pivot_df = df.pivot_table(
         index="model",
         columns="dataset_name",
         values="duration_seconds",
-        aggfunc="mean"
+        aggfunc="mean",
     )
 
     # Ordena por tempo médio de execução total
     pivot_df["Avg"] = pivot_df.mean(axis=1)
     pivot_df = pivot_df.sort_values(by="Avg", ascending=False).drop(columns="Avg")
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 6))
     sns.heatmap(
         pivot_df,
         annot=True,
         fmt=".0f",
         cmap="YlGnBu",
         linewidths=0.5,
-        cbar_kws={"label": "Duration (s)"}
+        cbar_kws={"label": "Duration (s)"},
+        annot_kws={"size": 14}
     )
 
-    plt.title("Execution Time per Model per Dataset (Heatmap)", fontsize=14)
-    plt.xlabel("Dataset", fontsize=12)
-    plt.ylabel("Model", fontsize=12)
-    plt.xticks(rotation=45, ha='right')
+    plt.tick_params(axis='y', labelsize=14)
+    plt.tick_params(axis='x', labelsize=14)
+    plt.xlabel("Dataset", fontsize=16)
+    plt.ylabel("Model", fontsize=16)
+    plt.xticks(rotation=25, ha='right')
     plt.tight_layout()
 
     output_path = os.path.join("./", "execution_time_heatmap.png")

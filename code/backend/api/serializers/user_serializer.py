@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from ..models import UserAPIKey
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -37,3 +38,20 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "email"]
+
+
+class UserAPIKeySerializer(serializers.ModelSerializer):
+    api_key = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = UserAPIKey
+        fields = ("api_key",)
+
+    def create(self, validated_data):
+        user = self.context.get("request").user
+        api_key = validated_data["api_key"].strip()
+        return UserAPIKey.objects.create(
+            user=user,
+            api_key=api_key,
+            key_last4=api_key[-4:]
+        )

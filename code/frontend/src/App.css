@@ -24,3 +24,8 @@ body {
   margin-top: 0;
   margin-bottom: 1.5rem;
 }
+
+body, .main-layout-container {
+  scrollbar-width: thin;
+  scrollbar-color: #4a5175 #2a2f45;
+}

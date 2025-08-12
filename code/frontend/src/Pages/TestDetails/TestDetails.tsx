@@ -63,8 +63,8 @@ const TestDetails: React.FC = () => {
                             <span className="result-option header">Option B</span>
                             <span className="result-option header">Option C</span>
                             <span className="result-option header">Option D</span>
-                            <span className="result-llm-answer header">LLM Answer</span>
-                            <span className="result-explanation header">Explanation</span>
+                            <span className="result-llm-answer header">LLM Ans.</span>
+                            <span className="result-correct-answer header">Correct Opt.</span>
                             <span className="result-time header">Response Time</span>
                         </div>
 
@@ -94,10 +94,10 @@ const TestDetails: React.FC = () => {
                                     {result.question.option_d}
                                 </span>
                                 <span className={`result-llm-answer ${result.correct ? 'correct' : 'incorrect'}`}>
-                                    {result.answer}
+                                   {result.answer}
                                 </span>
-                                <span className="result-explanation" title={result.explanation ?? undefined}>
-                                    {result.explanation}
+                                <span className={`result-correct-answer`}>
+                                   {result.question.correct_option}
                                 </span>
                                 <span className="result-time">
                                     {result.response_time + 's'}

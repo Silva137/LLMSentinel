@@ -1,4 +1,7 @@
 # Ignore IDE specific files
 .idea/
 
+# Ignore env files
+.env
+
 data/

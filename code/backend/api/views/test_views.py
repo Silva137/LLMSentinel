@@ -10,20 +10,27 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from ..models import Test, QuestionResult, Question
+
+from ..exceptions import OpenRouterNoCreditsError, OpenRouterKeyError, OpenRouterNonRetriableError
+from ..models import Test, QuestionResult, Question, UserAPIKey
 from ..serializers.question_serializer import QuestionResultSerializer
 from ..serializers.test_serializer import TestSerializer, TestCreationSerializer, TestListSerializer
 from sklearn.metrics import classification_report
 from statsmodels.stats.proportion import proportion_confint
 
-client = openai.AsyncOpenAI(
-    api_key="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",
-    base_url="https://openrouter.ai/api/v1"
-)
 
 SEMAPHORE_UNITS = 30
 
-#api_key="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", old one
+
+def get_openrouter_client_for_user(user):
+    try:
+        token = user.api_key.api_key
+    except UserAPIKey.DoesNotExist:
+        raise PermissionError("O utilizador não tem API key configurada.")
+    if not token:
+        raise PermissionError("API key vazia ou inválida.")
+
+    return openai.AsyncOpenAI(api_key=token, base_url="https://openrouter.ai/api/v1")
 
 
 class TestViewSet(viewsets.ModelViewSet):
@@ -72,19 +79,20 @@ class TestViewSet(viewsets.ModelViewSet):
         Override default POST to evaluate the dataset with a specific LLM model and compute test metrics.
         """
         serializer = TestCreationSerializer(data=request.data, context={'request': request})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if serializer.is_valid():
-            test = serializer.save()
-            test.started_at = timezone.now()
-            async_to_sync(evaluate_llm)(test)
-            test.completed_at = timezone.now()
+        try:
+            client = get_openrouter_client_for_user(request.user)
+        except PermissionError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-            compute_test_metrics(test)
-
-            response_serializer = TestSerializer(test)
-            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        test = serializer.save()
+        test.started_at = timezone.now()
+        async_to_sync(evaluate_llm)(test=test, client=client)
+        test.completed_at = timezone.now()
+        compute_test_metrics(test)
+        return Response(TestSerializer(test).data, status=status.HTTP_201_CREATED)
 
     # igual a get test ??? nsei se é necessario
     @action(detail=True, methods=['get'])
@@ -104,6 +112,11 @@ class TestViewSet(viewsets.ModelViewSet):
         """
         try:
             test = get_object_or_404(Test, id=pk, user=request.user)
+
+            try:
+                client = get_openrouter_client_for_user(request.user)
+            except PermissionError as e:
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
             # Obter todas as questões que falharam (answer == 'X') e pre-fetch dados relacionados
             failed_results = QuestionResult.objects.filter(test=test, answer="X").select_related('question',
@@ -132,7 +145,8 @@ class TestViewSet(viewsets.ModelViewSet):
                             question_result=data['question_result'],
                             question=data['question'],
                             llm_model=data['llm_model'],
-                            correct_option=data['correct_option']
+                            correct_option=data['correct_option'],
+                            client=client
                         )
 
                 # Prepare data for each retry task
@@ -237,7 +251,7 @@ class TestViewSet(viewsets.ModelViewSet):
         )
 
 
-async def evaluate_llm(test, questions=None):
+async def evaluate_llm(test, questions=None, client: openai.AsyncOpenAI = None):
     """
     Runs the LLM model evaluation on all questions from the dataset.
     """
@@ -246,7 +260,7 @@ async def evaluate_llm(test, questions=None):
 
     async def limited_query(question, llm_model):
         async with semaphore:
-            return await query_llm(llm_model, question)
+            return await query_llm(llm_model, question, client=client)
 
     try:
         if questions is None:
@@ -256,6 +270,11 @@ async def evaluate_llm(test, questions=None):
 
         tasks = [limited_query(question, llm_model) for question in questions]
         results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        if any(isinstance(r, (OpenRouterKeyError, OpenRouterNoCreditsError)) for r in results):
+            # if any task raise a fatal error, abort all
+            raise next(r for r in results if isinstance(r, (OpenRouterKeyError, OpenRouterNoCreditsError)))
+
 
         q_results = []
         for question, result in zip(questions, results):
@@ -284,7 +303,7 @@ async def evaluate_llm(test, questions=None):
         print(f"Error occurred during evaluation: {e}")
 
 
-async def query_llm(llm_model, question, max_attempts=4, initial_delay=4):
+async def query_llm(llm_model, question, client: openai.AsyncOpenAI, max_attempts=4, initial_delay=4):
     """
     Sends the question to the LLM model and retrieves the response with a retry mechanism.
     """
@@ -349,12 +368,43 @@ async def query_llm(llm_model, question, max_attempts=4, initial_delay=4):
             delay *= 2
 
 
-        except Exception as e:
-            error_msg = str(e)
-            print(f"Error on attempt {attempt + 1}/{max_attempts}: {error_msg}")
+
+        except openai.AuthenticationError as e:
+            raise OpenRouterKeyError("Invalid OpenRouter API key.") from e
+
+
+        except openai.APIStatusError as e:
+            status = getattr(e, "status_code", None)
+
+            if status == 401:
+                raise OpenRouterKeyError("Invalid OpenRouter API key.") from e
+            if status == 402:
+                raise OpenRouterNoCreditsError("Insufficient OpenRouter credits.") from e
+            if status and 400 <= status < 500 and status not in (429,):
+                raise OpenRouterNonRetriableError(f"Non-retriable OpenRouter error {status}") from e
+
             attempt += 1
             await asyncio.sleep(delay)
-            delay *= 2  # Exponential backoff
+            delay *= 2
+
+
+        except (openai.APIConnectionError, TimeoutError) as e:  # Transient network issues -> retry
+            attempt += 1
+            await asyncio.sleep(delay)
+            delay *= 2
+
+
+        except Exception as e:
+            msg = str(e)
+            if "401" in msg or "Unauthorized" in msg or "User not found" in msg:
+                raise OpenRouterKeyError("Invalid OpenRouter API key.") from e
+            if "402" in msg or "insufficient" in msg.lower():
+                raise OpenRouterNoCreditsError("Insufficient OpenRouter credits.") from e
+
+            # Otherwise treat as transient
+            attempt += 1
+            await asyncio.sleep(delay)
+            delay *= 2
 
     print("Failed to get a valid response after multiple retries")
     print("Question:", question.question)
@@ -362,11 +412,11 @@ async def query_llm(llm_model, question, max_attempts=4, initial_delay=4):
     return "X", "X", 0.0, "Error Response:" + content
 
 
-async def retry_query(question_result, question, llm_model, correct_option, max_attempts=5):
+async def retry_query(question_result, question, llm_model, client: openai.AsyncOpenAI, correct_option, max_attempts=5):
     """
     Reenvia a pergunta para o LLM. Mesmo que falhe, atualiza a resposta com uma mensagem de erro.
     """
-    answer, explanation, response_time, content = await query_llm(llm_model, question, max_attempts=max_attempts)
+    answer, explanation, response_time, content = await query_llm(llm_model, question, client=client, max_attempts=max_attempts)
 
     if answer not in ["A", "B", "C", "D"]:
         question_result.answer = "X"
@@ -410,7 +460,8 @@ def compute_test_metrics(test):
     # Compute Precision, Recall, and F1-score for each class (A, B, C, D)
     class_metrics = {}
     if y_true and y_pred:
-        classification_metrics = classification_report(y_true, y_pred, labels=['A', 'B', 'C', 'D'], output_dict=True, zero_division=0)
+        classification_metrics = classification_report(y_true, y_pred, labels=['A', 'B', 'C', 'D'], output_dict=True,
+                                                       zero_division=0)
 
         for option in ['A', 'B', 'C', 'D']:
             class_metrics[option] = {

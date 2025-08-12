@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from encrypted_model_fields.fields import EncryptedTextField
 
 
 class BaseModel(models.Model):
@@ -10,6 +11,16 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class UserAPIKey(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="api_key")
+    api_key = EncryptedTextField()
+    key_last4 = models.CharField(max_length=8)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} ****{self.key_last4}"
 
 
 class LLMModel(BaseModel):

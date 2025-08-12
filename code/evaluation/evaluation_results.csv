@@ -1,4 +1,104 @@
 model_name,dataset_name,accuracy,duration_seconds,confidence_interval_low,confidence_interval_high,number_of_executions,model
+OpenAI: GPT-4o,Applications Security,97.53,1.96,91.44,99.32,3,GPT-4o
+OpenAI: GPT-4o-mini,Applications Security,98.77,1.42,93.33,99.78,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Applications Security,92.59,9.95,84.77,96.56,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Applications Security,93.83,2.27,86.35,97.33,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Applications Security,96.3,29.81,89.67,98.73,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Applications Security,96.3,1.66,89.67,98.73,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Applications Security,100.0,2.62,95.47,100.0,3,Grok 3
+xAI: Grok 3 Mini Beta,Applications Security,97.53,11.36,91.44,99.32,3,Grok 3 Mini
+Mistral Large 2411,Applications Security,96.3,12.43,89.67,98.73,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Applications Security,95.06,4.01,87.98,98.06,3,Mistral Small 3.1
+OpenAI: GPT-4o,Cloud Security,100.0,3.65,95.47,100.0,3,GPT-4o
+OpenAI: GPT-4o-mini,Cloud Security,100.0,4.35,95.47,100.0,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Cloud Security,96.3,7.18,89.67,98.73,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Cloud Security,100.0,2.55,95.47,100.0,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Cloud Security,92.59,20.47,84.77,96.56,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Cloud Security,100.0,6.3,95.47,100.0,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Cloud Security,100.0,2.28,95.47,100.0,3,Grok 3
+xAI: Grok 3 Mini Beta,Cloud Security,96.3,35.91,89.67,98.73,3,Grok 3 Mini
+Mistral Large 2411,Cloud Security,100.0,23.28,95.47,100.0,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Cloud Security,100.0,4.32,95.47,100.0,3,Mistral Small 3.1
+OpenAI: GPT-4o,Cryptography,100.0,2.02,95.47,100.0,3,GPT-4o
+OpenAI: GPT-4o-mini,Cryptography,97.53,4.06,91.44,99.32,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Cryptography,93.83,2.71,86.35,97.33,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Cryptography,100.0,2.32,95.47,100.0,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Cryptography,100.0,57.36,95.47,100.0,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Cryptography,96.3,1.51,89.67,98.73,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Cryptography,100.0,6.42,95.47,100.0,3,Grok 3
+xAI: Grok 3 Mini Beta,Cryptography,100.0,6.7,95.47,100.0,3,Grok 3 Mini
+Mistral Large 2411,Cryptography,97.53,19.25,91.44,99.32,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Cryptography,96.3,7.47,89.67,98.73,3,Mistral Small 3.1
+OpenAI: GPT-4o,Digital Forensics,92.59,4.53,84.77,96.56,3,GPT-4o
+OpenAI: GPT-4o-mini,Digital Forensics,87.65,2.77,78.74,93.15,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Digital Forensics,92.59,3.32,84.77,96.56,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Digital Forensics,82.72,2.21,73.05,89.42,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Digital Forensics,91.36,48.07,83.22,95.75,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Digital Forensics,93.83,3.89,86.35,97.33,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Digital Forensics,96.3,9.88,89.67,98.73,3,Grok 3
+xAI: Grok 3 Mini Beta,Digital Forensics,88.89,8.76,80.21,94.04,3,Grok 3 Mini
+Mistral Large 2411,Digital Forensics,90.12,11.23,81.7,94.91,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Digital Forensics,90.12,4.67,81.7,94.91,3,Mistral Small 3.1
+OpenAI: GPT-4o,Iam,100.0,2.12,95.47,100.0,3,GPT-4o
+OpenAI: GPT-4o-mini,Iam,96.3,2.7,89.67,98.73,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Iam,100.0,2.88,95.47,100.0,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Iam,96.3,2.56,89.67,98.73,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Iam,96.3,18.45,89.67,98.73,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Iam,100.0,1.31,95.47,100.0,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Iam,95.06,1.91,87.98,98.06,3,Grok 3
+xAI: Grok 3 Mini Beta,Iam,96.3,13.58,89.67,98.73,3,Grok 3 Mini
+Mistral Large 2411,Iam,96.3,26.41,89.67,98.73,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Iam,98.77,5.03,93.33,99.78,3,Mistral Small 3.1
+OpenAI: GPT-4o,Network Security,86.42,1.94,77.3,92.24,3,GPT-4o
+OpenAI: GPT-4o-mini,Network Security,87.65,3.12,78.74,93.15,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Network Security,93.83,2.83,86.35,97.33,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Network Security,95.06,2.1,87.98,98.06,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Network Security,88.89,34.53,80.21,94.04,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Network Security,88.89,1.48,80.21,94.04,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Network Security,92.59,3.65,84.77,96.56,3,Grok 3
+xAI: Grok 3 Mini Beta,Network Security,88.89,7.62,80.21,94.04,3,Grok 3 Mini
+Mistral Large 2411,Network Security,86.42,15.28,77.3,92.24,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Network Security,90.12,4.82,81.7,94.91,3,Mistral Small 3.1
+OpenAI: GPT-4o,Operating Systems Security,96.3,2.66,89.67,98.73,3,GPT-4o
+OpenAI: GPT-4o-mini,Operating Systems Security,100.0,2.33,95.47,100.0,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Operating Systems Security,100.0,2.74,95.47,100.0,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Operating Systems Security,95.06,1.91,87.98,98.06,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Operating Systems Security,100.0,35.84,95.47,100.0,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Operating Systems Security,96.3,1.42,89.67,98.73,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Operating Systems Security,96.3,3.53,89.67,98.73,3,Grok 3
+xAI: Grok 3 Mini Beta,Operating Systems Security,96.3,10.77,89.67,98.73,3,Grok 3 Mini
+Mistral Large 2411,Operating Systems Security,98.77,11.21,93.33,99.78,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Operating Systems Security,92.59,3.45,84.77,96.56,3,Mistral Small 3.1
+OpenAI: GPT-4o,Malware,90.0,1.6,74.38,96.54,3,GPT-4o
+OpenAI: GPT-4o-mini,Malware,80.0,1.55,62.69,90.49,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Malware,100.0,2.54,88.65,100.0,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Malware,90.0,2.86,74.38,96.54,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Malware,100.0,45.22,88.65,100.0,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Malware,100.0,1.32,88.65,100.0,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Malware,90.0,4.22,74.38,96.54,3,Grok 3
+xAI: Grok 3 Mini Beta,Malware,100.0,7.16,88.65,100.0,3,Grok 3 Mini
+Mistral Large 2411,Malware,100.0,13.62,88.65,100.0,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Malware,100.0,1.25,88.65,100.0,3,Mistral Small 3.1
+OpenAI: GPT-4o,Ctf,73.33,3.19,55.55,85.82,3,GPT-4o
+OpenAI: GPT-4o-mini,Ctf,76.67,3.47,59.07,88.21,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Ctf,76.67,3.18,59.07,88.21,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Ctf,70.0,1.96,52.12,83.34,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Ctf,96.67,47.68,83.33,99.41,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Ctf,90.0,1.28,74.38,96.54,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Ctf,86.67,9.39,70.32,94.69,3,Grok 3
+xAI: Grok 3 Mini Beta,Ctf,96.67,30.18,83.33,99.41,3,Grok 3 Mini
+Mistral Large 2411,Ctf,73.33,11.05,55.55,85.82,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Ctf,66.67,1.38,48.78,80.77,3,Mistral Small 3.1
+OpenAI: GPT-4o,Honeypots,83.33,5.77,66.44,92.66,3,GPT-4o
+OpenAI: GPT-4o-mini,Honeypots,90.0,1.29,74.38,96.54,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Honeypots,100.0,2.83,88.65,100.0,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Honeypots,90.0,1.88,74.38,96.54,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Honeypots,96.67,24.98,83.33,99.41,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Honeypots,100.0,1.74,88.65,100.0,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Honeypots,83.33,3.25,66.44,92.66,3,Grok 3
+xAI: Grok 3 Mini Beta,Honeypots,83.33,13.81,66.44,92.66,3,Grok 3 Mini
+Mistral Large 2411,Honeypots,73.33,5.47,55.55,85.82,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Honeypots,76.67,2.98,59.07,88.21,3,Mistral Small 3.1
 OpenAI: GPT-4o,Secqa V1,100.0,5.49,98.85,100.0,3,GPT-4o
 OpenAI: GPT-4o-mini,Secqa V1,99.09,9.03,97.36,99.69,3,GPT-4o Mini
 Anthropic: Claude 3.7 Sonnet,Secqa V1,99.7,8.06,98.3,99.95,3,Claude 3.7 Sonnet
@@ -19,3 +119,23 @@ xAI: Grok 3 Beta,Secqa V2,98.0,8.61,95.71,99.08,3,Grok 3
 xAI: Grok 3 Mini Beta,Secqa V2,96.0,20.52,93.14,97.7,3,Grok 3 Mini
 Mistral Large 2411,Secqa V2,97.67,25.45,95.26,98.87,3,Mistral Large 2411
 Mistral: Mistral Small 3.1 24B,Secqa V2,96.67,7.95,93.97,98.18,3,Mistral Small 3.1
+OpenAI: GPT-4o,Secmmlu,85.63,7.41,81.56,88.93,3,GPT-4o
+OpenAI: GPT-4o-mini,Secmmlu,85.63,5.96,81.56,88.93,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Secmmlu,85.34,10.18,81.24,88.67,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Secmmlu,81.61,5.79,77.2,85.33,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Secmmlu,87.36,92.96,83.45,90.44,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Secmmlu,83.05,3.13,78.75,86.62,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Secmmlu,85.92,11.88,81.87,89.18,3,Grok 3
+xAI: Grok 3 Mini Beta,Secmmlu,81.61,87.33,77.2,85.33,3,Grok 3 Mini
+Mistral Large 2411,Secmmlu,81.32,23.7,76.89,85.07,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Secmmlu,83.05,5.32,78.75,86.62,3,Mistral Small 3.1
+OpenAI: GPT-4o,Cyquiz,82.28,5.29,78.11,85.79,3,GPT-4o
+OpenAI: GPT-4o-mini,Cyquiz,83.07,4.5,78.96,86.51,3,GPT-4o Mini
+Anthropic: Claude 3.7 Sonnet,Cyquiz,81.22,10.74,76.97,84.83,3,Claude 3.7 Sonnet
+Anthropic: Claude 3.5 Haiku,Cyquiz,82.28,6.29,78.11,85.79,3,Claude 3.5 Haiku
+Google: Gemini 2.5 Pro,Cyquiz,80.42,68.69,76.13,84.11,3,Gemini 2.5 Pro
+Google: Gemini 2.0 Flash,Cyquiz,81.75,3.21,77.54,85.31,3,Gemini 2.0 Flash
+xAI: Grok 3 Beta,Cyquiz,83.86,7.18,79.82,87.23,3,Grok 3
+xAI: Grok 3 Mini Beta,Cyquiz,83.33,27.14,79.24,86.75,3,Grok 3 Mini
+Mistral Large 2411,Cyquiz,80.16,21.1,75.84,83.87,3,Mistral Large 2411
+Mistral: Mistral Small 3.1 24B,Cyquiz,80.95,11.41,76.69,84.59,3,Mistral Small 3.1

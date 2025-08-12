@@ -1,4 +1,104 @@
 Model,Dataset,Accuracy (%),Execution Time (s),95% CI (±)
+GPT-4o,Applications Security,97.53,1.96,+1.8/-6.1
+GPT-4o Mini,Applications Security,98.77,1.42,+1.0/-5.4
+Claude 3.7 Sonnet,Applications Security,92.59,9.95,+4.0/-7.8
+Claude 3.5 Haiku,Applications Security,93.83,2.27,+3.5/-7.5
+Gemini 2.5 Pro,Applications Security,96.30,29.81,+2.4/-6.6
+Gemini 2.0 Flash,Applications Security,96.30,1.66,+2.4/-6.6
+Grok 3,Applications Security,100.00,2.62,+0.0/-4.5
+Grok 3 Mini,Applications Security,97.53,11.36,+1.8/-6.1
+Mistral Large 2411,Applications Security,96.30,12.43,+2.4/-6.6
+Mistral Small 3.1,Applications Security,95.06,4.01,+3.0/-7.1
+GPT-4o,Cloud Security,100.00,3.65,+0.0/-4.5
+GPT-4o Mini,Cloud Security,100.00,4.35,+0.0/-4.5
+Claude 3.7 Sonnet,Cloud Security,96.30,7.18,+2.4/-6.6
+Claude 3.5 Haiku,Cloud Security,100.00,2.55,+0.0/-4.5
+Gemini 2.5 Pro,Cloud Security,92.59,20.47,+4.0/-7.8
+Gemini 2.0 Flash,Cloud Security,100.00,6.30,+0.0/-4.5
+Grok 3,Cloud Security,100.00,2.28,+0.0/-4.5
+Grok 3 Mini,Cloud Security,96.30,35.91,+2.4/-6.6
+Mistral Large 2411,Cloud Security,100.00,23.28,+0.0/-4.5
+Mistral Small 3.1,Cloud Security,100.00,4.32,+0.0/-4.5
+GPT-4o,Cryptography,100.00,2.02,+0.0/-4.5
+GPT-4o Mini,Cryptography,97.53,4.06,+1.8/-6.1
+Claude 3.7 Sonnet,Cryptography,93.83,2.71,+3.5/-7.5
+Claude 3.5 Haiku,Cryptography,100.00,2.32,+0.0/-4.5
+Gemini 2.5 Pro,Cryptography,100.00,57.36,+0.0/-4.5
+Gemini 2.0 Flash,Cryptography,96.30,1.51,+2.4/-6.6
+Grok 3,Cryptography,100.00,6.42,+0.0/-4.5
+Grok 3 Mini,Cryptography,100.00,6.70,+0.0/-4.5
+Mistral Large 2411,Cryptography,97.53,19.25,+1.8/-6.1
+Mistral Small 3.1,Cryptography,96.30,7.47,+2.4/-6.6
+GPT-4o,Digital Forensics,92.59,4.53,+4.0/-7.8
+GPT-4o Mini,Digital Forensics,87.65,2.77,+5.5/-8.9
+Claude 3.7 Sonnet,Digital Forensics,92.59,3.32,+4.0/-7.8
+Claude 3.5 Haiku,Digital Forensics,82.72,2.21,+6.7/-9.7
+Gemini 2.5 Pro,Digital Forensics,91.36,48.07,+4.4/-8.1
+Gemini 2.0 Flash,Digital Forensics,93.83,3.89,+3.5/-7.5
+Grok 3,Digital Forensics,96.30,9.88,+2.4/-6.6
+Grok 3 Mini,Digital Forensics,88.89,8.76,+5.2/-8.7
+Mistral Large 2411,Digital Forensics,90.12,11.23,+4.8/-8.4
+Mistral Small 3.1,Digital Forensics,90.12,4.67,+4.8/-8.4
+GPT-4o,Iam,100.00,2.12,+0.0/-4.5
+GPT-4o Mini,Iam,96.30,2.70,+2.4/-6.6
+Claude 3.7 Sonnet,Iam,100.00,2.88,+0.0/-4.5
+Claude 3.5 Haiku,Iam,96.30,2.56,+2.4/-6.6
+Gemini 2.5 Pro,Iam,96.30,18.45,+2.4/-6.6
+Gemini 2.0 Flash,Iam,100.00,1.31,+0.0/-4.5
+Grok 3,Iam,95.06,1.91,+3.0/-7.1
+Grok 3 Mini,Iam,96.30,13.58,+2.4/-6.6
+Mistral Large 2411,Iam,96.30,26.41,+2.4/-6.6
+Mistral Small 3.1,Iam,98.77,5.03,+1.0/-5.4
+GPT-4o,Network Security,86.42,1.94,+5.8/-9.1
+GPT-4o Mini,Network Security,87.65,3.12,+5.5/-8.9
+Claude 3.7 Sonnet,Network Security,93.83,2.83,+3.5/-7.5
+Claude 3.5 Haiku,Network Security,95.06,2.10,+3.0/-7.1
+Gemini 2.5 Pro,Network Security,88.89,34.53,+5.2/-8.7
+Gemini 2.0 Flash,Network Security,88.89,1.48,+5.2/-8.7
+Grok 3,Network Security,92.59,3.65,+4.0/-7.8
+Grok 3 Mini,Network Security,88.89,7.62,+5.2/-8.7
+Mistral Large 2411,Network Security,86.42,15.28,+5.8/-9.1
+Mistral Small 3.1,Network Security,90.12,4.82,+4.8/-8.4
+GPT-4o,Operating Systems Security,96.30,2.66,+2.4/-6.6
+GPT-4o Mini,Operating Systems Security,100.00,2.33,+0.0/-4.5
+Claude 3.7 Sonnet,Operating Systems Security,100.00,2.74,+0.0/-4.5
+Claude 3.5 Haiku,Operating Systems Security,95.06,1.91,+3.0/-7.1
+Gemini 2.5 Pro,Operating Systems Security,100.00,35.84,+0.0/-4.5
+Gemini 2.0 Flash,Operating Systems Security,96.30,1.42,+2.4/-6.6
+Grok 3,Operating Systems Security,96.30,3.53,+2.4/-6.6
+Grok 3 Mini,Operating Systems Security,96.30,10.77,+2.4/-6.6
+Mistral Large 2411,Operating Systems Security,98.77,11.21,+1.0/-5.4
+Mistral Small 3.1,Operating Systems Security,92.59,3.45,+4.0/-7.8
+GPT-4o,Malware,90.00,1.60,+6.5/-15.6
+GPT-4o Mini,Malware,80.00,1.55,+10.5/-17.3
+Claude 3.7 Sonnet,Malware,100.00,2.54,+0.0/-11.3
+Claude 3.5 Haiku,Malware,90.00,2.86,+6.5/-15.6
+Gemini 2.5 Pro,Malware,100.00,45.22,+0.0/-11.3
+Gemini 2.0 Flash,Malware,100.00,1.32,+0.0/-11.3
+Grok 3,Malware,90.00,4.22,+6.5/-15.6
+Grok 3 Mini,Malware,100.00,7.16,+0.0/-11.3
+Mistral Large 2411,Malware,100.00,13.62,+0.0/-11.3
+Mistral Small 3.1,Malware,100.00,1.25,+0.0/-11.3
+GPT-4o,Ctf,73.33,3.19,+12.5/-17.8
+GPT-4o Mini,Ctf,76.67,3.47,+11.5/-17.6
+Claude 3.7 Sonnet,Ctf,76.67,3.18,+11.5/-17.6
+Claude 3.5 Haiku,Ctf,70.00,1.96,+13.3/-17.9
+Gemini 2.5 Pro,Ctf,96.67,47.68,+2.7/-13.3
+Gemini 2.0 Flash,Ctf,90.00,1.28,+6.5/-15.6
+Grok 3,Ctf,86.67,9.39,+8.0/-16.4
+Grok 3 Mini,Ctf,96.67,30.18,+2.7/-13.3
+Mistral Large 2411,Ctf,73.33,11.05,+12.5/-17.8
+Mistral Small 3.1,Ctf,66.67,1.38,+14.1/-17.9
+GPT-4o,Honeypots,83.33,5.77,+9.3/-16.9
+GPT-4o Mini,Honeypots,90.00,1.29,+6.5/-15.6
+Claude 3.7 Sonnet,Honeypots,100.00,2.83,+0.0/-11.3
+Claude 3.5 Haiku,Honeypots,90.00,1.88,+6.5/-15.6
+Gemini 2.5 Pro,Honeypots,96.67,24.98,+2.7/-13.3
+Gemini 2.0 Flash,Honeypots,100.00,1.74,+0.0/-11.3
+Grok 3,Honeypots,83.33,3.25,+9.3/-16.9
+Grok 3 Mini,Honeypots,83.33,13.81,+9.3/-16.9
+Mistral Large 2411,Honeypots,73.33,5.47,+12.5/-17.8
+Mistral Small 3.1,Honeypots,76.67,2.98,+11.5/-17.6
 GPT-4o,Secqa V1,100.00,5.49,+0.0/-1.2
 GPT-4o Mini,Secqa V1,99.09,9.03,+0.6/-1.7
 Claude 3.7 Sonnet,Secqa V1,99.70,8.06,+0.2/-1.4
@@ -19,3 +119,23 @@ Grok 3,Secqa V2,98.00,8.61,+1.1/-2.3
 Grok 3 Mini,Secqa V2,96.00,20.52,+1.7/-2.9
 Mistral Large 2411,Secqa V2,97.67,25.45,+1.2/-2.4
 Mistral Small 3.1,Secqa V2,96.67,7.95,+1.5/-2.7
+GPT-4o,Secmmlu,85.63,7.41,+3.3/-4.1
+GPT-4o Mini,Secmmlu,85.63,5.96,+3.3/-4.1
+Claude 3.7 Sonnet,Secmmlu,85.34,10.18,+3.3/-4.1
+Claude 3.5 Haiku,Secmmlu,81.61,5.79,+3.7/-4.4
+Gemini 2.5 Pro,Secmmlu,87.36,92.96,+3.1/-3.9
+Gemini 2.0 Flash,Secmmlu,83.05,3.13,+3.6/-4.3
+Grok 3,Secmmlu,85.92,11.88,+3.3/-4.0
+Grok 3 Mini,Secmmlu,81.61,87.33,+3.7/-4.4
+Mistral Large 2411,Secmmlu,81.32,23.70,+3.8/-4.4
+Mistral Small 3.1,Secmmlu,83.05,5.32,+3.6/-4.3
+GPT-4o,Cyquiz,82.28,5.29,+3.5/-4.2
+GPT-4o Mini,Cyquiz,83.07,4.50,+3.4/-4.1
+Claude 3.7 Sonnet,Cyquiz,81.22,10.74,+3.6/-4.2
+Claude 3.5 Haiku,Cyquiz,82.28,6.29,+3.5/-4.2
+Gemini 2.5 Pro,Cyquiz,80.42,68.69,+3.7/-4.3
+Gemini 2.0 Flash,Cyquiz,81.75,3.21,+3.6/-4.2
+Grok 3,Cyquiz,83.86,7.18,+3.4/-4.0
+Grok 3 Mini,Cyquiz,83.33,27.14,+3.4/-4.1
+Mistral Large 2411,Cyquiz,80.16,21.10,+3.7/-4.3
+Mistral Small 3.1,Cyquiz,80.95,11.41,+3.6/-4.3

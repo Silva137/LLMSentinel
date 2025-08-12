@@ -8,6 +8,8 @@ services:
       - "8001:8000"
     env_file:
       - ./backend/.env
+    environment:
+      - FIELD_ENCRYPTION_KEY=${FIELD_ENCRYPTION_KEY}
     volumes:
       - ./backend:/backend
     depends_on:
