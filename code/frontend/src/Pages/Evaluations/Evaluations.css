@@ -20,7 +20,7 @@
 
 .test-card {
     display: grid;
-    grid-template-columns: 0.4fr 1fr 1fr 1fr 0.5fr 0.5fr 0.6fr 0.7fr;
+    grid-template-columns: 0.4fr 0.7fr 0.8fr 0.8fr 0.5fr 0.5fr 0.6fr 0.5fr;
     align-items: center;
     background-color: #2a2f45;
     border-radius: 10px;
@@ -115,10 +115,17 @@
 }
 
 .details-icon {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     fill: currentColor;
 }
+
+.delete-icon {
+    width: 25px;
+    height: 25px;
+    fill: currentColor;
+}
+
 
 
 .evaluations-controls {

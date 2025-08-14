@@ -1,0 +1,193 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{nyt/global//global/global/global}
+  \entry{glasman2010science}{book}{}{}
+    \name{author}{1}{}{%
+      {{hash=GDH}{%
+         family={Glasman-Deal},
+         familyi={G\bibinithyphendelim D\bibinitperiod},
+         given={Hilary},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {World Scientific}%
+    }
+    \strng{namehash}{GDH1}
+    \strng{fullhash}{GDH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{title}{Science research writing for non-native speakers of English}
+    \field{year}{2010}
+  \endentry
+
+  \entry{gustavii2016write}{book}{}{}
+    \name{author}{1}{}{%
+      {{hash=GB}{%
+         family={Gustavii},
+         familyi={G\bibinitperiod},
+         given={Bj{\"o}rn},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Cambridge University Press}%
+    }
+    \strng{namehash}{GB1}
+    \strng{fullhash}{GB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{title}{How to write and illustrate a scientific paper}
+    \field{year}{2016}
+  \endentry
+
+  \entry{texbook}{book}{}{}
+    \name{author}{1}{}{%
+      {{hash=KDE}{%
+         family={Knuth},
+         familyi={K\bibinitperiod},
+         given={Donald\bibnamedelima E.},
+         giveni={D\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Addison-Wesley Publisher}%
+    }
+    \strng{namehash}{KDE1}
+    \strng{fullhash}{KDE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{title}{The {{\texttt{TeX}}book}}
+    \field{year}{1984}
+  \endentry
+
+  \entry{novathesis-manual}{manual}{}{}
+    \name{author}{1}{}{%
+      {{hash=LJM}{%
+         family={Lourenço},
+         familyi={L\bibinitperiod},
+         given={João\bibnamedelima M.},
+         giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {NOVA University Lisbon}%
+    }
+    \keyw{novathesis-manual}
+    \strng{namehash}{LJM1}
+    \strng{fullhash}{LJM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{title}{{The NOVAthesis \LaTeX\ Template User's Manual}}
+    \verb{url}
+    \verb https://github.com/joaomlourenco/novathesis/raw/main/template.pdf
+    \endverb
+    \field{year}{2021}
+  \endentry
+
+  \entry{iselthesis}{manual}{}{}
+    \name{author}{1}{}{%
+      {{hash=PM}{%
+         family={Pato},
+         familyi={P\bibinitperiod},
+         given={Matilde},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {Instituto Superior de Engenharia de Lisboa (ISEL-IPL)}%
+    }
+    \keyw{master thesis, template, ISEL, DEETC}
+    \strng{namehash}{PM1}
+    \strng{fullhash}{PM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+    \field{title}{{The ISELthesis \LaTeX\ Template's Manual}}
+    \verb{url}
+    \verb https://github.com/matpato/iselthesis
+    \endverb
+    \field{year}{2024}
+  \endentry
+
+  \entry{strunk}{book}{}{}
+    \name{author}{2}{}{%
+      {{hash=SW}{%
+         family={Strunk},
+         familyi={S\bibinitperiod},
+         given={William},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=ARD}{%
+         family={A'Morelli},
+         familyi={A\bibinitperiod},
+         given={Richard\bibnamedelima De},
+         giveni={R\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Spectrum Ink Publisher}%
+    }
+    \strng{namehash}{SWARD1}
+    \strng{fullhash}{SWARD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{edition}{1st edition}
+    \field{isbn}{978-1-64399-000-2}
+    \field{title}{The Elements of Style: Classic Edition}
+    \field{year}{2018}
+  \endentry
+
+  \entry{chicago}{book}{}{}
+    \name{author}{1}{}{%
+      {{hash=WG}{%
+         family={Webster},
+         familyi={W\bibinitperiod},
+         given={Gretchen},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {{University of Chicago Press}}%
+    }
+    \strng{namehash}{WG1}
+    \strng{fullhash}{WG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{W}
+    \field{sortinithash}{W}
+    \field{edition}{17th edition}
+    \field{isbn}{978-0-226-28705-8}
+    \field{pages}{400\bibrangedash 401}
+    \field{title}{{The Chicago Manual of Style}}
+    \field{year}{2017}
+  \endentry
+\enddatalist
+\endinput

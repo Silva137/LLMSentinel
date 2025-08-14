@@ -1,0 +1,43 @@
+\babel@toc {english}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {portuguese}{}\relax 
+\contentsline {chapter}{Índice de Figuras}{xv}{section*.5}%
+\contentsline {chapter}{Índice de Tabelas}{xvii}{section*.6}%
+\contentsline {chapter}{Índice de Listagens}{xix}{section*.7}%
+\contentsline {chapter}{Glossário}{xxi}{chapter*.8}%
+\contentsline {chapter}{Siglas}{xxiii}{chapter*.9}%
+\contentsline {chapter}{\chapternumberline {1}Introdução}{1}{chapter.1}%
+\contentsline {chapter}{\chapternumberline {2}Estado de arte}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introduction}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Folder Structure}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Package Options}{4}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Language Related Options}{5}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Class of Text}{6}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Printing}{6}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Text Encoding}{7}{subsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.3.5}Examples}{7}{subsection.2.3.5}%
+\contentsline {section}{\numberline {2.4}How to Write Using \texttt {LaTeX}}{8}{section.2.4}%
+\contentsline {chapter}{\chapternumberline {3}A Short \LaTeX ~ Tutorial with Examples}{9}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Document Structure}{9}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}State-of-the-Art}{10}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Related work}{11}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Glossary and Nomenclature/List of Symbols}{11}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Importing Images}{13}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Floats Figures and Tables, and Captions}{13}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Generating PDFs from \LaTeX ~}{15}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Generating PDFs with pdflatex}{15}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Dealing with Images}{16}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Creating Source Files Compatible with both latex and pdflatex}{16}{subsection.3.5.3}%
+\contentsline {section}{\numberline {3.6}Equations}{18}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Page orientation}{18}{section.3.7}%
+\contentsline {chapter}{Bibliografia}{19}{section*.17}%

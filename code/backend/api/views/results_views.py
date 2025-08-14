@@ -120,6 +120,18 @@ class ResultsViewSet(viewsets.ViewSet):
                 avg_accuracy = total_accuracy / num_executions if num_executions > 0 else None
                 avg_duration = total_duration / num_executions if num_executions > 0 else None
 
+                # --- Confidence interval over all underlying question results (exclude failed "X") ---
+                all_results = QuestionResult.objects.filter(test__in=tests).exclude(answer="X")
+                total_questions = all_results.count()
+                total_correct = all_results.filter(correct=True).count()
+
+                if total_questions > 0:
+                    ci_low, ci_high = proportion_confint(total_correct, total_questions, alpha=0.05, method="wilson")
+                    ci_low *= 100
+                    ci_high *= 100
+                else:
+                    ci_low = ci_high = 0.0
+
                 model_instance = LLMModel.objects.get(id=model_id)
                 dataset_instance = Dataset.objects.get(id=dataset_id)
 
@@ -130,6 +142,8 @@ class ResultsViewSet(viewsets.ViewSet):
                     'datasetName': dataset_instance.name,
                     'accuracyPercentage': round(avg_accuracy, 2) if avg_accuracy is not None else None,
                     'durationSeconds': round(avg_duration, 2) if avg_duration is not None else None,
+                    "confidenceIntervalLow": round(ci_low, 2) if ci_low is not None else None,
+                    "confidenceIntervalHigh": round(ci_high, 2) if ci_high is not None else None,
                     'numberOfExecutions': num_executions
                 })
 

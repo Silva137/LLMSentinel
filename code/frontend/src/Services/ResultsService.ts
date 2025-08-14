@@ -18,8 +18,12 @@ export interface ModelPerformanceData {
     datasetName: string;
     accuracyPercentage: number;
     durationSeconds: number;
+    confidenceIntervalLow: number;
+    confidenceIntervalHigh: number;
     numberOfExecutions: number;
 }
+
+
 const ResultsService = {
     getTestedModels: async (): Promise<SelectableModel[]> => {
         try {

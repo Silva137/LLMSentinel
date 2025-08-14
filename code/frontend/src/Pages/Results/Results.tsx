@@ -217,6 +217,7 @@ const Results: React.FC = () => {
                             <div className="result-table-row header-row">
                                 <span className="result-table-cell header">Model Name</span>
                                 <span className="result-table-cell header">Avg. Accuracy (%)</span>
+                                <span className="result-table-cell header">95% CI (±)</span>
                                 <span className="result-table-cell header">Avg. Time (s)</span>
                                 <span className="result-table-cell header">Executions</span>
                             </div>
@@ -225,11 +226,15 @@ const Results: React.FC = () => {
                                 <div key={`${item.modelId}-${item.datasetId}-${index}`} className="result-table-row data-row">
                                     <span className="result-table-cell" title={item.modelName}>{item.modelName}</span>
                                     <span className="result-table-cell">
-                                        {/* item.accuracyPercentage is now average and can be null */}
                                         {item.accuracyPercentage !== null ? item.accuracyPercentage.toFixed(2) : 'N/A'}
                                     </span>
                                     <span className="result-table-cell">
-                                        {/* item.durationSeconds is now average and can be null */}
+                                        {item.confidenceIntervalHigh !== null && item.confidenceIntervalLow !== null ?
+                                            `+${(item.confidenceIntervalHigh - item.accuracyPercentage).toFixed(1)} / -${(item.accuracyPercentage - item.confidenceIntervalLow).toFixed(1)}`
+                                            : 'N/A'
+                                        }
+                                    </span>
+                                    <span className="result-table-cell">
                                         {item.durationSeconds !== null ? item.durationSeconds.toFixed(2) : 'N/A'}
                                     </span>
                                     <span className="result-table-cell">{item.numberOfExecutions}</span>

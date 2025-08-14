@@ -5,6 +5,7 @@ import '../../Components/CreateTestModal/CreateTestModal.css';
 import { Test } from "../../types/Test";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "../../assets/searchIcon.svg?react";
+import TrashIcon from "../../assets/trashIcon.svg?react";
 import { Dataset } from "../../types/Dataset.ts";
 import { LLMModel } from "../../types/LLMModel.ts";
 import DatasetService from "../../Services/DatasetService.ts";
@@ -261,7 +262,7 @@ const Evaluations: React.FC = () => {
                                         Details
                                     </button>
                                     <button className="delete-button" onClick={() => handleDeleteClick(test.id)} disabled={isLoadingAction}>
-                                        Delete
+                                        <TrashIcon className="delete-icon" />
                                     </button>
                                 </div>
                             </div>

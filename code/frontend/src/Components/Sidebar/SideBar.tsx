@@ -45,7 +45,7 @@ const Sidebar = () => {
                             </NavLink>
                         );
                     }
-                    return null; // Ou um item não clicável se preferir
+                    return null;
                 })}
             </nav>
 

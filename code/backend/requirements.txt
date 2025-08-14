@@ -7,6 +7,7 @@ django-encrypted-model-fields
 PyJWT
 pytz
 sqlparse
+dj_database_url
 psycopg2-binary
 python-dotenv
 openai
@@ -15,3 +16,4 @@ requests
 regex
 scikit-learn
 statsmodels
+gunicorn
