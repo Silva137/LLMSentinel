@@ -4,7 +4,6 @@ import DatasetService from "../../Services/DatasetService";
 import "./CommunityDatasets.css";
 import SearchIcon from "../../assets/searchIcon.svg?react";
 import {useAuth} from "../../Context/AuthContext.tsx";
-import {useNavigate} from "react-router-dom";
 
 
 const truncateText = (text: string | null | undefined, maxLength: number): string => {

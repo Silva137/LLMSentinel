@@ -1,3 +1,74 @@
+.breadcrumb-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+.breadcrumb-title a {
+    color: #dcdff1;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.breadcrumb-title a:hover {
+    color: #e0e4ff;
+    text-decoration: underline;
+}
+.breadcrumb-title span:first-of-type {
+    color: #dcdff1;
+}
+
+.breadcrumb-title span:last-of-type {
+    color: white;
+}
+
+
+.test-stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: #2a2f45;
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #363c58;
+}
+
+.stat-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    fill: #96a7ff;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.4;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #a0a7d3;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+
 .results-list-container {
     max-width: 95%;
     margin: 0 auto;
@@ -21,23 +92,22 @@
 .result-card {
     display: grid;
     /* ID, Question, OptA, OptB, OptC, OptD, LLM Ans, Time*/
-    grid-template-columns: 0.4fr 1.2fr 1fr 1fr 1fr 1fr 0.6fr 0.6fr 1fr;
+    grid-template-columns: 0.3fr 2fr 1fr 1fr 1fr 1fr 0.6fr 0.7fr 0.8fr;
     align-items: center;
     background-color: #2a2f45;
     border-radius: 10px;
     padding: 17px 1px;
-    gap: 15px;
+    gap: 1rem;
     font-size: 1rem;
     color: #d5deea;
     border: 1px solid transparent;
     transition: height 0.3s ease, background-color 0.2s ease, border-color 0.2s ease;
-    overflow: hidden;
 }
 
 .result-card.header-row {
     background-color: transparent;
     border-radius: 0;
-    border-bottom: 1px solid #4a5175;
+    border-bottom: 2px solid #4a5175;
     padding-bottom: 10px;
     margin-bottom: 5px;
     font-weight: 600;
@@ -78,16 +148,4 @@
     text-overflow: clip;
 }
 
-@media (max-width: 1400px) {
-    .result-card {
-        grid-template-columns: 0.4fr 1.5fr 1fr 1fr 1fr 1fr 0.8fr 1fr;
-        gap: 10px;
-    }
-}
 
-@media (max-width: 1100px) {
-    .result-card {
-        grid-template-columns: 0.4fr 2fr 0.8fr 1fr;
-    }
-    .result-option, .result-option.header
-}

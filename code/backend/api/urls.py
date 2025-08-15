@@ -4,10 +4,6 @@ from .views import LLMModelViewSet, DatasetViewSet, QuestionViewSet, TestViewSet
 from .views.auth_views import CustomTokenObtainPairView, CustomTokenRefreshView, is_authenticated, register, logout
 from .views.results_views import ResultsViewSet
 from .views.api_key_views import set_api_key, get_api_key_info
-from django.http import JsonResponse
-
-
-def health(_): return JsonResponse({"status": "ok"})
 
 router = DefaultRouter()
 router.register(r'llm-models', LLMModelViewSet)
@@ -27,5 +23,3 @@ urlpatterns = [
                   path('get-api-key-info/', get_api_key_info),
                   path('api-auth/', include('rest_framework.urls')),
               ] + router.urls
-
-urlpatterns += [path("healthz", health)]

@@ -2,8 +2,8 @@ import axios, {AxiosInstance} from "axios";
 import AuthService from "./AuthService.ts";
 
 const api: AxiosInstance = axios.create({
-    baseURL: "http://localhost:8001/api",
-    withCredentials: true,                  // allow cookies
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+    withCredentials: true, // allow cookies
 });
 
 
