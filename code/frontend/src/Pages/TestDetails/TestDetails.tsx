@@ -4,10 +4,10 @@ import TestService from '../../Services/TestService';
 import { Test } from '../../types/Test';
 import { QuestionResult } from '../../types/QuestionResult';
 import './TestDetails.css';
-import AccuracyIcon from '../../assets/accuracyIcon.svg?react';
-import ClockIcon from '../../assets/clockIcon.svg?react';
-import CheckIcon from '../../assets/checkIcon.svg?react';
-import ChartBarIcon from '../../assets/chartBarIcon.svg?react';
+import AccuracyIcon from '../../assets/AccuracyIcon.svg?react';
+import ClockIcon from '../../assets/ClockIcon.svg?react';
+import CheckIcon from '../../assets/CheckIcon.svg?react';
+import ChartBarIcon from '../../assets/ChartBarIcon.svg?react';
 
 const TestDetails: React.FC = () => {
     const { testId } = useParams<{ testId: string }>();

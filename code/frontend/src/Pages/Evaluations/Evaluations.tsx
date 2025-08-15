@@ -5,7 +5,7 @@ import '../../Components/CreateTestModal/CreateTestModal.css';
 import { Test } from "../../types/Test";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "../../assets/searchIcon.svg?react";
-import TrashIcon from "../../assets/trashIcon.svg?react";
+import TrashIcon from "../../assets/TrashIcon.svg?react";
 import { Dataset } from "../../types/Dataset.ts";
 import { LLMModel } from "../../types/LLMModel.ts";
 import DatasetService from "../../Services/DatasetService.ts";

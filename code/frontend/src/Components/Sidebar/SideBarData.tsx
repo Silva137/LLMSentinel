@@ -6,7 +6,7 @@ import EvaluationsIcon from "../../assets/evaluationsIcon.svg?react";
 import ResultsIcon from "../../assets/resultsIcon.svg?react";
 import CommunityIcon from "../../assets/communityIcon.svg?react";
 import Logout from "../../assets/logoutIcon.svg?react";
-import SettingsIcon from "../../assets/settingsIcon.svg?react";
+import SettingsIcon from "../../assets/SettingsIcon.svg?react";
 
 interface NavItem {
     icon: JSX.Element;
