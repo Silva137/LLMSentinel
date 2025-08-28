@@ -7,7 +7,7 @@ python manage.py migrate --no-input
 
 echo "A carregar os dados iniciais..."
 python manage.py load_datasets
-#python manage.py sync_llm_models  comentado para evitar apagar modelos que fazer parte da avaliacao experimental.
+python manage.py sync_llm_models  #comentado para evitar apagar modelos que fazer parte da avaliacao experimental.
 
 
 PORT="${PORT:-8000}"

@@ -6,7 +6,6 @@ export interface QuestionResult {
     question: Question;
     llmResponse: string;
     answer: string;
-    explanation: string;
     correct: boolean;
     response_time: number;
 }

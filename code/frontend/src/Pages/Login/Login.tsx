@@ -1,22 +1,32 @@
 import "./Login.css";
 import "../../App.css"
-import { useState } from "react";
+import {useState} from "react";
 import { useAuth } from "../../Context/AuthContext.tsx";
 import * as React from "react";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Alert } from "@mui/material";
+import {useLocation, useNavigate} from "react-router-dom";
+
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    const successRegister = (location.state as { message?: string } | null)?.message;
 
     const {login} = useAuth();
 
     const handleLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
+
         const success = await login(username, password);
         if (!success) {
-            alert("Invalid credentials");
+            setError("Invalid Credentials");
         }
     };
 
@@ -26,8 +36,23 @@ const Login = () => {
 
     return (
         <div className="login-bg-container">
+
+            {successRegister && (
+                <div className="success-alert-container">
+                    <Alert
+                        className="custom-success-alert"
+                        variant="filled"
+                        severity="success"
+                        onClose={() => navigate(location.pathname, { replace: true })}
+                    >
+                        {successRegister}
+                    </Alert>
+                </div>
+            )}
+
             <div className="login-form-container">
                 <div className="login-text">Log in</div>
+
                 <form onSubmit={handleLoginSubmit}>
                     <input
                         onChange={e => setUsername(e.target.value)}
@@ -48,6 +73,18 @@ const Login = () => {
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
                     </div>
+
+                    {error && (
+                            <Alert
+                                className="custom-error-alert"
+                                variant="filled"
+                                severity="error"
+                                onClose={() => setError(null)}
+                            >
+                                {error}
+                            </Alert>
+                    )}
+
                     <button type="submit" className="login-button">Log in</button>
                 </form>
                 <h2 className="secondary-text" >

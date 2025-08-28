@@ -96,7 +96,8 @@
     padding: 6px 10px;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 500;
     color: #e0e4ff;
 }
 
@@ -126,8 +127,6 @@
     fill: currentColor;
 }
 
-
-
 .evaluations-controls {
     display: flex;
     gap: 3rem;
@@ -147,4 +146,28 @@
     color: #c0caff;
     font-weight: 500;
     white-space: nowrap;
+}
+
+.custom-error-alert{
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: fit-content;
+    max-width: 80%;
+    background-color: #bf4646 !important;
+    color: #fff !important;
+}
+
+.custom-success-alert{
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: fit-content;
+    max-width: 80%;
+    background-color: #68c36d !important;
+    color: #fff !important;
 }

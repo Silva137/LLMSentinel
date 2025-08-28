@@ -11,8 +11,13 @@ import { LLMModel } from "../../types/LLMModel.ts";
 import DatasetService from "../../Services/DatasetService.ts";
 import LLMModelService, { TestedModels } from "../../Services/LLMModelService.ts";
 import CreateTestModal from "../../Components/CreateTestModal/CreateTestModal.tsx";
-import Select, { StylesConfig, GroupBase, SingleValue } from 'react-select';
+import Select, {GroupBase, SingleValue } from 'react-select';
 import ResultsService, {SelectableDataset} from "../../Services/ResultsService.ts";
+import {customSelectStyles, SelectOptionType} from "../../Styles/CustomSelectStyles.ts";
+import {CreateTestErrors} from "../../types/errors.ts";
+import axios from "axios";
+import {Alert} from "@mui/material";
+import ConfirmationModal from "../../Components/ConfirmationModal/ConfirmationModal.tsx";
 
 
 const Evaluations: React.FC = () => {
@@ -37,6 +42,16 @@ const Evaluations: React.FC = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isLoadingAction, setIsLoadingAction] = useState<boolean>(false);
+    const [isRunningTest, setIsRunningTest] = useState<boolean>(false);
+    const [createError, setCreateError] = useState<CreateTestErrors | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+
+    //--------------delete modal confirmation -------------
+    const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+    const [testToDelete, setTestToDelete] = useState<Test | null>(null);
+
+
     const navigate = useNavigate();
 
     // Fetch tests based on current filters and sort criteria from backend
@@ -59,7 +74,7 @@ const Evaluations: React.FC = () => {
 
     // Fetch data for create modal dropdowns (datasets & all models)
     const fetchModalData = async () => {
-        setIsLoadingAction(true); // Or a specific modal loading state
+        setIsLoadingAction(true);
         try {
             const [fetchedDatasets, fetchedModels] = await Promise.all([
                 DatasetService.getAllDatasets(),
@@ -114,44 +129,59 @@ const Evaluations: React.FC = () => {
         setSelectedDatasetForCreation('');
     }
 
-    const handleDeleteClick = async (testId: string | number) => {
-        const confirmed = window.confirm(`Are you sure you want to delete this test?`);
-        if (confirmed) {
-            try {
-                setIsLoadingAction(true);
-                const success = await TestService.deleteTestById(testId.toString());
-                if (success) {
-                    await fetchTests();
-                } else {
-                    alert("Failed to delete test. Please try again.");
-                }
-            } catch (error) {
-                console.error("Error deleting test:", error);
-                alert("An error occurred while deleting the test.");
-            } finally {
-                setIsLoadingAction(false);
-            }
+
+    const handleDeleteClick = (test: Test) => {
+        setTestToDelete(test);
+        setShowDeleteModal(true);
+    };
+
+
+    const executeDelete = async () => {
+        if (!testToDelete) return;
+
+        setIsLoadingAction(true);
+        const success = await TestService.deleteTestById(testToDelete.id.toString());
+        if (success) {
+            await fetchTests();
+            setSuccessMessage("Test deleted successfully.");
+        } else {
+            alert("Failed to delete test. Please try again.");
         }
+
+        setIsLoadingAction(false);
+        setShowDeleteModal(false);
+        setTestToDelete(null);
     };
 
     const handleCreateTest = async () => {
-        if (!selectedDatasetForCreation || !selectedModelForCreation) {
-            alert("Please select both a dataset and a model for the new test.");
-            return;
-        }
-        setIsLoadingAction(true);
-        const newTest = await TestService.createTest(selectedDatasetForCreation, selectedModelForCreation);
-        if (newTest) {
+        setIsRunningTest(true);
+        setCreateError(null)
+
+        try{
+            const newTest = await TestService.createTest(selectedDatasetForCreation, selectedModelForCreation);
+            console.log(newTest);
+
             setShowCreateModal(false);
             setSelectedDatasetForCreation("");
             setSelectedModelForCreation("");
             fetchTests();
             fetchFilterOptions();
-        } else {
-            console.error("Failed to create test");
-            alert("Failed to create test. Please try again.");
+
+        } catch (error){
+            setShowCreateModal(false);
+
+            console.error("Failed to create test:", error);
+            if (axios.isAxiosError(error) && error.response) {
+                const creationErrors: CreateTestErrors = error.response.data;
+                setCreateError(creationErrors);
+            }
+            else {
+                setCreateError({ error: "An unexpected error occurred. Please try again." });
+            }
+
+        } finally {
+            setIsRunningTest(false);
         }
-        setIsLoadingAction(false);
     };
 
     // Options for the consolidated sort dropdown
@@ -167,6 +197,29 @@ const Evaluations: React.FC = () => {
 
     return (
         <div className="page evaluations-page">
+
+            {createError && (
+                <Alert
+                    className="custom-error-alert"
+                    variant="filled"
+                    severity="error"
+                    onClose={() => setCreateError(null)}
+                >
+                    {createError.error}
+                </Alert>
+            )}
+
+            {successMessage && (
+                <Alert
+                    className="custom-success-alert"
+                    variant="filled"
+                    severity="success"
+                    onClose={() => setSuccessMessage(null)}
+                >
+                    {successMessage}
+                </Alert>
+            )}
+
             <div className="evaluations-header">
                 <h1 className="page-title">Evaluations</h1>
                 <button className="create-button" onClick={() => setShowCreateModal(true)} disabled={isLoadingAction}>
@@ -261,12 +314,29 @@ const Evaluations: React.FC = () => {
                                         <SearchIcon className="details-icon" />
                                         Details
                                     </button>
-                                    <button className="delete-button" onClick={() => handleDeleteClick(test.id)} disabled={isLoadingAction}>
+                                    <button className="delete-button" onClick={() => handleDeleteClick(test)} disabled={isLoadingAction}>
                                         <TrashIcon className="delete-icon" />
                                     </button>
                                 </div>
                             </div>
                         ))}
+
+                        <ConfirmationModal
+                            isOpen={showDeleteModal}
+                            onCancel={() => setShowDeleteModal(false)}
+                            onConfirm={executeDelete}
+                            isLoading={isLoadingAction}
+                            title="Confirm Test Deletion"
+                            message={
+                                <>
+                                    Are you sure you want to permanently delete the test for model
+                                    <strong> {testToDelete?.llm_model.name} </strong>
+                                    on dataset <strong>{testToDelete?.dataset.name}</strong> (ID: {testToDelete?.id}) ?
+                                </>
+                            }
+                            confirmButtonText="Delete Test"
+                            loadingButtonText="Deleting..."
+                        />
                     </div>
                 )}
             </div>
@@ -281,7 +351,7 @@ const Evaluations: React.FC = () => {
                     setSelectedModel={setSelectedModelForCreation}
                     onCancel={modalClose}
                     onCreate={handleCreateTest}
-                    isLoading={isLoadingAction}
+                    isLoading={isRunningTest}
                 />
             )}
         </div>
@@ -290,56 +360,6 @@ const Evaluations: React.FC = () => {
 
 export default Evaluations;
 
-// Define option type for react-select
-interface SelectOptionType {
-    value: string;
-    label: string;
-}
 
 
-// --- react-select custom styles (can be moved to a separate file) ---
-const customSelectStyles: StylesConfig<SelectOptionType, false, GroupBase<SelectOptionType>> = {
-    control: (provided, state) => ({
-        ...provided,
-        backgroundColor: '#1e2235',
-        borderColor: state.isFocused ? '#6a6fbf' : '#363c58',
-        boxShadow: state.isFocused ? '0 0 0 1px #6a6fbf' : 'none',
-        borderRadius: '8px',
-        minHeight: '40px',
-        color: '#e0e4ff',
-        fontSize: '0.9rem',
-        minWidth: '200px',
-        width: '200px',
-        '&:hover': { borderColor: '#6a6fbf' },
-    }),
-    menu: (provided) => ({
-        ...provided,
-        backgroundColor: '#2f354c',
-        borderRadius: '8px',
-        marginTop: '4px',
-        zIndex: 10,
-    }),
-    option: (provided, state) => ({
-        ...provided,
-        backgroundColor: state.isSelected ? '#6a6fbf' : state.isFocused ? '#3b4262' : '#2f354c',
-        color: state.isSelected ? 'white' : '#e0e4ff',
-        padding: '10px 12px',
-        cursor: 'pointer',
-        fontSize: '0.9rem',
-        '&:active': { backgroundColor: '#5564ae' },
-    }),
-    singleValue: (provided) => ({ ...provided, color: '#e0e4ff' }),
-    placeholder: (provided) => ({ ...provided, color: '#a0a7d3' }),
-    input: (provided) => ({ ...provided, color: '#e0e4ff' }),
-    dropdownIndicator: (provided) => ({ ...provided, color: '#a0a7d3', '&:hover': { color: '#e0e4ff' }}),
-    clearIndicator: (provided) => ({ ...provided, color: '#a0a7d3', '&:hover': { color: '#e0e4ff' }}),
-    menuList: (provided) => ({
-        ...provided,
-        '&::-webkit-scrollbar': { width: '8px' },
-        '&::-webkit-scrollbar-track': { background: '#2a2f45', borderRadius: '10px' },
-        '&::-webkit-scrollbar-thumb': { backgroundColor: '#4a5175', borderRadius: '10px', border: '2px solid #2a2f45' },
-        '&::-webkit-scrollbar-thumb:hover': { backgroundColor: '#5a67d8' },
-        scrollbarWidth: 'thin',
-        scrollbarColor: '#4a5175 #2a2f45',
-    }),
-};
+

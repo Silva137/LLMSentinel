@@ -62,6 +62,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
         except Dataset.DoesNotExist:
             return Response({"detail": "Dataset not found."}, status=status.HTTP_404_NOT_FOUND)
 
+
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def clone(self, request, pk=None):
         """
@@ -127,9 +128,6 @@ class DatasetViewSet(viewsets.ModelViewSet):
                     option_c=row["Option C"].strip(),
                     option_d=row["Option D"].strip(),
                     correct_option=row["Correct Answer"].strip(),
-                    difficulty=row["Difficulty"].strip(),
-                    domain=row["Domain"],
-                    explanation=row["Explanation"]
                 )
                 questions.append(question)
 

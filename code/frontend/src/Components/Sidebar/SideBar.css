@@ -64,8 +64,11 @@
     transform: scale(1.2);
 }
 
-.sidebar-menu > .menu-item:last-child {
+.sidebar-menu > .menu-item:nth-last-child(2) {
     margin-top: auto;
+}
+
+.sidebar-menu > .menu-item:nth-last-child(1) {
     margin-bottom: 2em;
 }
 

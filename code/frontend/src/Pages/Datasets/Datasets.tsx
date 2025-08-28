@@ -5,6 +5,11 @@ import {Dataset} from "../../types/Dataset.ts";
 import {useNavigate} from "react-router-dom";
 import SearchIcon from "../../assets/searchIcon.svg?react";
 import UploadDatasetModal from "../../Components/UploadDatasetModal/UploadDatasetModal.tsx";
+import ConfirmationModal from "../../Components/ConfirmationModal/ConfirmationModal.tsx";
+import TrashIcon from "../../assets/TrashIcon.svg?react";
+import {Alert} from "@mui/material";
+
+
 
 
 const truncateText = (text: string | null | undefined, maxLength: number): string => {
@@ -19,6 +24,13 @@ const Datasets: React.FC = () => {
     const navigate = useNavigate();
     const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
     const [isLoadingAction, setIsLoadingAction] = useState<boolean>(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+
+    //-------- Confirmation Modal States --------
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+    const [datasetToDelete, setDatasetToDelete] = useState<Dataset | null>(null);
+
 
 
     const fetchDatasets = async () => {
@@ -35,8 +47,6 @@ const Datasets: React.FC = () => {
 
     const handleToggleShare = async (datasetId: string | number, makePublic: boolean) => {
         const action = makePublic ? "share" : "unshare";
-        const confirmed = window.confirm(`Are you sure you want to ${action} this dataset?`);
-        if (!confirmed) return;
 
         try {
             setIsLoadingAction(true);
@@ -54,24 +64,31 @@ const Datasets: React.FC = () => {
         }
     };
 
-    const handleDeleteClick = async (datasetId: string | number) => {
-        const confirmed = window.confirm(`Are you sure you want to delete this dataset? This action cannot be undone.`);
-        if (confirmed) {
-            try {
-                setIsLoadingAction(true);
-                const success = await DatasetService.deleteDatasetById(datasetId.toString());
-                if (success) {
-                    await fetchDatasets();
-                } else {
-                    alert("Failed to delete dataset. Please try again.");
-                }
-            } catch (error) {
-                console.error("Error deleting dataset:", error);
-                alert("An error occurred while deleting the dataset.");
-            } finally {
-                setIsLoadingAction(false);
+
+    const handleDeleteClick = (dataset: Dataset) => {
+        setDatasetToDelete(dataset);
+        setIsDeleteModalOpen(true);
+    };
+
+
+    const executeDelete = async () => {
+        if (!datasetToDelete) return;
+
+
+            setIsLoadingAction(true);
+            const success = await DatasetService.deleteDatasetById(datasetToDelete.id.toString());
+            if (success) {
+                await fetchDatasets();
+                setSuccessMessage("Dataset deleted successfully.");
+            } else {
+                alert("Failed to delete dataset. Please try again.");
             }
-        }
+
+            setIsLoadingAction(false);
+            setIsDeleteModalOpen(false);
+            setDatasetToDelete(null);
+
+
     };
 
     useEffect(() => {
@@ -80,6 +97,18 @@ const Datasets: React.FC = () => {
 
     return (
         <div className="page">
+
+            {successMessage && (
+                <Alert
+                    className="custom-success-alert"
+                    variant="filled"
+                    severity="success"
+                    onClose={() => setSuccessMessage(null)}
+                >
+                    {successMessage}
+                </Alert>
+            )}
+
             <h1 className="page-title">Datasets</h1>
 
             <button className="upload-button" onClick={() => setShowUploadModal(true)}>
@@ -132,9 +161,8 @@ const Datasets: React.FC = () => {
                                             >
                                                 {dataset.is_public ? "Unshare" : "Share"}
                                             </button>
-                                            <button className="delete-button"
-                                                    onClick={() => handleDeleteClick(dataset.id)}>
-                                                {isLoadingAction ? 'Deleting...' : 'Delete'}
+                                            <button className="delete-button" onClick={() => handleDeleteClick(dataset)} disabled={isLoadingAction}>
+                                                <TrashIcon className="delete-icon" />
                                             </button>
                                         </>
                                     )}
@@ -143,6 +171,26 @@ const Datasets: React.FC = () => {
                                 </div>
                             </div>
                         ))}
+
+                        <ConfirmationModal
+                            isOpen={isDeleteModalOpen}
+                            onCancel={() => setIsDeleteModalOpen(false)}
+                            onConfirm={executeDelete}
+                            isLoading={isLoadingAction}
+                            title="Confirm Dataset Deletion"
+                            message={
+                                <>
+                                    Are you sure you want to delete the dataset: <strong>{datasetToDelete?.name}</strong> ?
+                                    <br />
+                                    <br />
+                                    <span style={{ color: '#e19d4e', fontWeight: 'bold' }}>
+                            Warning: All associated tests and results will also be permanently removed.
+                        </span>
+                                </>
+                            }
+                            confirmButtonText="Delete Dataset"
+                            loadingButtonText="Deleting..."
+                        />
                     </div>
                 )}
             </div>

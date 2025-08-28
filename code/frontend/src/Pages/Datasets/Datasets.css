@@ -1,5 +1,5 @@
 .datasets-list-container {
-    max-width: 80%;
+    max-width: 95%;
     margin: 0 auto;
     padding-bottom: 5rem;
 }
@@ -35,7 +35,7 @@
 
 .dataset-card {
     display: grid;
-    grid-template-columns: 0.4fr 1.5fr 2fr 1fr 1.7fr;
+    grid-template-columns: 0.3fr 1.5fr 1.5fr 0.5fr 1.5fr;
     align-items: center;
     background-color: #2a2f45;
     border-radius: 10px;
@@ -108,11 +108,11 @@
 }
 
 .share-button {
-    background-color: #836ecc;
+    background-color: #a06dd6;
     color: white;
     padding: 0.3rem 0.7rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -139,30 +139,14 @@
 
 .delete-button:hover { background-color: #783c3c; }
 
-/* Responsive adjustments */
-@media (max-width: 992px) { /* Adjust breakpoint */
-    /* Hide less critical columns on smaller screens */
-    .dataset-domain, .dataset-source, .dataset-created {
-        display: none;
-    }
-    .dataset-domain.header, .dataset-source.header, .dataset-created.header {
-        display: none;
-    }
-    /* Adjust widths for remaining columns */
-    .dataset-name { flex-basis: auto; } /* Let name take more space */
-    .dataset-qcount { flex-basis: 60px; }
-    .details-button-container { flex-basis: 90px; }
-    .details-button { padding: 5px 10px; }
-
-    .dataset-card { padding: 10px 12px; gap: 10px;}
-}
-
-@media (max-width: 576px) {
-    .datasets-page { padding: 1rem; }
-    .page-title { font-size: 1.5rem; }
-    .dataset-card { font-size: 0.85rem;}
-    .details-button span { display: none; } /* Hide text, show only icon */
-    .details-button { padding: 6px; gap: 0; }
-    .details-button-container { flex-basis: 40px; }
-    .dataset-id { flex-basis: 30px; }
+.custom-success-alert{
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: fit-content;
+    max-width: 80%;
+    background-color: #68c36d !important;
+    color: #fff !important;
 }

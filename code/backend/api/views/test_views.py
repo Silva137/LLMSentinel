@@ -11,7 +11,8 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from ..exceptions import OpenRouterNoCreditsError, OpenRouterKeyError, OpenRouterNonRetriableError
+from ..exceptions import OpenRouterNoCreditsError, OpenRouterAPIKeyError, OpenRouterNonRetriableError, \
+    OpenRouterRateLimitError, OpenRouterProviderUnavailableError, OpenRouterTimeoutError, OpenRouterHTTPError
 from ..models import Test, QuestionResult, Question, UserAPIKey
 from ..serializers.question_serializer import QuestionResultSerializer
 from ..serializers.test_serializer import TestSerializer, TestCreationSerializer, TestListSerializer
@@ -20,6 +21,15 @@ from statsmodels.stats.proportion import proportion_confint
 
 
 SEMAPHORE_UNITS = 30
+
+FATAL_ERRORS = (
+    OpenRouterAPIKeyError,
+    OpenRouterNoCreditsError,
+    OpenRouterRateLimitError,
+    OpenRouterProviderUnavailableError,
+    OpenRouterTimeoutError,
+    OpenRouterNonRetriableError,
+)
 
 
 def get_openrouter_client_for_user(user):
@@ -89,21 +99,26 @@ class TestViewSet(viewsets.ModelViewSet):
 
         test = serializer.save()
         test.started_at = timezone.now()
-        async_to_sync(evaluate_llm)(test=test, client=client)
+
+        try:
+
+            async_to_sync(evaluate_llm)(test=test, client=client)
+
+
+        except OpenRouterHTTPError as e:
+            test.delete()
+            return Response({"code": e.code, "error": str(e)}, status=e.status,)
+
+        except Exception as e:
+            test.delete()
+            return Response({"code": "SERVER_ERROR", "error": str(e)}, status=500)
+
+
         test.completed_at = timezone.now()
         compute_test_metrics(test)
         return Response(TestSerializer(test).data, status=status.HTTP_201_CREATED)
 
-    # igual a get test ??? nsei se é necessario
-    @action(detail=True, methods=['get'])
-    def results(self, request, pk):
-        """
-        Get all question results for a specific test.
-        """
-        test = get_object_or_404(Test, id=pk, user=request.user)
-        results = QuestionResult.objects.filter(test=test)
-        serializer = QuestionResultSerializer(results, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     @action(detail=True, methods=['post'])
     def retry_failed(self, request, pk):
@@ -271,18 +286,18 @@ async def evaluate_llm(test, questions=None, client: openai.AsyncOpenAI = None):
         tasks = [limited_query(question, llm_model) for question in questions]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        if any(isinstance(r, (OpenRouterKeyError, OpenRouterNoCreditsError)) for r in results):
+        if any(isinstance(r, FATAL_ERRORS) for r in results):
             # if any task raise a fatal error, abort all
-            raise next(r for r in results if isinstance(r, (OpenRouterKeyError, OpenRouterNoCreditsError)))
+            raise next(r for r in results if isinstance(r, FATAL_ERRORS))
 
 
         q_results = []
         for question, result in zip(questions, results):
             if isinstance(result, Exception):
                 print(f"Error processing question {question.id}: {result}")
-                answer, explanation, response_time, content = "X", "Error during retry", 0.0, str(result)
+                answer, response_time, content = "X", 0.0, str(result)
             else:
-                answer, explanation, response_time, content = result
+                answer, response_time, content = result
 
             correct = (answer.strip().upper() == question.correct_option.strip().upper())
 
@@ -291,7 +306,6 @@ async def evaluate_llm(test, questions=None, client: openai.AsyncOpenAI = None):
                 question=question,
                 llm_response=content,
                 answer=answer,
-                explanation=explanation,
                 correct=correct,
                 response_time=response_time,
                 confidence=0.0
@@ -301,6 +315,7 @@ async def evaluate_llm(test, questions=None, client: openai.AsyncOpenAI = None):
 
     except Exception as e:
         print(f"Error occurred during evaluation: {e}")
+        raise
 
 
 async def query_llm(llm_model, question, client: openai.AsyncOpenAI, max_attempts=4, initial_delay=4):
@@ -368,71 +383,54 @@ async def query_llm(llm_model, question, client: openai.AsyncOpenAI, max_attempt
             delay *= 2
 
 
-
-        except openai.AuthenticationError as e:
-            raise OpenRouterKeyError("Invalid OpenRouter API key.") from e
-
-
         except openai.APIStatusError as e:
-            status = getattr(e, "status_code", None)
+            status_code = getattr(e, "status_code", None)
 
-            if status == 401:
-                raise OpenRouterKeyError("Invalid OpenRouter API key.") from e
-            if status == 402:
-                raise OpenRouterNoCreditsError("Insufficient OpenRouter credits.") from e
-            if status and 400 <= status < 500 and status not in (429,):
-                raise OpenRouterNonRetriableError(f"Non-retriable OpenRouter error {status}") from e
+            match status_code:
+                case 401:
+                    raise OpenRouterAPIKeyError() from e
+                case 402:
+                    raise OpenRouterNoCreditsError() from e
+                case 408:
+                    raise OpenRouterTimeoutError() from e
+                case 429:
+                    raise OpenRouterRateLimitError() from e
+                case 503:
+                    raise OpenRouterProviderUnavailableError() from e
+                case s if s is not None and 400 <= s < 500:
 
-            attempt += 1
-            await asyncio.sleep(delay)
-            delay *= 2
+                    raise OpenRouterNonRetriableError(f"Client error {s}") from e
 
-
-        except (openai.APIConnectionError, TimeoutError) as e:  # Transient network issues -> retry
-            attempt += 1
-            await asyncio.sleep(delay)
-            delay *= 2
-
-
-        except Exception as e:
-            msg = str(e)
-            if "401" in msg or "Unauthorized" in msg or "User not found" in msg:
-                raise OpenRouterKeyError("Invalid OpenRouter API key.") from e
-            if "402" in msg or "insufficient" in msg.lower():
-                raise OpenRouterNoCreditsError("Insufficient OpenRouter credits.") from e
-
-            # Otherwise treat as transient
-            attempt += 1
-            await asyncio.sleep(delay)
-            delay *= 2
+                case _:
+                    # unknown → retry
+                    print(f"Retrying after error with code {status_code} for question {question.id}")
+                    attempt += 1
+                    await asyncio.sleep(delay)
+                    delay *= 2
 
     print("Failed to get a valid response after multiple retries")
     print("Question:", question.question)
     print("llm answer:", content)
-    return "X", "X", 0.0, "Error Response:" + content
+    return "X", 0.0, "Error Response:" + content
 
 
 async def retry_query(question_result, question, llm_model, client: openai.AsyncOpenAI, correct_option, max_attempts=5):
     """
     Reenvia a pergunta para o LLM. Mesmo que falhe, atualiza a resposta com uma mensagem de erro.
     """
-    answer, explanation, response_time, content = await query_llm(llm_model, question, client=client, max_attempts=max_attempts)
+    answer, response_time, content = await query_llm(llm_model, question, client=client, max_attempts=max_attempts)
 
     if answer not in ["A", "B", "C", "D"]:
         question_result.answer = "X"
-        question_result.explanation = "O modelo não retornou uma opção válida após o retry."
         question_result.llm_response = content or "Resposta vazia ou inválida do modelo."
         question_result.correct = False
         question_result.response_time = 0.0
-        question_result.confidence = 0.0
     else:
         correct = (answer.strip().upper() == correct_option.strip().upper())
         question_result.answer = answer
-        question_result.explanation = explanation
         question_result.llm_response = content
         question_result.correct = correct
         question_result.response_time = response_time
-        question_result.confidence = 0.0
 
     await sync_to_async(question_result.save)()
 

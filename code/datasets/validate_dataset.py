@@ -13,8 +13,7 @@ def validate_dataset_structure(dataset, file_name):
     if dataset.isnull().any().any():
         raise DatasetValidationError(f"O dataset '{file_name}' contém valores ausentes.")
 
-    required_columns = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Answer", "Explanation",
-                        "Difficulty", "Domain"]
+    required_columns = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Answer"]
     for col in required_columns:
         if col not in dataset.columns.str.strip():
             raise DatasetValidationError(f"O dataset '{file_name}' está com a coluna obrigatória ausente: {col}")

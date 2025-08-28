@@ -63,6 +63,10 @@ form {
     transition: 300ms ease-in-out;
 }
 
+.password-input-container{
+    margin-bottom: 1.5em;
+}
+
 .input:focus {
     background-color: white;
     transform: scale(1.05);
@@ -93,6 +97,22 @@ form {
 .secondary-text a:hover {
     color: #000000;
     text-decoration: underline;
+}
+
+.alert-container {
+    width: 65%;
+    margin-bottom: 1.5em;
+    display: flex;
+    align-items: flex-start;
+}
+
+.alert-container .MuiAlert-message {
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+}
+
+.input-error {
+    border: 2px solid #ef4444 !important;
 }
 
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DatasetService from "../../Services/DatasetService.ts";
 import "./DatasetQuestions.css";
 import {Question} from "../../types/Question.ts";
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import {Dataset} from "../../types/Dataset.ts";
 
 const DatasetQuestions: React.FC = () => {
@@ -42,7 +42,11 @@ const DatasetQuestions: React.FC = () => {
 
     return (
         <div className="page">
-            <h1 className="page-title">Dataset: {dataset ? dataset.name : 'Loading...'}</h1>
+            <h1 className="page-title breadcrumb-title">
+                <Link to="/datasets">Datasets</Link>
+                <span>&gt;</span>
+                <span>{dataset?.name}</span>
+            </h1>
 
             <div className="questions-list-container">
                 {isLoading ? (
@@ -60,8 +64,6 @@ const DatasetQuestions: React.FC = () => {
                             <span className="q-option header">Option C</span>
                             <span className="q-option header">Option D</span>
                             <span className="q-correct header">Correct Answer</span>
-                            <span className="q-explanation header">Explanation</span>
-                            <span className="q-details-button-container header"></span>
                         </div>
 
                         {/* --- Data Rows --- */}
@@ -90,9 +92,6 @@ const DatasetQuestions: React.FC = () => {
                                 </span>
                                 <span className="q-correct">
                                     {question.correct_option}
-                                </span>
-                                <span className="q-explanation" title={question.explanation || "N/A"}>
-                                    {question.explanation ? question.explanation : 'N/A'}
                                 </span>
                             </div>
                         ))}

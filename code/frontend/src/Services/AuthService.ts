@@ -1,5 +1,6 @@
 import api from "./Axios.ts";
 import {User} from "../types/User.ts";
+import {RegisterResponse} from "../types/responses.ts";
 
 class AuthService {
 
@@ -13,13 +14,13 @@ class AuthService {
         }
     }
 
-    async register(username: string, email: string, password: string, password2: string): Promise<boolean> {
+    async register(username: string, email: string, password: string, password2: string): Promise<RegisterResponse> {
         try {
             const response = await api.post("/auth/register/", { username, email, password, password2 });
-            return response.data.success;
+            return response.data;
         } catch (error) {
             console.error("Register failed:", error);
-            return false;
+            throw error;
         }
     }
 

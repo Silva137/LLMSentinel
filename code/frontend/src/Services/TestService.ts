@@ -30,7 +30,7 @@ class TestService {
         }
     }
 
-    async createTest(datasetName: string, llmModelName: string): Promise<Test | null> {
+    async createTest(datasetName: string, llmModelName: string): Promise<Test> {
         try {
             const response = await api.post("/tests/", {
                 dataset_name: datasetName,
@@ -39,7 +39,7 @@ class TestService {
             return response.data;
         } catch (error) {
             console.error("Creating test failed:", error);
-            return null;
+            throw error;
         }
     }
 

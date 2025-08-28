@@ -35,8 +35,7 @@ class DatasetUploadSerializer(serializers.Serializer):
                 raise serializers.ValidationError(f"O dataset '{file_name}' contém valores ausentes.")
 
             # Verificar se todas as colunas obrigatórias estão presentes
-            required_columns = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Answer",
-                                "Explanation", "Difficulty", "Domain"]
+            required_columns = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Answer"]
 
             for col in required_columns:
                 if col not in dataset.columns.str.strip():

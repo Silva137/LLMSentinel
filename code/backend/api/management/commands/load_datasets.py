@@ -45,9 +45,6 @@ class Command(BaseCommand):
                         option_c=row["Option C"].strip(),
                         option_d=row["Option D"].strip(),
                         correct_option=row["Correct Answer"].strip(),
-                        difficulty=row.get("Difficulty", "").strip() or None,
-                        domain=row.get("Domain", "").strip() or None,
-                        explanation=row.get("Explanation", "").strip() or None,
                     )
                     questions.append(question)
 

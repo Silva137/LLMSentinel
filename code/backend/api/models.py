@@ -69,9 +69,6 @@ class Question(BaseModel):
     option_c = models.CharField(max_length=500)
     option_d = models.CharField(max_length=500)
     correct_option = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')])
-    difficulty = models.CharField(max_length=6, choices=[('Easy', 'Easy'), ('Medium', 'Medium'), ('Hard', 'Hard')], null=True) #retirar
-    domain = models.CharField(max_length=500, null=True) #retirar
-    explanation = models.TextField(max_length=1000, blank=True, null=True)
 
     class Meta:
         verbose_name = "Question"
@@ -121,10 +118,8 @@ class QuestionResult(BaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='results')
     llm_response = models.TextField()
     answer = models.CharField(max_length=1)
-    explanation = models.TextField()
     correct = models.BooleanField()
     response_time = models.FloatField()
-    confidence = models.FloatField(default=0.0)
 
     class Meta:
         verbose_name = "Test Result"

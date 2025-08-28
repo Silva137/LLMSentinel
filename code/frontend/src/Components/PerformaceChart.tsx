@@ -1,9 +1,8 @@
-// src/Components/Charts/CombinedPerformanceBarChart.tsx
 import React from 'react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label
 } from 'recharts';
-import { ModelPerformanceData } from '../Services/ResultsService.ts'; // Adjust path
+import { ModelPerformanceData } from '../Services/ResultsService.ts';
 
 interface Props {
     data: ModelPerformanceData[];

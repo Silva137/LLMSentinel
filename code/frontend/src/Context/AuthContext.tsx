@@ -39,9 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser(user);
             setLoading(false);
             navigate('/evaluations');
-        } else
-            alert('Incorrect username or password')
-
+        }
         return success;
     }
 

@@ -9,5 +9,4 @@ export interface Question {
     option_c: string;
     option_d: string;
     correct_option: string;
-    explanation: string | null;
 }

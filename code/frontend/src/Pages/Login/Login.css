@@ -132,3 +132,24 @@ form {
 .secondary-text a:hover {
     text-decoration: underline;
 }
+
+.success-alert-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: fit-content;
+    max-width: 80%;
+}
+
+.custom-success-alert {
+    background-color: #68c36d !important;
+    color: #fff !important;
+}
+
+.custom-error-alert {
+    background-color: #bf4646 !important;
+    color: #fff !important;
+    margin-bottom: 1rem !important;
+}

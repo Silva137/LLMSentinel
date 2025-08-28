@@ -13,14 +13,20 @@
     backdrop-filter: blur(4px);
 }
 
+.modal-overlay.is-loading {
+    cursor: progress;
+}
+
 .modal {
     background-color: #2f354c;
+    border: 1px solid #6b7091;
     padding: 2rem;
     border-radius: 12px;
     max-width: 400px;
     width: 100%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     z-index: 1000;
+    animation: fadeInScale 0.2s ease-out;
 }
 
 .modal h2 {
@@ -31,7 +37,7 @@
 }
 
 .modal label {
-    display: block;
+    display: flex;
     margin-bottom: 0.5rem;
     margin-top: 1rem;
     font-weight: bold;
@@ -40,7 +46,7 @@
 
 .modal-buttons {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 1rem;
     margin-top: 1.5rem;
 }
@@ -49,9 +55,11 @@
 .create-button-modal {
     padding: 0.5rem 1rem;
     font-size: 1rem;
+    font-weight: 500;
     border-radius: 6px;
     cursor: pointer;
     border: none;
+    transition: all 0.1s ease-in-out;
 }
 
 .cancel-button-modal {
@@ -59,12 +67,52 @@
     color: white;
 }
 
+.cancel-button-modal:hover {
+    background-color: #cd3434;
+    color: white;
+}
+
 .create-button-modal {
-    background-color: #7cba7f;
+    background-color: #63bc67;
     color: white;
 }
 
 .create-button-modal:disabled {
-    background-color: #a0d3a0;
+    background-color: #4d954f;
     cursor: not-allowed;
+}
+
+.modal-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    min-height: 220px; /* ensures nice vertical space */
+    text-align: center;
+}
+
+.modal-loading h2 {
+    margin: 0.5rem 0 0;
+    color: #e0e4ff;
+}
+
+.modal-loading-text {
+    color: #c7cded;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Spinner */
+.modal-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(255,255,255,0.35);
+    border-top-color: #96AEFF;
+    border-radius: 50%;
+    animation: modal-spin .9s linear infinite;
+}
+
+@keyframes modal-spin {
+    to { transform: rotate(360deg); }
 }
