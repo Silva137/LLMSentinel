@@ -17,7 +17,6 @@ const UploadDatasetModal = ({ onClose, onSuccess }: { onClose: () => void, onSuc
         setIsLoading(true);
         try {
             await DatasetService.uploadDataset(name, description, file);
-            alert("Dataset uploaded successfully!");
             onSuccess()
             onClose();
         } catch (err) {

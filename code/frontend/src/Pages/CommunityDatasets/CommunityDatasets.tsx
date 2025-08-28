@@ -4,7 +4,13 @@ import DatasetService from "../../Services/DatasetService";
 import "./CommunityDatasets.css";
 import SearchIcon from "../../assets/searchIcon.svg?react";
 import {useAuth} from "../../Context/AuthContext.tsx";
+import {Alert} from "@mui/material";
+import {useNavigate} from "react-router-dom";
 
+interface PageAlert {
+    message: string;
+    severity: 'success' | 'error' | 'info';
+}
 
 const truncateText = (text: string | null | undefined, maxLength: number): string => {
     if (!text) return "N/A";
@@ -15,28 +21,36 @@ const truncateText = (text: string | null | undefined, maxLength: number): strin
 const Community: React.FC = () => {
     const [publicDatasets, setPublicDatasets] = useState<Dataset[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [pageAlert, setPageAlert] = useState<PageAlert | null>(null);
+    const [searchTerm, setSearchTerm] = useState<string>("");
     const { user } = useAuth();
+    const navigate = useNavigate();
+
 
     const fetchPublicDatasets = async () => {
         setIsLoading(true);
-        const data = await DatasetService.getPublicDatasets();
+        const data = await DatasetService.searchPublicDatasetsByName(searchTerm);
         console.log(data);
         setPublicDatasets(data || []);
         setIsLoading(false);
     };
 
     const handleDownload = async (datasetId: number) => {
-        try {
-            const success = await DatasetService.cloneDataset(datasetId);
-            if (success) {
-                alert("Dataset added to your collection!");
-            } else {
-                alert("Failed to add dataset.");
-            }
-        } catch (error) {
-            console.error("Download failed", error);
-            alert("Failed to download dataset.");
+        const success = await DatasetService.cloneDataset(datasetId);
+        if (success) {
+            setPageAlert({ message: "Dataset added to your collection!", severity: 'success' });
+        } else {
+            setPageAlert({ message: "Download failed.", severity: 'error' });
+            console.error("Download failed");
         }
+    };
+
+    const handleDatasetDetailsClick = (datasetId: number) => {
+        navigate(`/datasets/${datasetId}/questions`);
+    };
+
+    const handleSearch = () => {
+        fetchPublicDatasets();
     };
 
 
@@ -46,7 +60,29 @@ const Community: React.FC = () => {
 
     return (
         <div className="page">
+
+            {pageAlert && (
+                <div className="page-alert-container">
+                    <Alert severity={pageAlert.severity} onClose={() => setPageAlert(null)} variant="filled">
+                        {pageAlert.message}
+                    </Alert>
+                </div>
+            )}
+
             <h1 className="page-title">Community Datasets</h1>
+
+            {/* Search Bar */}
+            <div className="search-container">
+                <SearchIcon className="search-icon" onClick={handleSearch}/>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {if(e.key === "Enter") handleSearch()}}
+                    placeholder="Search for datasets"
+                    className="search-input"
+                />
+            </div>
 
             <p className="pdatasets-available-text">
                 {publicDatasets.length} public datasets available
@@ -59,7 +95,9 @@ const Community: React.FC = () => {
                     publicDatasets.map((dataset) => (
                         <div key={dataset.id} className="pdataset-card">
                             <h3
-                                className="pdataset-name clickable-dataset-name"
+                                className="pdataset-name"
+                                onClick={() => handleDatasetDetailsClick(dataset.id)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleDatasetDetailsClick(dataset.id)}
                                 role="button"
                                 tabIndex={0}
                             >

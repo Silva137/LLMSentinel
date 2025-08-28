@@ -1,3 +1,38 @@
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 400px;
+    height: 38px;
+    background-color: #363c58;
+    border-radius: 13px;
+    margin: 2rem auto 0.5rem;
+}
+
+.search-icon {
+    color: white;
+    margin-top: 2px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+
+.search-icon:hover {
+    transform: scale(1.2);
+}
+
+.search-input::placeholder {
+    color: #dadada;
+}
+
+.search-input {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
 .pdatasets-available-text {
     text-align: center;
     color: #c7cded;
@@ -30,22 +65,28 @@
     margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
-    min-height: 160px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     transition: transform 0.1s ease-in-out;
 }
 
 .pdataset-card:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
 .pdataset-name {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 0.75rem;
-    color: #e0e4ff;
+    margin-top: 0.5rem;
+    color: #f1f2ff;
+    cursor: pointer;
+    text-decoration: none;
 }
 
+.pdataset-name:hover {
+    color: #b1baf3;
+    text-decoration: underline;
+}
 
 
 .pdataset-description {
@@ -96,4 +137,12 @@
     background-color: #555a75;
     cursor: not-allowed;
     opacity: 0.6;
+}
+
+.page-alert-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
 }

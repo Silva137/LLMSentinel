@@ -50,6 +50,23 @@ class DatasetService {
         }
     }
 
+    async searchPublicDatasetsByName(name: string): Promise<Dataset[] | null> {
+        try {
+            if (name.trim().length === 0) {
+                return this.getPublicDatasets();
+            }
+            const response = await api.get(`/datasets/?name=${encodeURIComponent(name)}`, {
+                params: {
+                    is_public: true
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Searching public datasets by name "${name}" failed:`, error);
+            return null;
+        }
+    }
+
     async uploadDataset(name: string, description: string, file: File): Promise<{ message: string } | null> {
         const formData = new FormData();
         formData.append('name', name);

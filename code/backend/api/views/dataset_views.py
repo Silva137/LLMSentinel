@@ -29,13 +29,21 @@ class DatasetViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         is_public = self.request.query_params.get('is_public')
+        q = self.request.query_params.get('name')
+
+        qs = Dataset.objects.filter(Q(owner=user) | Q(owner__isnull=True) | Q(is_public=True))
 
         if is_public == 'true':
-            return Dataset.objects.filter(is_public=True)
+            qs = qs.filter(is_public=True)
         elif is_public == 'false':
-            return Dataset.objects.filter(is_public=False, owner=user)
-        else:
-            return Dataset.objects.filter(Q(owner=user) | Q(owner=None))
+            qs = qs.filter(is_public=False, owner=user)
+
+        if q:
+            terms = q.split()
+            for t in terms:
+                qs = qs.filter(name__icontains=t)
+
+        return qs
 
 
     @action(detail=True, methods=['post'], url_path='share')

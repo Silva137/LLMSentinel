@@ -10,8 +10,6 @@ import TrashIcon from "../../assets/TrashIcon.svg?react";
 import {Alert} from "@mui/material";
 
 
-
-
 const truncateText = (text: string | null | undefined, maxLength: number): string => {
     if (!text) return 'N/A';
     if (text.length <= maxLength) return text;
@@ -201,6 +199,7 @@ const Datasets: React.FC = () => {
                     onSuccess={() => {
                         fetchDatasets();
                         setShowUploadModal(false);
+                        setSuccessMessage("Dataset uploaded successfully.");
                     }}
                 />
             )}
