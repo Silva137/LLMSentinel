@@ -5,9 +5,18 @@ from .user_serializer import UserSerializer
 from ..models import Dataset
 
 
+class OriginDatasetSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Dataset
+        fields = ['id', 'name', 'description', 'is_public', 'owner']
+
+
 class DatasetSerializer(serializers.ModelSerializer):
     total_questions = serializers.IntegerField(source='get_total_questions', read_only=True)
     owner = UserSerializer(read_only=True)
+    origin = OriginDatasetSerializer(read_only=True)
 
     class Meta:
         model = Dataset

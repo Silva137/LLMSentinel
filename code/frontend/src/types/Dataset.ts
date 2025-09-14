@@ -6,5 +6,6 @@ export interface Dataset {
     total_questions: number;
     description: string | null;
     is_public: boolean;
-    owner: User
+    owner: User;
+    origin: Dataset;
 }

@@ -54,10 +54,7 @@ const Sidebar = () => {
                     <div className="sidebar-user-avatar">
                         {user.username.charAt(0).toUpperCase()}
                     </div>
-                    <div className="sidebar-user-info">
-                        <span className="sidebar-user-name">{user.username}</span>
-                        <span className="sidebar-user-email">{user.email}</span>
-                    </div>
+                    <span className="sidebar-user-name">{user.username}</span>
                 </div>
             )}
 

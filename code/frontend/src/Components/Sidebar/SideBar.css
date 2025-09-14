@@ -53,6 +53,7 @@
 
 .menu-item:hover {
     background-color: #2e3249;
+    cursor: pointer;
 }
 
 .menu-item.active {
@@ -99,20 +100,7 @@
     flex-shrink: 0;
 }
 
-.sidebar-user-info {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-}
-
 .sidebar-user-name {
     font-weight: bold;
     color: #e0e4ff;
-    line-height: 1.2;
-}
-
-.sidebar-user-email {
-    font-weight: lighter;
-    color: #e0e4ff;
-    font-size: 0.9em;
 }

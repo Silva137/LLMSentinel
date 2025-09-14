@@ -38,16 +38,14 @@ const Login = () => {
         <div className="login-bg-container">
 
             {successRegister && (
-                <div className="success-alert-container">
-                    <Alert
-                        className="custom-success-alert"
-                        variant="filled"
-                        severity="success"
-                        onClose={() => navigate(location.pathname, { replace: true })}
-                    >
-                        {successRegister}
-                    </Alert>
-                </div>
+                <Alert
+                    className="custom-success-alert"
+                    variant="filled"
+                    severity="success"
+                    onClose={() => navigate(location.pathname, { replace: true })}
+                >
+                    {successRegister}
+                </Alert>
             )}
 
             <div className="login-form-container">

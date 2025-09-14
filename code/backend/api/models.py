@@ -29,7 +29,6 @@ class LLMModel(BaseModel):
     name = models.CharField(max_length=100)
     provider = models.CharField(max_length=100)
     description = models.TextField(max_length=1000, blank=True, null=True)
-    #model_extra = models.JSONField(null=True, blank=True)
 
 
     class Meta:
@@ -47,6 +46,15 @@ class Dataset(BaseModel):
     description = models.TextField(max_length=1000, blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='datasets', null=True)
     is_public = models.BooleanField(default=False)
+
+    origin = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="clones",
+        db_index=True,
+    )
 
     def get_total_questions(self):
         return self.questions.count()  # Counts related questions

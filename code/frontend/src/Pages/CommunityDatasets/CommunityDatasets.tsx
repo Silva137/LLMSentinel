@@ -106,7 +106,7 @@ const Community: React.FC = () => {
                             <p className="pdataset-description">
                                 {truncateText(dataset.description, 100)}
                             </p>
-                            <p className="pdataset-owner">by {dataset.owner.username ?? 'Default'}</p>
+                            <p className="pdataset-owner">by {dataset.owner.username || 'Default'}</p>
                             <div className="pdataset-footer">
                                 <button
                                     className="download-button"

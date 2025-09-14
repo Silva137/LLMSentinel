@@ -30,11 +30,15 @@ class DatasetViewSet(viewsets.ModelViewSet):
         user = self.request.user
         is_public = self.request.query_params.get('is_public')
         q = self.request.query_params.get('name')
+        scope = self.request.query_params.get('scope')
+
+        if scope == 'library':
+            return Dataset.objects.filter(Q(owner=user) | Q(owner__isnull=True))
 
         qs = Dataset.objects.filter(Q(owner=user) | Q(owner__isnull=True) | Q(is_public=True))
 
         if is_public == 'true':
-            qs = qs.filter(is_public=True)
+            qs = qs.filter(is_public=True).exclude(owner__isnull=True)
         elif is_public == 'false':
             qs = qs.filter(is_public=False, owner=user)
 
@@ -86,17 +90,27 @@ class DatasetViewSet(viewsets.ModelViewSet):
             name=original.name,
             description=original.description,
             owner=request.user,
-            is_public=False
+            is_public=False,
+            origin=original,
         )
 
-        # Clone questions
-        questions = original.questions.all()
-        for question in questions:
-            question.pk = None
-            question.dataset = new_dataset
-            question.save()
+        bulk = []
+        for q in original.questions.all():
+            bulk.append(Question(
+                dataset=new_dataset,
+                question=q.question,
+                option_a=q.option_a,
+                option_b=q.option_b,
+                option_c=q.option_c,
+                option_d=q.option_d,
+                correct_option=q.correct_option,
+            ))
+        Question.objects.bulk_create(bulk)
 
-        return Response({"message": "Dataset cloned successfully."}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"message": "Dataset cloned successfully.", "datasetId": new_dataset.id},
+            status=status.HTTP_201_CREATED
+        )
 
 
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])

@@ -4,9 +4,9 @@ import {Question} from "../types/Question.ts";
 
 class DatasetService {
 
-    async getAllDatasets(): Promise<Dataset[] | null> {
+    async getAllDatasetsFromUser(): Promise<Dataset[] | null> {
         try {
-            const response = await api.get("/datasets/");
+            const response = await api.get("/datasets/", { params: { scope: "library" } });
             return response.data;
         } catch (error) {
             console.error("Fetching datasets failed:", error);

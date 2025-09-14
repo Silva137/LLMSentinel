@@ -35,7 +35,7 @@
 
 .dataset-card {
     display: grid;
-    grid-template-columns: 0.3fr 1.5fr 1.5fr 0.5fr 1.5fr;
+    grid-template-columns: 0.3fr 1.5fr 2fr 0.5fr 1.5fr;
     align-items: center;
     background-color: #2a2f45;
     border-radius: 10px;
@@ -46,6 +46,7 @@
     border: 1px solid transparent;
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+
 
 .dataset-card.header-row {
     background-color: transparent;
@@ -59,7 +60,20 @@
 
 
 .dataset-card.data-row:hover {
+    cursor: pointer;
     border-color: #6a6fbf;
+}
+
+
+.dataset-card.expanded .dataset-name,
+.dataset-card.expanded .dataset-description {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.dataset-card.expanded {
+    align-items: flex-start;
 }
 
 .dataset-id,
@@ -74,6 +88,7 @@
 
 .dataset-id { text-align: center; }
 .dataset-questions {text-align: center;}
+.dataset-actions {text-align: center;}
 
 
 .button-container{

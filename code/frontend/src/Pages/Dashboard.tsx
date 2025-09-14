@@ -10,7 +10,7 @@ const Dashboard = () => {
 
     const fetchDatasets = async () => {
         setLoading(true);
-        const data = await DatasetService.getAllDatasets();
+        const data = await DatasetService.getAllDatasetsFromUser();
         if (data){
             setDatasets(data);
             console.log(data)

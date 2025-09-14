@@ -36,7 +36,7 @@ def get_openrouter_client_for_user(user):
     try:
         token = user.api_key.api_key
     except UserAPIKey.DoesNotExist:
-        raise PermissionError("O utilizador não tem API key configurada.")
+        raise PermissionError("OpenRouter API Key not configured. Please set it in settings.")
     if not token:
         raise PermissionError("API key vazia ou inválida.")
 
@@ -95,7 +95,7 @@ class TestViewSet(viewsets.ModelViewSet):
         try:
             client = get_openrouter_client_for_user(request.user)
         except PermissionError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         test = serializer.save()
         test.started_at = timezone.now()
@@ -308,7 +308,6 @@ async def evaluate_llm(test, questions=None, client: openai.AsyncOpenAI = None):
                 answer=answer,
                 correct=correct,
                 response_time=response_time,
-                confidence=0.0
             ))
 
         await sync_to_async(QuestionResult.objects.bulk_create)(q_results)
@@ -375,7 +374,7 @@ async def query_llm(llm_model, question, client: openai.AsyncOpenAI, max_attempt
             # Return answer if valid, else retry
             if answer in ["A", "B", "C", "D"]:
                 print(f"Succes on attempt {attempt + 1}/{max_attempts}")
-                return answer, "Not implemented yet", response_time, content
+                return answer, response_time, content
 
             print(f"Warning: Unexpected response format on attempt {attempt + 1}/{max_attempts}")
             attempt += 1

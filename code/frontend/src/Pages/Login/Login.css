@@ -133,16 +133,6 @@ form {
     text-decoration: underline;
 }
 
-.success-alert-container {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 9999;
-    width: fit-content;
-    max-width: 80%;
-}
-
 .custom-success-alert {
     background-color: #68c36d !important;
     color: #fff !important;

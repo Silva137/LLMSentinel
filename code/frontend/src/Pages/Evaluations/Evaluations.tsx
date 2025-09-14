@@ -77,7 +77,7 @@ const Evaluations: React.FC = () => {
         setIsLoadingAction(true);
         try {
             const [fetchedDatasets, fetchedModels] = await Promise.all([
-                DatasetService.getAllDatasets(),
+                DatasetService.getAllDatasetsFromUser(),
                 LLMModelService.getAllLLMModels()
             ]);
             setModalDatasets(fetchedDatasets || []);
@@ -159,16 +159,12 @@ const Evaluations: React.FC = () => {
 
         try{
             const newTest = await TestService.createTest(selectedDatasetForCreation, selectedModelForCreation);
+            setSuccessMessage("Test created successfully.");
             console.log(newTest);
-
-            setShowCreateModal(false);
-            setSelectedDatasetForCreation("");
-            setSelectedModelForCreation("");
             fetchTests();
             fetchFilterOptions();
 
         } catch (error){
-            setShowCreateModal(false);
 
             console.error("Failed to create test:", error);
             if (axios.isAxiosError(error) && error.response) {
@@ -180,6 +176,9 @@ const Evaluations: React.FC = () => {
             }
 
         } finally {
+            setShowCreateModal(false);
+            setSelectedDatasetForCreation("");
+            setSelectedModelForCreation("");
             setIsRunningTest(false);
         }
     };
@@ -188,8 +187,8 @@ const Evaluations: React.FC = () => {
     const sortOptions: SelectOptionType[] = [
         { value: 'accuracy_desc', label: 'Best Accuracy' },
         { value: 'accuracy_asc', label: 'Worst Accuracy' },
-        { value: 'time_desc', label: 'Best Time' },
-        { value: 'time_asc', label: 'Worst Time' },
+        { value: 'time_asc', label: 'Best Time' },
+        { value: 'time_desc', label: 'Worst Time' },
         { value: 'id_desc', label: 'Recent '},
         { value: 'id_asc', label: 'Oldest'}
     ];
@@ -205,7 +204,7 @@ const Evaluations: React.FC = () => {
                     severity="error"
                     onClose={() => setCreateError(null)}
                 >
-                    {createError.error}
+                    {createError.error || "An error occurred while creating the test."}
                 </Alert>
             )}
 

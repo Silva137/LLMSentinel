@@ -74,7 +74,7 @@ const DatasetQuestions: React.FC = () => {
                                 onClick={() => toggleExpand(index)}
                                 style={{ cursor: 'pointer' }}
                             >
-                                <span className="q-id">{question.id}</span>
+                                <span className="q-id">{index + 1}</span>
                                 <span className="q-text" title={question.question}>
                                     {question.question}
                                 </span>
