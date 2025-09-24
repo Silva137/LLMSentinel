@@ -6,7 +6,11 @@ import "./PrivateRoute.css";
 const PrivateRoute = () => {
     const { user, loading } = useAuth();
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return (
+        <div className="loading-container">
+            <p>Loading...</p>
+        </div>
+    );
 
     return user ? (
         <div className="main-layout">

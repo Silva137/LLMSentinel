@@ -16,7 +16,7 @@ class OpenRouterNoCreditsError(OpenRouterHTTPError):
 
 
 class OpenRouterRateLimitError(OpenRouterHTTPError):
-    code, status, message = "RATE_LIMITED", 429, "You are being rate limited."
+    code, status, message = "RATE_LIMITED", 429, "Rate limit exceeded."
 
 
 class OpenRouterProviderUnavailableError(OpenRouterHTTPError):

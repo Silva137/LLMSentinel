@@ -21,6 +21,7 @@ from statsmodels.stats.proportion import proportion_confint
 
 
 SEMAPHORE_UNITS = 30
+FREE_SEMAPHORE_UNITS = 2
 
 FATAL_ERRORS = (
     OpenRouterAPIKeyError,
@@ -271,17 +272,27 @@ async def evaluate_llm(test, questions=None, client: openai.AsyncOpenAI = None):
     Runs the LLM model evaluation on all questions from the dataset.
     """
 
-    semaphore = asyncio.Semaphore(SEMAPHORE_UNITS)
+    llm_model = await sync_to_async(lambda: test.llm_model)()
+    is_free_model = llm_model.model_id.endswith(':free')
+
+    semaphore_units = FREE_SEMAPHORE_UNITS if is_free_model else SEMAPHORE_UNITS
+
+    semaphore = asyncio.Semaphore(semaphore_units)
+
 
     async def limited_query(question, llm_model):
         async with semaphore:
-            return await query_llm(llm_model, question, client=client)
+            try:
+                result = await query_llm(llm_model, question, client=client)
+            finally:
+                if is_free_model:
+                    await asyncio.sleep(10)
+            return result
 
     try:
         if questions is None:
             questions = await sync_to_async(list)(test.dataset.questions.all())
 
-        llm_model = await sync_to_async(lambda: test.llm_model)()
 
         tasks = [limited_query(question, llm_model) for question in questions]
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -340,6 +351,7 @@ async def query_llm(llm_model, question, client: openai.AsyncOpenAI, max_attempt
 
     attempt = 0
     delay = initial_delay  # Start with the initial delay time
+    content = ""
 
     while attempt < max_attempts:
         try:
@@ -353,10 +365,10 @@ async def query_llm(llm_model, question, client: openai.AsyncOpenAI, max_attempt
 
             response_time = (timezone.now() - start_time).total_seconds()
 
-            if hasattr(response, "error"):
-                error_code = response.error.get("code", "Unknown")
-                error_message = response.error.get("message", "No message provided.")
-                raise Exception(f"API Error {error_code}: {error_message}")
+            #if hasattr(response, "error"):
+            #    error_code = response.error.get("code", "Unknown")
+            #    error_message = response.error.get("message", "No message provided.")
+            #    raise Exception(f"API Error {error_code}: {error_message}")
 
             content = response.choices[0].message.content.strip()
 
@@ -397,7 +409,6 @@ async def query_llm(llm_model, question, client: openai.AsyncOpenAI, max_attempt
                 case 503:
                     raise OpenRouterProviderUnavailableError() from e
                 case s if s is not None and 400 <= s < 500:
-
                     raise OpenRouterNonRetriableError(f"Client error {s}") from e
 
                 case _:
