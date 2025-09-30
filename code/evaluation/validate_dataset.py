@@ -84,5 +84,5 @@ async def main(dataset_path):
 
 
 if __name__ == "__main__":
-    dataset_path = "./digital_forensics.csv"
+    dataset_path = "../datasets/digital_forensics.csv"
     asyncio.run(main(dataset_path))

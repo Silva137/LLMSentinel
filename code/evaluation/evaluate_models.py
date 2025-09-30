@@ -40,8 +40,6 @@ dataset_names = [
     "Honeypots",
     "Secqa V1",
     "Secqa V2",
-    #"Cybermetric 80",
-    #"Seceval",`
     "Secmmlu",
     "Cyquiz",
 ]

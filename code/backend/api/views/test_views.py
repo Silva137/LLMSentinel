@@ -20,7 +20,7 @@ from sklearn.metrics import classification_report
 from statsmodels.stats.proportion import proportion_confint
 
 
-SEMAPHORE_UNITS = 30
+SEMAPHORE_UNITS = 60
 FREE_SEMAPHORE_UNITS = 2
 
 FATAL_ERRORS = (
